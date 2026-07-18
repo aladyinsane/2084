@@ -39,6 +39,34 @@ class Character(ObjectParent, DefaultCharacter):
         self.exposure = max(0, min(tuning.EXPOSURE_MAX, self.exposure + amount))
         return self.exposure
 
+    def improve_skill(self, name, cap=None):
+        """Skill-by-use (ADR 0002/0003): +1 per meaningful use, soft-capped."""
+        cap = tuning.SKILL_CAP if cap is None else cap
+        skills = self.db.skills or {}
+        value = skills.get(name, 0)
+        if value < cap:
+            skills[name] = value + 1
+            self.db.skills = skills
+        return skills.get(name, 0)
+
+    def skill(self, name):
+        return (self.db.skills or {}).get(name, 0)
+
+    def gain_influence(self, faction, amount):
+        influence = self.db.influence or {}
+        influence[faction] = influence.get(faction, 0) + amount
+        self.db.influence = influence
+        return influence[faction]
+
+    def spend_influence(self, faction, amount):
+        """Spend standing; returns False (untouched) if there isn't enough."""
+        influence = self.db.influence or {}
+        if influence.get(faction, 0) < amount:
+            return False
+        influence[faction] -= amount
+        self.db.influence = influence
+        return True
+
     def get_prompt(self):
         # The trend-telegraph promised by principle 3: the player always sees
         # how watched here is, and how hot they are.

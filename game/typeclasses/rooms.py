@@ -42,6 +42,7 @@ class Room(ObjectParent, DefaultRoom):
             gain = self.exposure_gain()
             if gain:
                 moved_obj.gain_exposure(gain)
+            self._maybe_log_movement(moved_obj)
         # Watched arrivals: citizens and patrols read whoever walks in.
         # Slightly deferred so reactions (including detainment) land after
         # the movement itself has fully resolved.
@@ -51,3 +52,34 @@ class Room(ObjectParent, DefaultRoom):
             for obj in list(self.contents):
                 if obj is not moved_obj and hasattr(obj, "at_watched_arrival"):
                     delay(0.3, obj.at_watched_arrival, moved_obj)
+
+    def _maybe_log_movement(self, moved_obj):
+        """
+        Live sensors open movement records on citizens hot enough to matter
+        (ADR 0005) — rate-limited so the file records a trail, not a flood.
+        """
+        import time
+
+        if not moved_obj.has_account:
+            return
+        if (moved_obj.db.exposure or 0) < tuning.SENSOR_LOG_MIN_EXPOSURE:
+            return
+        live = [
+            obj
+            for obj in self.contents
+            if hasattr(obj, "sensitivity") and not obj.destination and obj.sensitivity
+        ]
+        if not live:
+            return
+        now = time.time()
+        if now - (moved_obj.db.last_sensor_log or 0) < tuning.SENSOR_LOG_COOLDOWN:
+            return
+        moved_obj.db.last_sensor_log = now
+        from world import records
+
+        records.add_record(
+            moved_obj,
+            f"Logged at {self.key}",
+            author=live[0].key,
+            kind="observation",
+        )

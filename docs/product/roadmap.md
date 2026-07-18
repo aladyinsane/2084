@@ -57,14 +57,24 @@ The dread loop closes: consequences arrive, telegraphed in trend, uncertain in t
 The memory/records thesis ([ADR 0005](../decisions/0005-records-are-objects.md)) becomes
 playable.
 
-- [ ] Record objects: observations logged by sensors/informants into per-character files
-- [ ] Dossier v2: shows the *record*; what actually happened diverges
-- [ ] Record services: NPC clerks who will (for standing, bribes, or favors) amend,
-      redact, or fabricate entries — audit trail always kept
-- [ ] First skill-by-use loops (forgery, observation, clerking) — progression per
-      [ADR 0003](../decisions/0003-exposure-influence-not-xp.md)
-- [ ] Asynchronous traces: your actions surface in NPC gossip and other players'
-      dossiers (principle 8)
+- [x] Record objects: incidents and sensor movement-logs as typeclassed objects, each
+      carrying origin/author/subject/content and an **append-only audit trail** every
+      mutation writes to first. Sensors log citizens above notice exposure, rate-limited
+      (ADR 0005's growth concern)
+- [x] Dossier v2: a view over the record layer. Redacted entries vanish but keep their
+      numbers — the gap in the numbering is the visible seam
+- [x] Record services: the archivist at the Annex amends (4) and redacts (8) for
+      standing with the Ministry of Records, earned by `work`; using the service is
+      itself noted (+10 exposure). Audit trail always kept
+- [x] First skill-by-use loops: clerking (`work`), observation (`observe` — tiered
+      readout of a room's devices), forgery (`forge` — rewrite your own file off the
+      books, only in visibility-0 dead zones; failure *is* an incident)
+- [x] Asynchronous traces, first pass: `listen` in the ration queue surfaces recent
+      unredacted incidents about *other* citizens; sensor logs put your movements in
+      your file. Richer ambient gossip (NPCs volunteering names unprompted) still to come
+- [x] Dead zones are dead ← added mid-version from in-game verification: the sweep
+      cannot select someone in a visibility-0 room. Hiding works; exposure barely
+      decays; you have to come up sometime
 
 ## v0.4 — Standing and paperwork
 

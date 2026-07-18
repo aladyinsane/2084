@@ -128,7 +128,18 @@ ROOMS = {
 }
 
 # (room, sensor key, sensor desc, sensitivity, active)
+# Every device a room description promises must exist as an object, or
+# `observe` calls the description a liar (principle 9, learned in-game).
 SENSORS = [
+    (
+        "hall",
+        "a watchscreen",
+        "High on the wall, cycling the day's directives in Ministry typeface. "
+        "The lens beneath the screen does not cycle. It is aimed at the "
+        "queue, which is to say, at everyone who has ever stood in it.",
+        1,
+        True,
+    ),
     (
         "checkpoint",
         "a scanner array",
@@ -229,10 +240,13 @@ def build():
     for source, dest, direction, modifier in LINKS:
         _link(rooms[source], rooms[dest], direction, modifier)
 
-    # Functional tags: where the Watch takes you, releases you, and musters.
+    # Functional tags: where the Watch takes you, releases you, and musters —
+    # and where citizens work, and where the queue talks.
     rooms["cell"].tags.add("holding_cell", category="grid")
     rooms["hall"].tags.add("release_point", category="grid")
     rooms["plaza"].tags.add("patrol_spawn", category="grid")
+    rooms["hall"].tags.add("workplace", category="grid")
+    rooms["queue"].tags.add("gossip_spot", category="grid")
 
     # The surveillance apparatus, in the world where it can be seen.
     for room_tag, key, desc, sensitivity, active in SENSORS:
@@ -263,6 +277,30 @@ def build():
     clerk.db.react_hot = (
         "{npc} finds urgent business in the back room the moment {name} "
         "approaches."
+    )
+
+    # The archivist: the sanctioned route to a different past (ADR 0005).
+    archivist = create_object(
+        "typeclasses.npcs.Citizen",
+        key="the archivist",
+        location=rooms["annex"],
+    )
+    archivist.tags.add("records_service", category="grid")
+    archivist.db.desc = (
+        "Dust-colored cardigan, cotton gloves, and the serenity of someone "
+        "who decides what happened. The archivist amends and redacts citizen "
+        "files for a consideration in standing — petition them, and the past "
+        "improves. The service is real, the ledger is balanced, and the "
+        "request goes in a file of its own."
+    )
+    archivist.db.react_calm = (
+        "{npc} continues re-shelving the past, one folder at a time."
+    )
+    archivist.db.react_noticed = (
+        "{npc} looks at {name} the way one checks a citation."
+    )
+    archivist.db.react_hot = (
+        "{npc} slides a drawer shut as {name} enters, unhurried, precise."
     )
 
     logger.log_info(f"2084: built Sector 9 ({len(rooms)} rooms).")

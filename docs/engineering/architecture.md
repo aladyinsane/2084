@@ -41,7 +41,10 @@ dropping connections — live-development is the normal workflow (`evennia reloa
 | Patrols & alert | `typeclasses/npcs.py` (`Citizen`, `WatchPatrol`) + `PatrolManagerScript`; alert level in `ServerConfig` | Density = baseline + alert; patrols keep to visibility ≥ 2 (the tunnels are unpatrolled on purpose) |
 | Detainment | `commands/detention.py` (cmdset, `Replace` at prio 120) + `world/watch.py` (detain/release) | The ADR 0006 ladder; the holding cell is exitless and off-plan (documented ADR 0007 exception) |
 | NPC arrival reactions | `Room.at_object_receive` → deferred `at_watched_arrival` on contents | Deferred 0.3s so reactions (incl. detainment) land after the move resolves. NB: real exits pass `move_type="traverse"`, not `"move"` — a bug the claude-account playtest caught that unit tests missed |
-| *(v0.3)* Records | planned: record typeclass, two layers | Record layer mutable, audit layer append-only. `record_notes` on Character is the v0.2 stub |
+| Records | `typeclasses/records.py` (`Record`) + `world/records.py` (the only mutation path) | Two layers per ADR 0005: `db.content`/`db.redacted` are the mutable record; `db.audit` is the append-only truth. Subject lookup via Tags (`record_subject`) |
+| Record services | `commands/civic.py` — `petition` (sanctioned, costs standing + exposure) and `forge` (unsanctioned, dead-zones only, failure is an incident) | Both routes write the audit truthfully — a forged amendment names the forger in the layer nobody in-fiction sees |
+| Skill loops | `commands/civic.py` — `work`, `observe`, `forge`; helpers `improve_skill`/`skill_check` on Character | Skill-by-use per ADR 0002/0003, soft-capped in tuning |
+| Async traces | sensor movement-logging in `Room._maybe_log_movement` (rate-limited); `listen` gossip over recent incidents | Principle 8: absent players stay present through their files |
 
 ## Data-model conventions
 

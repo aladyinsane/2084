@@ -41,10 +41,11 @@ def set_alert(value):
 
 
 def add_record_note(char, note):
-    """Append to the citizen's file. v0.2 stub for ADR 0005's record layer."""
-    notes = char.db.record_notes or []
-    notes.append(note)
-    char.db.record_notes = notes
+    """Open an incident in the citizen's file (the real ADR 0005 record layer
+    replaced the v0.2 string-list stub here)."""
+    from world import records
+
+    records.add_record(char, note, author="Ministry of Order", kind="incident")
 
 
 def is_detained(char):

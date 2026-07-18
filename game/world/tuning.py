@@ -68,3 +68,41 @@ PATROL_BASELINE = 1
 # WARM..HOT gets you noticed, at HOT+ people edge away.
 NOTICE_EXPOSURE = 25
 HOT_EXPOSURE = 50
+
+# --- v0.3: records, services, skills ---------------------------------------
+
+# Sensors log a movement record for anyone at/above this exposure — one entry
+# per citizen per cooldown, not a flood (ADR 0005's growth concern).
+SENSOR_LOG_MIN_EXPOSURE = 25
+SENSOR_LOG_COOLDOWN = 300  # seconds
+
+# Clerical work (the first sanctioned skill loop): pays standing with the
+# Ministry of Records, teaches clerking, and being visibly useful lowers
+# exposure a little.
+WORK_COOLDOWN = 45  # seconds between shifts
+WORK_INFLUENCE = 2  # a redaction = 4 shifts (~3 min of visible usefulness)
+WORK_EXPOSURE_RELIEF = 2
+
+# Records Annex services (the sanctioned route). Costs are influence with the
+# Ministry of Records; using the service at all is itself noticed.
+AMEND_COST = 4
+REDACT_COST = 8
+SERVICE_EXPOSURE = 10
+
+# Forgery (the unsanctioned route): only possible somewhere truly unwatched
+# (visibility 0). Success rewrites your file off the books; failure *is* an
+# incident.
+FORGE_BASE_CHANCE = 0.25
+FORGE_SKILL_BONUS = 0.005  # per skill point: +0.5%/pt, +25% at cap
+FORGE_FAIL_EXPOSURE = 15
+
+# Observation: reading the apparatus back. Tier thresholds are skill values.
+OBSERVE_TIER_STATUS = 15   # see which devices are live vs dead
+OBSERVE_TIER_DETAIL = 35   # see how sharp each device is
+
+# Skill-by-use: +1 per meaningful use, to a v0.3 soft cap.
+SKILL_CAP = 50
+
+# Queue gossip surfaces incidents this recent, about other citizens.
+GOSSIP_WINDOW = 6 * 3600  # seconds
+GOSSIP_LIMIT = 3

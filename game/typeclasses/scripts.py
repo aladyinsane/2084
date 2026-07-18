@@ -162,6 +162,13 @@ class WatchSweepScript(Script):
                 continue
             if watch.is_detained(char):
                 continue
+            # Dead zones are dead: the sweep cannot select someone the Grid
+            # cannot currently see (in-game verification caught the sweep
+            # reaching into Tunnel B, where the fiction says nothing does).
+            # Hiding works — but exposure barely decays, and you have to
+            # come up sometime.
+            if getattr(char.location, "visibility", 0) == 0:
+                continue
             exposure = char.db.exposure or 0
             if exposure < tuning.SWEEP_MIN_EXPOSURE:
                 continue
