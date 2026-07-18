@@ -21,23 +21,78 @@ def _room_tagged(room, tag):
     return bool(room and room.tags.get(tag, category="grid"))
 
 
+class CmdReport(Command):
+    """
+    Report to the Assignment Hall counter for your function.
+
+    Usage:
+      report
+
+    The Grid does not ask what you would like to be. It reads your file —
+    your recorded aptitudes are your application, whether or not you meant
+    them as one — and stamps a function on you. Citizens with a function
+    work their own post for better standing. Functions can be reassigned by
+    reporting again, and are suspended by, for example, being detained.
+    """
+
+    key = "report"
+    locks = "cmd:all()"
+    help_category = "the grid"
+
+    def func(self):
+        from world import functions, records
+
+        caller = self.caller
+        if not _room_tagged(caller.location, "workplace"):
+            caller.msg(
+                "Functions are assigned at the Assignment Hall counter, "
+                "which is where the name comes from."
+            )
+            return
+        old_key, _ = functions.current_function(caller)
+        key, spec = functions.assign_function(caller)
+        records.add_record(
+            caller,
+            f"Assigned function: {spec['title']}",
+            author="Ministry of Order",
+            kind="observation",
+        )
+        if key == old_key:
+            caller.msg(
+                "The clerk consults your file, consults a rubric, and "
+                f"stamps: |w{spec['title']}|n — your existing designation. "
+                "The stamp comes down anyway. Stamps are not for you; they "
+                "are for the file."
+            )
+        else:
+            caller.msg(
+                "The clerk reads your file with the expression of someone "
+                "weighing produce, selects a stamp, and brings it down.\n"
+                f"|wFUNCTION: {spec['title'].upper()}|n\n"
+                f"Your post is {spec['workplace_desc']}; report there and "
+                "|cwork|n. The Grid thanks you in advance, in writing, "
+                "in triplicate."
+            )
+
+
 class CmdWork(Command):
     """
-    Report for voluntary clerical duty.
+    Work.
 
     Usage:
       work
 
-    Available at the Assignment Hall counter. Stamping forms for the Ministry
-    of Records earns standing, sharpens your clerking, and — since nothing
-    reassures the Grid like visible usefulness — takes a little heat off you.
+    With a function: work your assigned post, for standing with your
+    ministry. Without one: casual clerical labor is accepted at the
+    Assignment Hall counter, at casual rates. Either way, nothing reassures
+    the Grid like visible usefulness — working takes a little heat off you.
     """
 
     key = "work"
     locks = "cmd:all()"
     help_category = "the grid"
 
-    SHIFTS = [
+    CASUAL_SHIFTS = [
         "You stamp permits until the stamp needs re-inking. Form 12-C, "
         "approved. Form 12-C, approved. Form 12-C — a hesitation — approved.",
         "You alphabetize a drawer of citizens. Two of the folders are empty "
@@ -49,29 +104,52 @@ class CmdWork(Command):
     ]
 
     def func(self):
+        from world import functions
+
         caller = self.caller
-        if not _room_tagged(caller.location, "workplace"):
-            caller.msg(
-                "There is no clerical work to volunteer for here. The "
-                "Assignment Hall counter takes citizens most hours."
-            )
-            return
+        key, spec = functions.current_function(caller)
+
+        if key:
+            if not spec["works_here"](caller.location):
+                caller.msg(
+                    f"Your function is {spec['title']}; your post is "
+                    f"{spec['workplace_desc']}. Work performed elsewhere "
+                    "is not work, administratively speaking."
+                )
+                return
+            shifts = spec["shifts"]
+            faction = spec["faction"]
+            pay = tuning.FUNCTION_WORK_INFLUENCE
+            skill_name = spec["skill"]
+        else:
+            if not _room_tagged(caller.location, "workplace"):
+                caller.msg(
+                    "No one here will pay for your usefulness. Casual labor "
+                    "is taken at the Assignment Hall counter — or |creport|n "
+                    "there to be assigned a function of your own."
+                )
+                return
+            shifts = self.CASUAL_SHIFTS
+            faction = "Ministry of Records"
+            pay = tuning.WORK_INFLUENCE
+            skill_name = "clerking"
+
         now = time.time()
-        last = caller.db.last_work or 0
-        if now - last < tuning.WORK_COOLDOWN:
+        if now - (caller.db.last_work or 0) < tuning.WORK_COOLDOWN:
             caller.msg(
-                "The counter clerk waves you off without looking up: the "
-                "next shift isn't yours yet. Eagerness is also noted."
+                "You are waved off without a glance: the next shift isn't "
+                "yours yet. Eagerness is also noted."
             )
             return
         caller.db.last_work = now
-        caller.msg(random.choice(self.SHIFTS))
-        skill = caller.improve_skill("clerking")
-        total = caller.gain_influence("Ministry of Records", tuning.WORK_INFLUENCE)
+        caller.msg(random.choice(shifts))
+        skill = caller.improve_skill(skill_name)
+        total = caller.gain_influence(faction, pay)
         caller.gain_exposure(-tuning.WORK_EXPOSURE_RELIEF)
         caller.msg(
-            f"|=mClerking {skill}. Standing with the Ministry of Records "
-            f"{total}. Visible usefulness is its own kind of cover.|n"
+            f"|=m{skill_name.capitalize()} {skill}. Standing with the "
+            f"{faction} {total}. Visible usefulness is its own kind of "
+            "cover.|n"
         )
         caller.send_prompt()
 
@@ -348,3 +426,43 @@ class CmdForge(Command):
                 "a form about you begins to fill itself in."
             )
             caller.send_prompt()
+
+
+class CmdApply(Command):
+    """
+    Apply for elevated clearance (Form C-1).
+
+    Usage:
+      apply
+
+    Heard at the Archive Annex, where the archivist keeps the forms. Grade
+    C-1 clearance admits you to the Central Spire lobby. The Ministry will
+    read your file, your function, and your ledger — in that order, and
+    only the versions of them it has.
+    """
+
+    key = "apply"
+    locks = "cmd:all()"
+    help_category = "the grid"
+
+    def func(self):
+        from evennia.utils.evmenu import EvMenu
+
+        caller = self.caller
+        room = caller.location
+        has_archivist = room and any(
+            obj.tags.get("records_service", category="grid")
+            for obj in room.contents
+        )
+        if not has_archivist:
+            caller.msg(
+                "Applications are heard at the Archive Annex, by the "
+                "archivist, who keeps the forms and the opinions about them."
+            )
+            return
+        EvMenu(
+            caller,
+            "world.form_c1",
+            startnode="node_start",
+            cmd_on_exit=None,
+        )

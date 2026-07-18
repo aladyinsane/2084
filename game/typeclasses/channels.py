@@ -116,3 +116,28 @@ class Channel(DefaultChannel):
     """
 
     pass
+
+
+class MonitoredChannel(Channel):
+    """
+    A public channel of the Grid. Public means broadcast; broadcast means
+    recorded; recorded means you said it into a microphone (principle 7:
+    what you say where has a price).
+    """
+
+    def at_post_msg(self, message, senders=None, **kwargs):
+        super().at_post_msg(message, senders=senders, **kwargs)
+        from world import tuning
+
+        for sender in senders or []:
+            # Channel senders may be Accounts; the exposure belongs to the
+            # citizen doing the talking.
+            char = getattr(sender, "puppet", None) or sender
+            if hasattr(char, "gain_exposure"):
+                char.gain_exposure(tuning.CHANNEL_EXPOSURE)
+                char.msg(
+                    "|=m(Your words join the public record. Exposure "
+                    f"+{tuning.CHANNEL_EXPOSURE}.)|n"
+                )
+                if hasattr(char, "send_prompt"):
+                    char.send_prompt()

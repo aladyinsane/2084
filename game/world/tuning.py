@@ -106,3 +106,17 @@ SKILL_CAP = 50
 # Queue gossip surfaces incidents this recent, about other citizens.
 GOSSIP_WINDOW = 6 * 3600  # seconds
 GOSSIP_LIMIT = 3
+
+# --- v0.4: standing and paperwork ------------------------------------------
+
+# Working your assigned function pays this much standing with the assigning
+# ministry; casual (unassigned) hall labor still pays WORK_INFLUENCE.
+FUNCTION_WORK_INFLUENCE = 3
+
+# Form C-1 (Application for Elevated Clearance), heard at the Archive Annex.
+CLEARANCE_FEE = 6                 # Ministry of Records standing, at submission
+CLEARANCE_MAX_INCIDENTS = 1       # visible incidents beyond this = rejection
+CLEARANCE_GRANT_EXPOSURE = 10     # elevation means scrutiny (M2)
+
+# Speaking on the gridwide channel is speaking into a microphone.
+CHANNEL_EXPOSURE = 2

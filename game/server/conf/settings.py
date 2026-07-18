@@ -34,6 +34,23 @@ from evennia.settings_default import *
 # This is the name of your game. Make it catchy!
 SERVERNAME = "2084"
 
+# The one default channel is the Grid's own, monitored band. Defined here
+# (not renamed after the fact) so account creation auto-subscribes citizens
+# to it — in-game verification caught the rename approach leaving new
+# accounts unsubscribed.
+BASE_CHANNEL_TYPECLASS = "typeclasses.channels.MonitoredChannel"
+DEFAULT_CHANNELS = [
+    {
+        "key": "gridwide",
+        "aliases": ("grid", "pub"),
+        "desc": (
+            "The public band of Sector 9. Open to all citizens. Monitored, "
+            "of course. Of course."
+        ),
+        "locks": "control:perm(Admin);listen:all();send:all()",
+    }
+]
+
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.

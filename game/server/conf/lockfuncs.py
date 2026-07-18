@@ -28,3 +28,18 @@ lock functions from evennia.locks.lockfuncs.
 #    """
 #    print "%s tried to access %s. Access denied." % (accessing_obj, accessed_obj)
 #    return False
+
+
+def clearance(accessing_obj, accessed_obj, *args, **kwargs):
+    """
+    Usage: clearance(N) — passes if the accessor holds clearance grade C-N
+    or better. Clearance is institutional standing (ADR 0002/0003): granted
+    by paperwork, revocable by the same.
+    """
+    from world import functions
+
+    try:
+        required = int(args[0])
+    except (IndexError, ValueError):
+        return False
+    return functions.clearance_level(accessing_obj) >= required

@@ -86,11 +86,21 @@ def detain(char, reason="routine sweep"):
 
 def release(char, note="Released.", farewell=None):
     """Return a citizen to the street, changed."""
+    from world import functions
+
     char.cmdset.remove(DetainedCmdSet)
     char.tags.remove("detained", category="status")
     char.db.detained_wait = 0
     char.db.exposure = tuning.RELEASE_EXPOSURE
     add_record_note(char, note)
+    # A detained citizen's function is suspended on release — your "class"
+    # is the regime's to give and the regime's to shelve (ADR 0002).
+    if functions.suspend_function(char):
+        char.msg(
+            "|=mA slip accompanies your effects: your function is suspended "
+            "pending review. You may report to the Assignment Hall for "
+            "reassignment, when the Grid is ready to know what you are.|n"
+        )
     logger.log_info(f"watchlog: release {char.key} — {note}")
 
     char.msg(

@@ -9,6 +9,8 @@ are compass directions with true reciprocals. Sketch first, then code.
 
     z=0                            z=-1
 
+            [SPIRE LOBBY] Vis 5   <- clearance C-1 gate
+                 |
             [CHECKPOINT]  Vis 5
                  |
     [ANNEX]---[PLAZA]     Vis 4
@@ -80,7 +82,19 @@ ROOMS = {
         "being seen. Officers of the Watch stand behind glass, faces lit from "
         "below by scanner readouts. A sign in Ministry typeface reads: "
         "TRANSPARENCY IS SAFETY. YOURS. The queue is silent, and everyone in "
-        "it is rehearsing.",
+        "it is rehearsing. North, past the gates, the Spire lobby glows — "
+        "clearance grade C-1 and above.",
+    ),
+    "spire_lobby": (
+        "Central Spire Lobby",
+        5,
+        "Marble the color of dead screens, and a ceiling too far away to be "
+        "about anything but the distance. Cleared citizens cross the floor "
+        "at the speed of people who belong, which is a speed you can "
+        "practice. Elevator banks line the far wall, each door stencilled "
+        "with a number and a floor and, in two cases, nothing at all. A "
+        "reception pillar states, without being asked: THE SPIRE IS THE "
+        "GRID. THE GRID IS YOURS. ASCENT BY APPOINTMENT.",
     ),
     "annex": (
         "Archive Annex",
@@ -175,12 +189,15 @@ ROOMS = {
         2,
         "Murals of citizens stamping forms, carrying sacks, and smiling in "
         "the approved manner. A placard reads:\n\n"
-        "|w  Usefulness is safety. Report to the Assignment Hall counter and "
-        "type |cwork|w: clerical shifts earn standing with the Ministry of "
-        "Records and demonstrate the visible virtue that cools an "
-        "interesting reputation. Between shifts, stand in the ration queue "
-        "and |clisten|w - the queue is the beating heart of Sector 9, and "
-        "hearing is not yet a crime.|n\n\n"
+        "|w  Usefulness is safety. At the Assignment Hall counter, |creport|w "
+        "to be assigned your function - the Grid will read your file and "
+        "decide what you are - then |cwork|w your post for standing with "
+        "your ministry. Standing buys the Ministry's services, and in time, "
+        "elevation: citizens of good record may |capply|w at the Archive "
+        "Annex for Spire clearance. Between shifts, stand in the ration "
+        "queue and |clisten|w - hearing is not yet a crime. The |cgridwide|w "
+        "channel carries the public voice of Sector 9; it is public in "
+        "every direction.|n\n\n"
         "Continue SOUTH for the practical portion of your orientation.",
     ),
     "o_corridor": (
@@ -339,6 +356,17 @@ def build():
 
     for source, dest, direction, modifier in LINKS:
         _link(rooms[source], rooms[dest], direction, modifier)
+
+    # The Spire gate: the first clearance-locked exit in the Grid (locks,
+    # not plot flags). The way back out is never locked — the Spire has no
+    # interest in keeping you.
+    gate = _link(rooms["checkpoint"], rooms["spire_lobby"], "north", 1)
+    gate.locks.add("traverse:clearance(1)")
+    gate.db.err_traverse = (
+        "An officer's palm arrives at your sternum with institutional "
+        "gentleness. \"Grade C-1 and above.\" The palm withdraws. The gate "
+        "does not."
+    )
 
     # Functional tags: where the Watch takes you, releases you, and musters —
     # and where citizens work, and where the queue talks.

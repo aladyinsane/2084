@@ -28,6 +28,9 @@ def at_initial_setup():
         create_script("typeclasses.scripts.ExposureDecayScript")
         create_script("typeclasses.scripts.WatchSweepScript")
         create_script("typeclasses.scripts.PatrolManagerScript")
+
+        # (The gridwide channel is defined in settings.DEFAULT_CHANNELS, so
+        # citizens are auto-subscribed at registration.)
         logger.log_info("2084: initial setup complete (world + watch scripts).")
     except Exception:
         logger.log_trace("2084: INITIAL SETUP FAILED")

@@ -16,7 +16,15 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 
 from evennia import default_cmds
 
-from commands.civic import CmdForge, CmdListen, CmdObserve, CmdPetition, CmdWork
+from commands.civic import (
+    CmdApply,
+    CmdForge,
+    CmdListen,
+    CmdObserve,
+    CmdPetition,
+    CmdReport,
+    CmdWork,
+)
 from commands.dossier import CmdDossier
 
 
@@ -43,6 +51,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdListen())
         self.add(CmdPetition())
         self.add(CmdForge())
+        self.add(CmdReport())
+        self.add(CmdApply())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):

@@ -45,6 +45,10 @@ dropping connections — live-development is the normal workflow (`evennia reloa
 | Record services | `commands/civic.py` — `petition` (sanctioned, costs standing + exposure) and `forge` (unsanctioned, dead-zones only, failure is an incident) | Both routes write the audit truthfully — a forged amendment names the forger in the layer nobody in-fiction sees |
 | Skill loops | `commands/civic.py` — `work`, `observe`, `forge`; helpers `improve_skill`/`skill_check` on Character | Skill-by-use per ADR 0002/0003, soft-capped in tuning |
 | Async traces | sensor movement-logging in `Room._maybe_log_movement` (rate-limited); `listen` gossip over recent incidents | Principle 8: absent players stay present through their files |
+| Functions | `world/functions.py` + `report`/`work` in `commands/civic.py` | The regime assigns your function from your recorded aptitudes; suspended on detention release. Not a class — a revocable stamp (ADR 0002) |
+| Clearance | `clearance(N)` lockfunc in `server/conf/lockfuncs.py`; granted by Form C-1 | Access is a lock string, never a plot flag |
+| Form C-1 | `world/form_c1.py` (EvMenu ceremony) over `functions.adjudicate_c1` (pure decision logic) | Ceremony and logic split so the paperwork is testable without the theatre |
+| Gridwide channel | `typeclasses/channels.py` (`MonitoredChannel`) + `DEFAULT_CHANNELS` in settings | Defined in settings, not renamed post-hoc — renaming after creation silently breaks auto-subscription (playtest finding) |
 
 ## Data-model conventions
 

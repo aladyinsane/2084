@@ -97,13 +97,26 @@ descriptions are the manual.
 
 The regime as economy: influence, clearances, and bureaucracy-as-content.
 
-- [ ] Influence ledger per faction; spent on access, services, amendments
-- [ ] Clearance levels gating exits/districts (locks, not plot flags)
-- [ ] EvMenu bureaucratic forms: apply, queue, get rejected for a missing stamp,
-      appeal — the comedy and the horror of paperwork (principle 7)
-- [ ] Work assignments: the regime gives you a *function*; performing it pays standing
-      (your revocable "class," per [ADR 0002](../decisions/0002-no-race-no-class.md))
-- [ ] Monitored public channels: what you say where has an exposure price
+- [x] Influence ledger per faction: three ministries now pay standing (Records, Order,
+      Commerce), and Records standing is the coin of petitions and Form C-1
+- [x] Clearance levels gating exits (locks, not plot flags): a `clearance(N)` lockfunc,
+      and the Spire Lobby behind a C-1 gate whose refusal is a palm to the sternum
+- [x] EvMenu bureaucratic form: **Form C-1, Application for Elevated Clearance** —
+      purposes that are not different, a declaration you must affirm ("my file is
+      accurate; it has always been accurate"), a fee retained on rejection, and a
+      missing-stamp rejection (Form 77: Employment Verification). The systems chain on
+      purpose: a dirty file fails the references check, and the fix is v0.3's record
+      laundering. No formal appeal path yet — reapplication after improving one's
+      circumstances *is* the appeal, as the archivist hints
+- [x] Work assignments: `report`, and the regime reads your recorded aptitudes and
+      stamps a *function* on you (Clerk / Auditor / Steward — your skills are your
+      application whether you meant them as one). Working your own post pays triple;
+      detention **suspends your function** on release — [ADR 0002](../decisions/0002-no-race-no-class.md)'s
+      revocable class, demonstrated
+- [x] Monitored public channel: `gridwide`, defined in settings so citizens are
+      auto-subscribed at registration (the playtest caught the rename-after-creation
+      approach silently unsubscribing everyone). Speaking on it costs exposure:
+      "your words join the public record"
 
 ## v0.5 — Trust
 

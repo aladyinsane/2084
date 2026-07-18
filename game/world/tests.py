@@ -406,7 +406,7 @@ class TestWorldBuild(EvenniaTest):
         from world import build
 
         rooms = build.build()
-        self.assertEqual(len(rooms), 14)  # 8 street + 5 orientation + cell
+        self.assertEqual(len(rooms), 15)  # 9 street + 5 orientation + cell
         for room in rooms.values():
             for ex in room.contents:
                 if not ex.destination or ex.key not in build.OPPOSITE:
@@ -446,3 +446,141 @@ class TestWorldBuild(EvenniaTest):
             self.assertTrue(
                 sensors, f"{rooms[tag].key} describes a device but has none"
             )
+
+
+class TestStandingAndPaperwork(EvenniaTest):
+    """v0.4: functions, clearance, Form C-1, monitored channel."""
+
+    def setUp(self):
+        super().setUp()
+        self.room1.tags.add("workplace", category="grid")
+
+    def test_report_assigns_by_recorded_aptitude(self):
+        from world import functions
+
+        self.char1.db.skills = {"observation": 5, "clerking": 2}
+        self.char1.execute_cmd("report")
+        key, spec = functions.current_function(self.char1)
+        self.assertEqual(key, "auditor")
+        self.assertEqual(
+            (self.char1.db.standing or {}).get("function"),
+            "Auditor, Order Section",
+        )
+        # The unremarkable become stewards.
+        self.char1.db.skills = {}
+        self.char1.execute_cmd("report")
+        key, _ = functions.current_function(self.char1)
+        self.assertEqual(key, "steward")
+
+    def test_function_work_pays_own_ministry_at_own_post(self):
+        from world import functions, tuning
+
+        self.char1.db.skills = {"observation": 5}
+        functions.assign_function(self.char1)
+        # Auditor's post is any room with a device: room1 has none yet.
+        self.char1.execute_cmd("work")
+        self.assertFalse((self.char1.db.influence or {}).get("Ministry of Order"))
+        create.create_object(
+            "typeclasses.objects.Sensor", key="a lens", location=self.room1
+        )
+        self.char1.db.last_work = 0
+        self.char1.execute_cmd("work")
+        self.assertEqual(
+            (self.char1.db.influence or {}).get("Ministry of Order"),
+            tuning.FUNCTION_WORK_INFLUENCE,
+        )
+
+    def test_release_suspends_function(self):
+        from world import functions, watch
+
+        cell = create.create_object(
+            "typeclasses.rooms.Room", key="Holding Cell (test)"
+        )
+        cell.tags.add("holding_cell", category="grid")
+        self.room1.tags.add("release_point", category="grid")
+        functions.assign_function(self.char1)
+        self.char1.db.exposure = 60
+        watch.detain(self.char1)
+        watch.release(self.char1)
+        key, _ = functions.current_function(self.char1)
+        self.assertIsNone(key)
+        self.assertIn(
+            "suspended", (self.char1.db.standing or {}).get("function", "")
+        )
+
+    def test_clearance_lock_gates_exit(self):
+        from evennia.utils.search import search_object
+
+        self.exit.locks.add("traverse:clearance(1)")
+        self.exit.db.err_traverse = "Turned away."
+        self.char1.execute_cmd(self.exit.key)
+        self.assertEqual(self.char1.location, self.room1)  # blocked
+        self.char1.db.standing = {"clearance": "C-1"}
+        self.char1.execute_cmd(self.exit.key)
+        self.assertEqual(self.char1.location, self.room2)  # admitted
+
+    def test_adjudicate_c1_paths(self):
+        from world import functions, records, watch
+
+        # No function: Form 77 absent.
+        approved, reason = functions.adjudicate_c1(self.char1)
+        self.assertFalse(approved)
+        self.assertIn("Form 77", reason)
+        # Function but dirty file: references insufficient.
+        functions.assign_function(self.char1)
+        watch.add_record_note(self.char1, "DETAINED: test")
+        watch.add_record_note(self.char1, "Was unruly in detention.")
+        approved, reason = functions.adjudicate_c1(self.char1)
+        self.assertFalse(approved)
+        self.assertIn("references", reason)
+        # Launder the file (the v0.3 loop is the fix): redact one entry.
+        records.redact(
+            records.incident_by_number(self.char1, 1), actor=self.char1
+        )
+        approved, _ = functions.adjudicate_c1(self.char1)
+        self.assertTrue(approved)
+        # Grant sets clearance and exposure.
+        self.char1.db.exposure = 0
+        functions.grant_c1(self.char1)
+        self.assertEqual(functions.clearance_level(self.char1), 1)
+        self.assertGreater(self.char1.db.exposure, 0)
+        # Already cleared: reapplication refused.
+        approved, reason = functions.adjudicate_c1(self.char1)
+        self.assertFalse(approved)
+        self.assertIn("already holds", reason)
+
+    def test_apply_menu_full_approval_flow(self):
+        from world import functions, records, tuning
+
+        archivist = create.create_object(
+            "typeclasses.npcs.Citizen", key="the archivist", location=self.room1
+        )
+        archivist.tags.add("records_service", category="grid")
+        functions.assign_function(self.char1)
+        self.char1.db.influence = {"Ministry of Records": tuning.CLEARANCE_FEE}
+        self.char1.execute_cmd("apply")   # menu: start
+        self.char1.execute_cmd("1")       # take up the pen
+        self.char1.execute_cmd("1")       # purpose: to better serve
+        self.char1.execute_cmd("1")       # affirm and submit
+        self.assertEqual(functions.clearance_level(self.char1), 1)
+        self.assertEqual(
+            (self.char1.db.influence or {}).get("Ministry of Records"), 0
+        )
+        outcomes = [
+            r.db.content
+            for r in records.records_for(self.char1, kind="observation")
+        ]
+        self.assertTrue(any("APPROVED" in c for c in outcomes))
+
+    def test_monitored_channel_charges_speaker(self):
+        from evennia.utils import create as ev_create
+
+        from world import tuning
+
+        channel = ev_create.create_channel(
+            "gridwide", typeclass="typeclasses.channels.MonitoredChannel"
+        )
+        channel.connect(self.char1)
+        self.char1.db.exposure = 0
+        channel.msg("test transmission", senders=self.char1)
+        self.assertEqual(self.char1.db.exposure, tuning.CHANNEL_EXPOSURE)
