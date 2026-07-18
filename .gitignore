@@ -1,1 +1,17 @@
-inspiration/
+# The novel is under US copyright until 2044 — kept locally, never committed.
+# (See docs/research/orwell-1984-source-material.md, "loosely based" section.)
+docs/research/sources/
+
+# Local credentials / scratch notes
+dev-notes.md
+
+# Python / Evennia
+.venv/
+__pycache__/
+*.pyc
+
+# Evennia runtime state (the world is rebuilt from code — see ADR 0007)
+game/server/*.db3
+game/server/logs/
+game/server/.media/
+game/server/conf/secret_settings.py
