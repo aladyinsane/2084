@@ -128,3 +128,134 @@ class ExposureDecayScript(Script):
             exposure = char.db.exposure or 0
             if exposure > 0:
                 char.db.exposure = max(0, exposure - tuning.EXPOSURE_DECAY_AMOUNT)
+
+
+class WatchSweepScript(Script):
+    """
+    The Watch samples the population (ADR 0004: probability scales with
+    exposure; below the shallow-end floor you are never sampled at all).
+    High exposure means detainment; middling exposure means a papers check —
+    a sanctioned interaction, which *lowers* exposure. Quiet ticks let the
+    district alert level subside.
+    """
+
+    def at_script_creation(self):
+        from world import tuning
+
+        self.key = "watch_sweep"
+        self.desc = "Periodic Watch sampling of the population."
+        self.interval = tuning.WATCH_SWEEP_INTERVAL
+        self.persistent = True
+
+    def at_repeat(self):
+        import random
+
+        from evennia.utils import logger
+
+        from world import tuning, watch
+
+        from .characters import Character
+
+        detained_anyone = False
+        for char in Character.objects.all():
+            if not char.has_account or not char.sessions.count():
+                continue
+            if watch.is_detained(char):
+                continue
+            exposure = char.db.exposure or 0
+            if exposure < tuning.SWEEP_MIN_EXPOSURE:
+                continue
+            span = tuning.EXPOSURE_MAX - tuning.SWEEP_MIN_EXPOSURE
+            chance = (
+                (exposure - tuning.SWEEP_MIN_EXPOSURE) / span
+            ) * tuning.SWEEP_MAX_CHANCE
+            roll = random.random()
+            logger.log_info(
+                f"watchlog: sweep {char.key} exposure={exposure} "
+                f"chance={chance:.2f} roll={roll:.2f}"
+            )
+            if roll >= chance:
+                continue
+            if exposure >= tuning.DETAIN_THRESHOLD:
+                watch.detain(char, reason="selected in a routine sweep")
+                detained_anyone = True
+            else:
+                self.papers_check(char)
+
+        if detained_anyone:
+            self.db.quiet_ticks = 0
+        else:
+            quiet = (self.db.quiet_ticks or 0) + 1
+            self.db.quiet_ticks = quiet
+            if quiet >= 5:
+                self.db.quiet_ticks = 0
+                watch.set_alert(watch.get_alert() - 1)
+
+    @staticmethod
+    def papers_check(char):
+        from world import tuning, watch
+
+        char.msg(
+            "|yAn officer of the Watch angles across your path and stops you "
+            "with two fingers.|n Papers. You produce them. A scanner passes "
+            "over your wrist, hums, and finds you insufficiently interesting."
+            "\n|=mBeing checked and cleared is, itself, a kind of alibi.|n"
+        )
+        if char.location:
+            char.location.msg_contents(
+                f"An officer of the Watch stops {char.key}, scans their papers, "
+                "and moves on.",
+                exclude=(char,),
+            )
+        char.gain_exposure(-tuning.PAPERS_CHECK_RELIEF)
+        watch.add_record_note(char, "Papers checked in the street; cleared.")
+        char.send_prompt()
+
+
+class PatrolManagerScript(Script):
+    """
+    Keeps patrol density matched to the district alert level
+    (PATROL_BASELINE + alert, so more detentions visibly mean more grey
+    uniforms — the telegraph), and walks each patrol one step.
+    """
+
+    def at_script_creation(self):
+        from world import tuning
+
+        self.key = "patrol_manager"
+        self.desc = "Spawns, culls and walks Watch patrols."
+        self.interval = tuning.PATROL_MOVE_INTERVAL
+        self.persistent = True
+
+    def at_repeat(self):
+        from evennia import create_object
+        from evennia.utils.search import search_object_by_tag
+
+        from world import tuning, watch
+
+        from .npcs import WatchPatrol
+
+        patrols = list(WatchPatrol.objects.all())
+        desired = tuning.PATROL_BASELINE + watch.get_alert()
+
+        spawn_points = search_object_by_tag("patrol_spawn", category="grid")
+        while len(patrols) < desired and spawn_points:
+            patrol = create_object(
+                WatchPatrol, key="an officer of the Watch", location=spawn_points[0]
+            )
+            spawn_points[0].msg_contents(
+                "A Watch officer steps off the Spire transit line and falls "
+                "into an easy patrol pace."
+            )
+            patrols.append(patrol)
+        while len(patrols) > max(desired, tuning.PATROL_BASELINE):
+            extra = patrols.pop()
+            if extra.location:
+                extra.location.msg_contents(
+                    f"{extra.key} receives something on the visor feed, turns, "
+                    "and is gone toward the Spire."
+                )
+            extra.delete()
+
+        for patrol in patrols:
+            patrol.patrol_step()

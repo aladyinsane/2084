@@ -29,16 +29,28 @@ v0.1 proves the *feeling* of being watched is worth building on before anything 
 The dread loop closes: consequences arrive, telegraphed in trend, uncertain in timing
 (principle 3).
 
-- [ ] Sensors as discoverable objects in rooms (spottable, eventually sabotage-able)
-- [ ] Watch sweep script: samples players with probability scaled by exposure — never
-      omniscient, per [ADR 0004](../decisions/0004-surveillance-is-event-driven.md)
-- [ ] Patrol NPCs whose density visibly tracks district alert level (the telegraph)
-- [ ] **Detainment as cmdset swap**: arrested characters lose movement, gain
+- [x] Sensors as discoverable objects in rooms (spottable; active ones add exposure,
+      the broken one in Neon Alley adds nothing — sabotage-able comes later)
+- [x] Watch sweep script: samples players with probability scaled by exposure — never
+      omniscient, per [ADR 0004](../decisions/0004-surveillance-is-event-driven.md).
+      Ships with the ADR's promised dev-facing `watchlog:` trace; verification
+      watched a sweep *miss* at roll 0.76 before catching at roll 0.17
+- [x] Patrol NPCs whose density visibly tracks district alert level (the telegraph):
+      alert rises per detention, decays over quiet sweeps; patrols = baseline + alert
+- [x] **Detainment as cmdset swap**: arrested characters lose movement, gain
       `confess`/`wait`/`demand`; release loop returns them changed (exposure reset,
-      standing dinged, record annotated) — stakes per [ADR 0006](../decisions/0006-conflict-is-non-lethal.md)
-- [ ] NPC reactions read exposure (shopkeepers get curt when you're hot)
-- [ ] New-player shallow end verified in playtest: low-visibility districts genuinely
-      safe (principle 10)
+      record annotated) — stakes per [ADR 0006](../decisions/0006-conflict-is-non-lethal.md).
+      Verified end-to-end from the player side: swept at Exp 60, celled, `demand`
+      resets the wait clock, `confess` releases with the file three incidents longer
+- [x] NPC reactions read exposure (the ration clerk's three tiers; patrol visor-tracks
+      the noticed and detains the hot on sight)
+- [x] Connection screen and all Watch prose pass principle 9's no-magic-missile rule
+      (the login terminal is the Ministry's, not the engine's) ← added mid-version
+      from the 3M field-research finding
+- [ ] New-player shallow end verified in **human** playtest (principle 10). The
+      mechanical half is proven — sweeps skip exposure < 20 by construction, unit
+      test walks 100 ticks untouched — but "genuinely safe" is a feeling, and
+      feelings need a playtester who isn't the developer
 
 ## v0.3 — The record is not the truth
 

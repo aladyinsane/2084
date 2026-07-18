@@ -22,19 +22,28 @@ of the screen is done by the unlogged-in "look" command.
 
 from django.conf import settings
 
-from evennia import utils
-
+# Principle 9: no magic-missile moments — the first thing a player sees is
+# already the Grid, not the engine. (Evennia version deliberately absent; the
+# Ministry does not disclose its internals.)
 CONNECTION_SCREEN = """
-|b==============================================================|n
- Welcome to |g{}|n, version {}!
+|=k________________________________________________________________|n
 
- If you have an existing account, connect to it by typing:
-      |wconnect <username> <password>|n
- If you need to create an account, type (without the <>'s):
-      |wcreate <username> <password>|n
+                          |w2 0 8 4|n
 
- If you have spaces in your username, enclose it in quotes.
- Enter |whelp|n for more info. |wlook|n will re-show this screen.
-|b==============================================================|n""".format(
-    settings.SERVERNAME, utils.get_evennia_version("short")
+              MUNICIPAL ACCESS TERMINAL — SECTOR 9
+          Ministry of Records — Citizen Interface v{}
+
+   This terminal is provided for your security and convenience.
+   Sessions are monitored. Sessions have always been monitored.
+
+   Returning citizens, identify yourselves:
+        |wconnect <name> <password>|n
+
+   New arrivals, report for registration:
+        |wcreate <name> <password>|n
+
+   (Names containing spaces go in quotes. Type |whelp|n for the
+   permitted forms of assistance.)
+|=k________________________________________________________________|n""".format(
+    settings.SERVERNAME
 )

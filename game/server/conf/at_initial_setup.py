@@ -26,6 +26,8 @@ def at_initial_setup():
 
         build.build()
         create_script("typeclasses.scripts.ExposureDecayScript")
-        logger.log_info("2084: initial setup complete (world + decay script).")
+        create_script("typeclasses.scripts.WatchSweepScript")
+        create_script("typeclasses.scripts.PatrolManagerScript")
+        logger.log_info("2084: initial setup complete (world + watch scripts).")
     except Exception:
         logger.log_trace("2084: INITIAL SETUP FAILED")

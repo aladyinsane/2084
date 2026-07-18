@@ -36,10 +36,12 @@ dropping connections — live-development is the normal workflow (`evennia reloa
 | Skills / influence / standing | Attributes on `Character` (`skills` dict, `influence` dict, `standing` dict) | No class column anywhere, enforced by review ([ADR 0002](../decisions/0002-no-race-no-class.md)) |
 | Tuning constants | `world/tuning.py` | Every gameplay number in one file, because [ADR 0004](../decisions/0004-surveillance-is-event-driven.md) promises permanent tuning — hunting magic numbers across typeclasses is the failure mode |
 | The world | `world/` batch code, one file per district | Versioned, reviewable, rebuildable; grid-consistency rule from [ADR 0007](../decisions/0007-room-graph-grid-consistent.md) applies to every room added |
-| *(v0.2)* Sensors | planned: `typeclasses/objects.py` sensor typeclass | Objects, not ambience |
-| *(v0.2)* Watch sweep | planned: global script sampling by exposure | Plus a **dev-facing event trace** (ADR 0004 owes us debuggability the fiction doesn't have) |
-| *(v0.2)* Detainment | planned: cmdset swap in `commands/` | The ADR 0006 ladder |
-| *(v0.3)* Records | planned: record typeclass, two layers | Record layer mutable, audit layer append-only |
+| Sensors | `typeclasses/objects.py` — `Sensor` | Objects, not ambience; active ones add `sensitivity` to the room's `exposure_gain()`, broken ones just hang there |
+| Watch sweep | `typeclasses/scripts.py` — `WatchSweepScript` | Samples connected citizens by exposure; papers-checks the middling, detains the hot. Emits the `watchlog:` dev trace ADR 0004 owes us |
+| Patrols & alert | `typeclasses/npcs.py` (`Citizen`, `WatchPatrol`) + `PatrolManagerScript`; alert level in `ServerConfig` | Density = baseline + alert; patrols keep to visibility ≥ 2 (the tunnels are unpatrolled on purpose) |
+| Detainment | `commands/detention.py` (cmdset, `Replace` at prio 120) + `world/watch.py` (detain/release) | The ADR 0006 ladder; the holding cell is exitless and off-plan (documented ADR 0007 exception) |
+| NPC arrival reactions | `Room.at_object_receive` → deferred `at_watched_arrival` on contents | Deferred 0.3s so reactions (incl. detainment) land after the move resolves. NB: real exits pass `move_type="traverse"`, not `"move"` — a bug the claude-account playtest caught that unit tests missed |
+| *(v0.3)* Records | planned: record typeclass, two layers | Record layer mutable, audit layer append-only. `record_notes` on Character is the v0.2 stub |
 
 ## Data-model conventions
 

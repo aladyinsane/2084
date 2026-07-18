@@ -215,3 +215,26 @@ class Object(ObjectParent, DefaultObject):
     """
 
     pass
+
+
+class Sensor(Object):
+    """
+    A piece of the surveillance apparatus, in the world where it can be seen
+    (ADR 0004: sensors are objects, not ambience). Active sensors add their
+    sensitivity to the exposure cost of entering the room. Broken ones just
+    hang there, which is its own kind of message.
+    """
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.sensitivity = 1
+        self.db.active = True
+        self.locks.add("get:false()")
+        self.db.get_err_msg = (
+            "It is bolted to the wall, and prying at it is exactly the kind "
+            "of thing it exists to notice."
+        )
+
+    @property
+    def sensitivity(self):
+        return self.db.sensitivity if self.db.active else 0

@@ -53,6 +53,12 @@ class CmdDossier(Command):
             lines.extend(
                 f"   {faction}: {value}" for faction, value in sorted(influence.items())
             )
+        notes = caller.db.record_notes or []
+        if notes:
+            lines.append(" Incidents on record:")
+            lines.extend(f"   {i}. {note}" for i, note in enumerate(notes, 1))
+        else:
+            lines.append(" Incidents on record: |=mnone|n")
         lines.append("|=k" + "-" * width + "|n")
         lines.append("|=m This file is accurate. This file has always been accurate.|n")
         lines.append("|=k" + "=" * width + "|n")

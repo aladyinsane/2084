@@ -18,6 +18,8 @@ are compass directions with true reciprocals. Sketch first, then code.
               [ALLEY]     Vis 2
                  |
               [TENEMENT]  Vis 1 --(down)-- [TUNNEL]  Vis 0
+
+    (off-plan: [HOLDING CELL] — no exits; reached only by being detained)
 """
 
 from evennia import create_object, search_object
@@ -112,7 +114,58 @@ ROOMS = {
         "somewhere in the dark. No sensors reach down here. The chalk marks on "
         "the wall are recent, and they are not the Ministry's.",
     ),
+    # Off-plan by design: you are *taken* here, never walked (documented
+    # exception under ADR 0007 — no exits, so nothing to map).
+    "cell": (
+        "Holding Cell, Ministry of Order",
+        5,
+        "Four white walls, a bench, a light that has no switch, and a door "
+        "with no handle on this side. A grille at eye level lets the corridor "
+        "look in; it does not particularly let you look out. Someone has "
+        "scratched four thin lines into the bench. There is a fifth line, "
+        "fainter, abandoned halfway.",
+    ),
 }
+
+# (room, sensor key, sensor desc, sensitivity, active)
+SENSORS = [
+    (
+        "checkpoint",
+        "a scanner array",
+        "Black glass domes track in smooth, silent arcs — plural, overlapping, "
+        "leaving no angle unaccounted for. A status row of green diodes "
+        "confirms that everything is working, which you already knew.",
+        2,
+        True,
+    ),
+    (
+        "plaza",
+        "a watchscreen",
+        "A public screen two stories tall, cycling production figures over "
+        "the Ministry crest. The lens above it is small, unblinking, and "
+        "aimed at the crowd rather than the screen.",
+        1,
+        True,
+    ),
+    (
+        "annex",
+        "a reading-desk monitor",
+        "A slim camera on an articulated arm, positioned to see not the "
+        "terminals but the faces at them. A brass plate reads: FOR YOUR "
+        "SECURITY AND CONVENIENCE.",
+        1,
+        True,
+    ),
+    (
+        "alley",
+        "a broken watchscreen",
+        "Installed in the spring, dead since the spring. The lens is crazed "
+        "with a spiderweb crack radiating from something thrown precisely "
+        "once. Nobody has filed the maintenance form, and nobody is going to.",
+        1,
+        False,
+    ),
+]
 
 # (from, to, direction, exposure_modifier on that one-way exit)
 LINKS = [
@@ -175,6 +228,42 @@ def build():
 
     for source, dest, direction, modifier in LINKS:
         _link(rooms[source], rooms[dest], direction, modifier)
+
+    # Functional tags: where the Watch takes you, releases you, and musters.
+    rooms["cell"].tags.add("holding_cell", category="grid")
+    rooms["hall"].tags.add("release_point", category="grid")
+    rooms["plaza"].tags.add("patrol_spawn", category="grid")
+
+    # The surveillance apparatus, in the world where it can be seen.
+    for room_tag, key, desc, sensitivity, active in SENSORS:
+        sensor = create_object(
+            "typeclasses.objects.Sensor", key=key, location=rooms[room_tag]
+        )
+        sensor.db.desc = desc
+        sensor.db.sensitivity = sensitivity
+        sensor.db.active = active
+
+    # The ration clerk: the first NPC who reads your record off your face.
+    clerk = create_object(
+        "typeclasses.npcs.Citizen",
+        key="the ration clerk",
+        location=rooms["queue"],
+    )
+    clerk.db.desc = (
+        "Grey-aproned, quick-handed, older than the queue and more patient "
+        "than the Ministry. Their eyes do a small arithmetic on everyone who "
+        "approaches the window."
+    )
+    clerk.db.react_calm = (
+        "{npc} slides a ration chit across the counter without looking up."
+    )
+    clerk.db.react_noticed = (
+        "{npc} pauses mid-count as {name} arrives, then resumes, one beat late."
+    )
+    clerk.db.react_hot = (
+        "{npc} finds urgent business in the back room the moment {name} "
+        "approaches."
+    )
 
     logger.log_info(f"2084: built Sector 9 ({len(rooms)} rooms).")
     return rooms
