@@ -397,3 +397,52 @@ class TestCivic(EvenniaTest):
             script.at_repeat()
         self.assertFalse(watch.is_detained(self.char1))
         script.stop()
+
+
+class TestWorldBuild(EvenniaTest):
+    """The ADR 0007 lint: build Sector 9 and check the geometry's promises."""
+
+    def test_build_is_grid_consistent(self):
+        from world import build
+
+        rooms = build.build()
+        self.assertEqual(len(rooms), 14)  # 8 street + 5 orientation + cell
+        for room in rooms.values():
+            for ex in room.contents:
+                if not ex.destination or ex.key not in build.OPPOSITE:
+                    continue
+                reciprocals = [
+                    e
+                    for e in ex.destination.contents
+                    if e.destination == room and e.key == build.OPPOSITE[ex.key]
+                ]
+                self.assertTrue(
+                    reciprocals,
+                    f"{room.key} --{ex.key}--> {ex.destination.key} "
+                    "has no true reciprocal",
+                )
+        # The holding cell is off-plan: no exits in, none out.
+        self.assertFalse([e for e in rooms["cell"].contents if e.destination])
+
+    def test_described_devices_exist(self):
+        # Principle 9's in-world corollary, learned in v0.3 verification:
+        # if a room description mentions a watchscreen/scanner/lens, a
+        # Sensor object must exist there for `observe` to find.
+        from world import build
+
+        rooms = build.build()
+        for tag, (_, _, desc) in build.ROOMS.items():
+            promises = any(
+                word in desc.lower()
+                for word in ("watchscreen", "scanner", "lens array")
+            )
+            if not promises:
+                continue
+            sensors = [
+                obj
+                for obj in rooms[tag].contents
+                if hasattr(obj, "sensitivity") and not obj.destination
+            ]
+            self.assertTrue(
+                sensors, f"{rooms[tag].key} describes a device but has none"
+            )

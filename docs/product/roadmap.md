@@ -76,6 +76,23 @@ playable.
       cannot select someone in a visibility-0 room. Hiding works; exposure barely
       decays; you have to come up sometime
 
+## v0.3.5 — The Orientation Wing (pulled from the parking lot 2026-07-18)
+
+Tutorial-as-architecture, straight from the 3M field research: rooms whose
+descriptions are the manual.
+
+- [x] Five-room lattice east of the Assignment Hall (grid-consistent, in the world's
+      voice): prompt & exposure basics → the Watch → your file → civic life → a
+      **Demonstration Corridor** at Vis 5 whose placard tells you to watch your Exp
+      rise as it rises (+5 on entry — teaching by mechanism, not by text)
+- [x] The stencilled arrow in the Hall: ATTENDANCE IS VOLUNTARY. ATTENDANCE IS NOTED.
+- [x] The orientation clerk (exposure-tiered greetings, per the Citizen system)
+- [x] The unsanctioned curriculum: the chalk marks in Tunnel B teach what the Ministry
+      won't — dead zones, `forge`, and what a form can do
+- [x] The ADR 0007 lint, automated at last: a build test that verifies every compass
+      exit has a true reciprocal and the holding cell stays exitless — plus a
+      described-devices-exist check (principle 9's in-world corollary)
+
 ## v0.4 — Standing and paperwork
 
 The regime as economy: influence, clearances, and bureaucracy-as-content.

@@ -13,11 +13,20 @@ are compass directions with true reciprocals. Sketch first, then code.
                  |
     [ANNEX]---[PLAZA]     Vis 4
                  |
-    [QUEUE]---[HALL]      Vis 3   <- start (repurposed Limbo)
+    [QUEUE]---[HALL]------[O-ANTE]         Vis 3 / 2
+                 |            |
+              [ALLEY]     (orientation      Vis 2
+                 |         lattice, x=1..2,
+              [TENEMENT]   see below)       Vis 1
                  |
-              [ALLEY]     Vis 2
-                 |
-              [TENEMENT]  Vis 1 --(down)-- [TUNNEL]  Vis 0
+     (down) [TUNNEL]                        Vis 0
+
+    Orientation Wing lattice (east of the Hall — 3M's tutorial-as-
+    architecture pattern, docs/research/third-millennium-mud.md §5):
+
+    (1,2) [O-FILE]------(2,2) [O-CIVIC]
+    (1,1) [O-WATCHED]---(2,1) [O-CORRIDOR]  <- Vis 5 demo room
+    (1,0) [O-ANTE]
 
     (off-plan: [HOLDING CELL] — no exits; reached only by being detained)
 """
@@ -51,7 +60,9 @@ ROOMS = {
         "rope barriers toward a counter where a clerk of the Ministry of Order "
         "stamps work assignments without looking up. A watchscreen high on the "
         "wall cycles the day's directives; its lens does not cycle. The air "
-        "smells of wet wool and pencil shavings.",
+        "smells of wet wool and pencil shavings. A stencilled arrow points "
+        "east: |wCITIZEN ORIENTATION. ATTENDANCE IS VOLUNTARY. ATTENDANCE IS "
+        "NOTED.|n",
     ),
     "plaza": (
         "Unity Plaza",
@@ -114,6 +125,78 @@ ROOMS = {
         "somewhere in the dark. No sensors reach down here. The chalk marks on "
         "the wall are recent, and they are not the Ministry's.",
     ),
+    # --- The Orientation Wing: rooms whose descriptions are the manual -----
+    # (3M's tutorial-as-architecture; the Ministry teaches only the
+    # sanctioned verbs. The unsanctioned ones are taught in chalk, below.)
+    "o_ante": (
+        "Orientation Antechamber",
+        2,
+        "Folding chairs, a lectern nobody stands at, and paint the exact "
+        "green of not being asked your opinion. A placard reads:\n\n"
+        "|w  WELCOME, CITIZEN. THE GRID PROVIDES. THE GRID OBSERVES.\n"
+        "  Read every room carefully; rooms are how the Grid explains\n"
+        "  itself. The numbers in your prompt are yours: Vis is how\n"
+        "  watched a place is (0-5). Exp is how interesting you have\n"
+        "  made yourself. Low numbers are a virtue.\n"
+        "  Proceed NORTH when ready. Type |chelp|w at any difficulty.|n",
+    ),
+    "o_watched": (
+        "Orientation: The Watched Life",
+        2,
+        "Diagrams of street corners cover the walls, each with sight-lines "
+        "drawn in red. A placard reads:\n\n"
+        "|w  The Watch protects you by knowing you. Moving through watched "
+        "space raises your Exp; time and good conduct lower it. Citizens "
+        "of interest may be stopped and checked - cooperation clears you, "
+        "and clearing is itself a credential. Citizens of |rgreat|w interest "
+        "are detained for their protection.\n"
+        "  You may study any room's devices yourself: type |cobserve|w. "
+        "Attention is a skill. The Watch will not mind. The Watch does "
+        "not mind anything.|n\n\n"
+        "Continue NORTH.",
+    ),
+    "o_file": (
+        "Orientation: Your File",
+        2,
+        "A wall-sized reproduction of a citizen file, annotated, with a "
+        "child's handwriting exercise underneath: THE FILE IS MY FRIEND. "
+        "A placard reads:\n\n"
+        "|w  Everything of note about you is recorded at the Ministry of "
+        "Records. Type |cdossier|w to review your file at any time. Your "
+        "file is accurate. Incidents, once recorded, are part of you - "
+        "though the Ministry, in its generosity, hears petitions: visit "
+        "the archivist at the Archive Annex to |cpetition|w for corrections, "
+        "priced in standing you have earned. The Ministry forgets nothing "
+        "unless asked politely, in writing, for a consideration.|n\n\n"
+        "Continue EAST.",
+    ),
+    "o_civic": (
+        "Orientation: Civic Life",
+        2,
+        "Murals of citizens stamping forms, carrying sacks, and smiling in "
+        "the approved manner. A placard reads:\n\n"
+        "|w  Usefulness is safety. Report to the Assignment Hall counter and "
+        "type |cwork|w: clerical shifts earn standing with the Ministry of "
+        "Records and demonstrate the visible virtue that cools an "
+        "interesting reputation. Between shifts, stand in the ration queue "
+        "and |clisten|w - the queue is the beating heart of Sector 9, and "
+        "hearing is not yet a crime.|n\n\n"
+        "Continue SOUTH for the practical portion of your orientation.",
+    ),
+    "o_corridor": (
+        "Orientation: Demonstration Corridor",
+        5,
+        "A short corridor lit like an operating theatre. Every surface is "
+        "lens. A counter above the far door displays your exposure in "
+        "figures a hand tall, updating as you walk. A placard reads:\n\n"
+        "|w  This corridor is watched at the highest civic grade, so that "
+        "you may feel the difference. Note the Exp figure in your prompt "
+        "as you entered. This sensation - of a number rising because you "
+        "went somewhere - is the fundamental transaction of the Grid. "
+        "Spend it wisely.\n"
+        "  Your orientation is complete. Exit WEST, then SOUTH, then WEST "
+        "to the Assignment Hall. The Grid is waiting.|n",
+    ),
     # Off-plan by design: you are *taken* here, never walked (documented
     # exception under ADR 0007 — no exits, so nothing to map).
     "cell": (
@@ -168,6 +251,16 @@ SENSORS = [
         True,
     ),
     (
+        "o_corridor",
+        "a demonstration lens array",
+        "Rank upon rank of lenses, polished to a municipal shine, each one "
+        "labelled with a small brass number as if to say: catalogued, like "
+        "you. A plaque beneath reads: THE SENSATION YOU ARE EXPERIENCING "
+        "IS SAFETY.",
+        2,
+        True,
+    ),
+    (
         "alley",
         "a broken watchscreen",
         "Installed in the spring, dead since the spring. The lens is crazed "
@@ -187,6 +280,13 @@ LINKS = [
     ("hall", "alley", "south", 0),
     ("alley", "tenement", "south", 0),
     ("tenement", "tunnel", "down", 0),
+    # The Orientation Wing lattice (see module docstring sketch).
+    ("hall", "o_ante", "east", 0),
+    ("o_ante", "o_watched", "north", 0),
+    ("o_watched", "o_file", "north", 0),
+    ("o_file", "o_civic", "east", 0),
+    ("o_civic", "o_corridor", "south", 0),
+    ("o_corridor", "o_watched", "west", 0),
 ]
 
 
@@ -278,6 +378,57 @@ def build():
         "{npc} finds urgent business in the back room the moment {name} "
         "approaches."
     )
+
+    # The orientation clerk: the first face a citizen meets, if they take
+    # the arrow's advice.
+    orienter = create_object(
+        "typeclasses.npcs.Citizen",
+        key="the orientation clerk",
+        location=rooms["o_ante"],
+    )
+    orienter.db.desc = (
+        "Young, pressed, and reciting even when silent. Their lanyard "
+        "photograph smiles slightly more than they do. They administer the "
+        "orientation by standing near it."
+    )
+    orienter.db.react_calm = (
+        "{npc} brightens by a regulation amount. \"Welcome, citizen! The "
+        "rooms explain everything. Read them in order. Or don't! Attendance "
+        "is voluntary.\" A pause. \"It's noted, but it's voluntary.\""
+    )
+    orienter.db.react_noticed = (
+        "{npc} checks a clipboard as {name} enters, and their smile gains a "
+        "structural quality."
+    )
+    orienter.db.react_hot = (
+        "{npc} recalls, aloud and to no one, that orientation materials are "
+        "also available in printed form, elsewhere, far away."
+    )
+
+    # The unsanctioned curriculum: what the Ministry doesn't teach, the
+    # tunnels do. (Described chalk must exist — principle 9.)
+    chalk = create_object(
+        "typeclasses.objects.Object",
+        key="the chalk marks",
+        aliases=["chalk", "marks"],
+        location=rooms["tunnel"],
+    )
+    chalk.db.desc = (
+        "Fresh chalk over old chalk over older chalk, a curriculum in "
+        "layers:\n\n"
+        "  |w- sweeps can't reach where nothing watches. down here you are\n"
+        "    a rumor.|n\n"
+        "  |w- the file isn't you. a steady hand and a dead terminal can\n"
+        "    |cforge|w it. first try goes badly for most. so did yours.|n\n"
+        "  |w- the broken screen on the alley stays broken because nobody\n"
+        "    files the form. remember what a form can do.|n\n"
+        "  |w- heat fades. sit. breathe. count the water drips. then go up\n"
+        "    and be boring.|n\n\n"
+        "Beneath, in different hands: initials, dates, and one line pressed "
+        "hard enough to break the chalk: |wthey write it down. so can we.|n"
+    )
+    chalk.locks.add("get:false()")
+    chalk.db.get_err_msg = "The wall declines to come along."
 
     # The archivist: the sanctioned route to a different past (ADR 0005).
     archivist = create_object(

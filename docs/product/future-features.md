@@ -83,13 +83,11 @@ space is exactly what exposure taxes — getting your record amended *requires w
 past the scanners to the Records Annex*. Mostly a build discipline rather than a
 feature; recorded here so v0.3+ services default to being rooms, not commands.
 
-### The Induction Wing: tutorial as architecture *(from 3M field research)*
-3M's revival teaches the game with rooms whose descriptions are the manual, arranged in
-loops you literally walk. 2084's version writes itself: civic induction — queue here,
-learn what a citizen may do, be told what the numbers in your prompt mean by a bored
-orientation clerk. Onboarding as fiction (ADR 0002 already wants the regime to tell
-you your function).
-**Why not now:** worth doing when there are enough mechanics to teach; revisit at v0.4.
+### ~~The Induction Wing: tutorial as architecture~~ — LEFT THE LOT
+*Built 2026-07-18 as the Orientation Wing (roadmap v0.3.5), on request, once v0.3 gave
+it enough mechanics to teach. Kept here per parking-lot discipline: being on the list
+is not a commitment, and leaving it gets recorded.* The one part still parked: being
+*told your function* by the regime — that's v0.4's work assignments.
 
 ### Endgame paths (escape / overthrow / inner circle)
 Long-horizon goals matter for retention.
