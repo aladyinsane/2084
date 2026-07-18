@@ -67,6 +67,30 @@ Losing your name, your record, your access; rebuilding from nothing. The setting
 darkest promise, and mechanically adjacent to ADR 0005's audit trail.
 **Why not now:** it's the *end* of the record-vs-truth tech tree, not the start.
 
+### Deprogramming as re-education *(from 3M field research)*
+3rd Millennium sells voluntary skill deletion (wired chairs, 150k credits — steep on
+purpose). Invert the consent and it's ours: detainment outcomes that *remove recorded
+aptitudes* — the regime deletes what it decided you shouldn't know. Slots into ADR
+0005 (aptitudes are record entries) and gives ADR 0006's interrogation ladder its
+sharpest rung short of unpersoning.
+**Why not now:** needs skills (v0.3) and detainment (v0.2) to exist first. When it
+lands, telegraphing rules apply double — losing a skill must never feel random.
+
+### Services as places *(from 3M field research)*
+3M puts every capability at an address: upgrade at the Lab, download at the Hall, heal
+at the E.R. Errand-through-geography is made for 2084, where moving through watched
+space is exactly what exposure taxes — getting your record amended *requires walking
+past the scanners to the Records Annex*. Mostly a build discipline rather than a
+feature; recorded here so v0.3+ services default to being rooms, not commands.
+
+### The Induction Wing: tutorial as architecture *(from 3M field research)*
+3M's revival teaches the game with rooms whose descriptions are the manual, arranged in
+loops you literally walk. 2084's version writes itself: civic induction — queue here,
+learn what a citizen may do, be told what the numbers in your prompt mean by a bored
+orientation clerk. Onboarding as fiction (ADR 0002 already wants the regime to tell
+you your function).
+**Why not now:** worth doing when there are enough mechanics to teach; revisit at v0.4.
+
 ### Endgame paths (escape / overthrow / inner circle)
 Long-horizon goals matter for retention.
 **Why not now:** endgames only mean something once the midgame exists. Sequencing, not
@@ -83,6 +107,10 @@ thesis level, not the tuning level. Social PvP — betrayal, denunciation, forge
 The consent framing (research §4) makes it *defensible*, and "volunteering for the
 front" fits the fiction. But it forks content and testing for a mode few would use.
 Someone must ask for it twice, in writing.
+*3M field note:* their version is 10 lives plus a Life Insurance Salesman — catastrophe
+visible ten steps away, distance from it purchasable. If we ever do consented stakes,
+that economic shape (see [third-millennium-mud.md §4](../research/third-millennium-mud.md))
+beats a binary hardcore flag.
 
 ### Big-world expansion / more districts
 Rooms are added when concurrent population supports them (principle 8, anti-principle

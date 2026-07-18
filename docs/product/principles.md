@@ -93,11 +93,18 @@ A 1996 MUD veteran's fingers should just work: `n`, `s`, `look`, `say`, the prom
 Everything *behind* the prompt — progression, stakes, what the numbers mean — is
 different. (Which is, not incidentally, the texture of the setting itself.)
 
+And the alien contents must go **all the way down**. Field research on 3rd Millennium
+found `magic missile` sitting in its implant-download catalog — a superb fiction undone
+by unconverted stock content ([third-millennium-mud.md §7](../research/third-millennium-mud.md)).
+No magic-missile moments: every engine default the player can see — messages, help
+text, stock verbs — passes through the fiction or gets rewritten.
+
 *Because:* 3rd Millennium kept the CircleMUD chassis while gutting the organs, and
 Evennia gives us the chassis for free
 ([evennia-capabilities.md](../research/evennia-capabilities.md)).
 
-**Test:** can a MUD veteran get from login to their first mistake without a help file?
+**Test:** can a MUD veteran get from login to their first mistake without a help file —
+and does anything they meet on the way smell of another genre?
 
 ## 10. Oppression is the fiction, not the UX
 
