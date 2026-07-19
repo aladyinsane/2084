@@ -47,10 +47,11 @@ The dread loop closes: consequences arrive, telegraphed in trend, uncertain in t
 - [x] Connection screen and all Watch prose pass principle 9's no-magic-missile rule
       (the login terminal is the Ministry's, not the engine's) ← added mid-version
       from the 3M field-research finding
-- [ ] New-player shallow end verified in **human** playtest (principle 10). The
-      mechanical half is proven — sweeps skip exposure < 20 by construction, unit
-      test walks 100 ticks untouched — but "genuinely safe" is a feeling, and
-      feelings need a playtester who isn't the developer
+- [x] New-player shallow end verified in **human** playtest (principle 10) —
+      happened 2026-07-19 ([findings](../research/playtest-2026-07-19-first-human.md)).
+      Verdict: mechanically safe, *experientially* rough — the confusion taxes
+      (command overwhelm, unexplained stats, naming collisions) and a flat
+      moment-to-moment loop ("a bit dull") spawned v0.7–v0.11 below
 
 ## v0.3 — The record is not the truth
 
@@ -185,6 +186,81 @@ pay **the underground** — the first non-Ministry ledger.
       added to the Wing's civic placard; sabotage/carry/papers added to the
       chalk — and the audit itself caught that v0.5 never chalked the
       informant verbs (recruit/sound/flip). Now it does
+
+## The 2026-07-19 batch (from the [first human playtest](../research/playtest-2026-07-19-first-human.md))
+
+Sequenced legibility-first: fix what confuses before building what excites,
+because renames get more expensive with every feature built on top of them,
+and because confusion is a fun-tax on everything downstream. One PR per
+version; merge on green tests per Lauren's standing instruction.
+
+## v0.7 — Legibility
+
+The playtest-response version. No new systems; the existing ones become
+readable.
+
+- [ ] Prompt spells out `Exposure` (Exp reads as experience points to every
+      MUD veteran)
+- [ ] Helpfiles for the two core stats (visibility, exposure) and a
+      `help`-topic pass over the custom verbs
+- [ ] Command-overwhelm audit: an honest doc weighing our ~15 custom verbs
+      against MUD conventions, folding or renaming where cheap
+- [ ] Rename: `sound` → `judge`; rename: player cells → **circles**
+      (`circle form/invite/join/leave`) — the holding cell keeps the word
+- [ ] Display fixes: NPC names capitalized in listings/poses; "a the chalk
+      marks" article stacking
+- [ ] Detention onboarding: `help` works in the holding cell, and the first
+      time the door closes, the room tells you your verbs
+
+## v0.8 — The map (left the parking lot)
+
+The ASCII map, deferred since v0.1 on purpose (ADR 0007 kept it cheap).
+Disorientation stopped being tonally useful and started being friction.
+Default choice per the parking lot: the `ingame_map_display` contrib over
+our grid-consistent room graph, presented in-fiction.
+
+- [ ] `map` command rendering the local area from the room/exit graph
+- [ ] In-fiction framing (a citizen's mental map / a contraband sketch, not
+      a Ministry handout)
+
+## v0.9 — Errands (the quest system)
+
+The broker proved the shape; generalize it so any tagged NPC can hand out
+work with a destination, a condition, and a payout.
+
+- [ ] Quest framework: offer/accept/complete/abandon on any NPC, quest state
+      on the character, rewards in faction standing (either kind)
+- [ ] Convert courier runs to ride the framework (the broker becomes the
+      first quest-giver rather than a special case)
+- [ ] 3–5 launch quests spread across sanctioned (Ministry work orders) and
+      unsanctioned (underground favors) givers
+
+## v0.10 — Implants (equipment)
+
+3M's implant catalog ([field research](../research/third-millennium-mud.md)),
+inverted for the Grid: the state issues what it can monitor; the black market
+sells what it can't.
+
+- [ ] Wear/remove slots; state-issued equipment (function badges, monitor
+      cuffs) with benefits *and* surveillance costs
+- [ ] Black-market gear (dampeners, dead-man pockets) with exposure benefits
+      and seizure risk
+- [ ] Principle 9 gate: every item passes the no-magic-missile rule
+
+## v0.11 — Circle benefits
+
+The pay side of trust (owed since ADR 0008 named the one-sink economy).
+
+- [ ] Shared stash (a circle-locked cache in a dead zone)
+- [ ] Joint operations: at least one errand that requires two circle members
+      acting together
+- [ ] Underground-ledger sinks sized against what the grind now pays
+
+## Cross-cutting for the batch
+
+- The **fun research pass** (game feel, incentive gradients, "why dull?")
+  lands before v0.9 so quests and implants inherit its answers
+- Curriculum audit per version (contributing rule 9), as always
 
 ## Later / undecided
 
