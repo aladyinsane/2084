@@ -22,6 +22,17 @@ class ObjectParent:
 
     """
 
+    def get_numbered_name(self, count, looker, **kwargs):
+        """
+        Keys that carry their own article ("the chalk marks") must not gain
+        a second one — the room listing was showing "a the chalk marks"
+        (first-human-playtest finding #6).
+        """
+        key = kwargs.get("key", self.get_display_name(looker))
+        if key.lower().startswith("the "):
+            kwargs["no_article"] = True
+        return super().get_numbered_name(count, looker, **kwargs)
+
 
 class Object(ObjectParent, DefaultObject):
     """

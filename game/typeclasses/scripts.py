@@ -201,10 +201,10 @@ class WatchSweepScript(Script):
                 watch.set_alert(watch.get_alert() - 1)
 
         # The sweep also collects from its sources (v0.5): recruited
-        # Ministry plants file on the cells that trusted them.
-        from world import cells
+        # Ministry plants file on the circles that trusted them.
+        from world import circles
 
-        cells.collect_informant_reports()
+        circles.collect_informant_reports()
 
     @staticmethod
     def papers_check(char):

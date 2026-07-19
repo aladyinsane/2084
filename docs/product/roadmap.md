@@ -199,18 +199,25 @@ version; merge on green tests per Lauren's standing instruction.
 The playtest-response version. No new systems; the existing ones become
 readable.
 
-- [ ] Prompt spells out `Exposure` (Exp reads as experience points to every
+- [x] Prompt spells out `Exposure` (Exp reads as experience points to every
       MUD veteran)
-- [ ] Helpfiles for the two core stats (visibility, exposure) and a
-      `help`-topic pass over the custom verbs
-- [ ] Command-overwhelm audit: an honest doc weighing our ~15 custom verbs
-      against MUD conventions, folding or renaming where cheap
-- [ ] Rename: `sound` → `judge`; rename: player cells → **circles**
-      (`circle form/invite/join/leave`) — the holding cell keeps the word
-- [ ] Display fixes: NPC names capitalized in listings/poses; "a the chalk
-      marks" article stacking
-- [ ] Detention onboarding: `help` works in the holding cell, and the first
-      time the door closes, the room tells you your verbs
+- [x] Helpfiles for the two core stats (visibility, exposure) plus
+      `help the grid` — file-based entries in the world's voice
+- [x] Command-overwhelm audit
+      ([command-surface-audit.md](../research/command-surface-audit.md)):
+      verdict was organization, not amputation — help now splits "the grid"
+      from "the underground" (mirroring Wing vs. chalk), `score` aliases to
+      `dossier` for thirty years of muscle memory, and one standing rule:
+      new features ride existing verb patterns before minting new ones
+- [x] Rename: `sound` → `judge` (old name kept as alias); player cells →
+      **circles** (`circle form/invite/join/leave`) — the holding cell
+      keeps the word, it had it first
+- [x] Display fixes: NPC names capitalized in listings/poses (keys stay
+      lowercase for the fiction); "a the chalk marks" article stacking
+      fixed for any "the "-prefixed key
+- [x] Detention onboarding: `help` joined the detained command set, and the
+      holding cell wall now carries Form 12-D, NOTICE OF REMAINING
+      ENTITLEMENTS — the room is its own manual, per the Wing's pattern
 
 ## v0.8 — The map (left the parking lot)
 

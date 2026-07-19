@@ -34,6 +34,10 @@ from evennia.settings_default import *
 # This is the name of your game. Make it catchy!
 SERVERNAME = "2084"
 
+# File-based help entries in the world's voice (v0.7): the core stats and
+# the game's shape get real helpfiles.
+FILE_HELP_ENTRY_MODULES = ["world.help_entries"]
+
 # The one default channel is the Grid's own, monitored band. Defined here
 # (not renamed after the fact) so account creation auto-subscribes citizens
 # to it — in-game verification caught the rename approach leaving new

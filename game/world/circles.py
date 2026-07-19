@@ -1,13 +1,18 @@
 """
-Cells: the trust layer (principle 6 — betrayal outguns everything).
+Circles: the trust layer (principle 6 — betrayal outguns everything).
 
-A cell is a small conspiracy of citizens: formed where nothing watches,
+A circle is a small conspiracy of citizens: formed where nothing watches,
 named only among its members, and held together by nothing the Grid can
-confiscate. Membership is a Tag (category "cell"); the registry of cells
-lives in ServerConfig. There is no cell object to seize — which is the
-point, and also why the only way into a cell's business is a member's mouth.
+confiscate. Membership is a Tag (category "circle"); the registry of circles
+lives in ServerConfig. There is no circle object to seize — which is the
+point, and also why the only way into a circle's business is a member's
+mouth.
 
-Everything the Ministry learns about cells, it learns the way it learns
+(Renamed from "cells" in v0.7: the first human playtest found the collision
+with the Watch's holding cell genuinely confusing, and the holding cell had
+the word first.)
+
+Everything the Ministry learns about circles, it learns the way it learns
 everything: from a form somebody signed (Section C, in detention), from an
 intercepted signal, or from a source it planted early and waters patiently.
 """
@@ -21,8 +26,8 @@ from evennia.utils.search import search_object_by_tag
 
 from world import tuning
 
-REGISTRY_KEY = "sector9_cells"
-MEMBER_TAG_CATEGORY = "cell"
+REGISTRY_KEY = "sector9_circles"
+MEMBER_TAG_CATEGORY = "circle"
 
 
 # --- registry and membership ------------------------------------------------
@@ -40,18 +45,18 @@ def slugify(name):
     return "-".join((name or "").strip().lower().split())
 
 
-def cell_of(char):
-    """The slug of the cell this character belongs to, or None."""
+def circle_of(char):
+    """The slug of the circle this character belongs to, or None."""
     tags = char.tags.get(category=MEMBER_TAG_CATEGORY, return_list=True)
     return tags[0] if tags else None
 
 
-def cell_name(slug):
+def circle_name(slug):
     return _registry().get(slug, {}).get("name", slug)
 
 
 def members_of(slug):
-    """All citizen characters in a cell (online or not)."""
+    """All citizen characters in a circle (online or not)."""
     from typeclasses.characters import Character
 
     return [
@@ -66,12 +71,12 @@ def online_members(slug):
 
 
 def form(char, name):
-    """Found a new cell. Caller must be cell-less; the room must be dead."""
+    """Found a new circle. Caller must be circle-less; the room must be dead."""
     slug = slugify(name)
     if not slug:
-        return None, "A cell needs a name its members can whisper."
-    if cell_of(char):
-        return None, "You are already somebody's risk. One cell per citizen."
+        return None, "A circle needs a name its members can whisper."
+    if circle_of(char):
+        return None, "You are already somebody's risk. One circle per citizen."
     reg = _registry()
     if slug in reg:
         return None, (
@@ -81,7 +86,7 @@ def form(char, name):
     reg[slug] = {"name": name.strip(), "founded": time.time()}
     _save_registry(reg)
     char.tags.add(slug, category=MEMBER_TAG_CATEGORY)
-    logger.log_info(f"watchlog: (unknown to the Watch) cell formed: {slug}")
+    logger.log_info(f"watchlog: (unknown to the Watch) circle formed: {slug}")
     return slug, None
 
 
@@ -89,15 +94,15 @@ def join(char, slug):
     reg = _registry()
     if slug not in reg:
         return "Whatever you were invited to has stopped existing."
-    if cell_of(char):
-        return "You are already somebody's risk. One cell per citizen."
+    if circle_of(char):
+        return "You are already somebody's risk. One circle per citizen."
     char.tags.add(slug, category=MEMBER_TAG_CATEGORY)
     return None
 
 
 def leave(char):
-    """Leave a cell; dissolve the registry entry if it empties."""
-    slug = cell_of(char)
+    """Leave a circle; dissolve the registry entry if it empties."""
+    slug = circle_of(char)
     if not slug:
         return None
     char.tags.remove(slug, category=MEMBER_TAG_CATEGORY)
@@ -113,14 +118,14 @@ def leave(char):
 
 def send_signal(char, message):
     """
-    Pass word to the cell: chalk shapes, folded papers, a cough with a
+    Pass word to the circle: chalk shapes, folded papers, a cough with a
     rhythm. Reaches every member currently on the Grid. Safe from quiet
     places; from watched ones, the wall sometimes has a wire in it.
     Returns True if the signal was intercepted.
     """
     from world import records
 
-    slug = cell_of(char)
+    slug = circle_of(char)
     recipients = [m for m in online_members(slug) if m is not char]
     for member in recipients:
         member.msg(
@@ -157,13 +162,13 @@ def send_signal(char, message):
 
 def betray(confessor):
     """
-    Section C, completed: every other member of the confessor's cell gains
+    Section C, completed: every other member of the confessor's circle gains
     an incident and a hot file. The confessor's membership does not survive
     their signature. Returns the number of citizens named.
     """
     from world import records
 
-    slug = cell_of(confessor)
+    slug = circle_of(confessor)
     if not slug:
         return 0
     named = [m for m in members_of(slug) if m is not confessor]
@@ -189,11 +194,11 @@ def betray(confessor):
 
 def notify_detention(char):
     """
-    Word travels: if the detained citizen's cell has a *street-loyal*
+    Word travels: if the detained citizen's circle has a *street-loyal*
     informant, the informant tips the members still outside. A Ministry
     plant, naturally, reports nothing — silence is part of the service.
     """
-    slug = cell_of(char)
+    slug = circle_of(char)
     if not slug:
         return
     from typeclasses.npcs import Informant
@@ -219,8 +224,8 @@ def notify_detention(char):
 def collect_informant_reports():
     """
     The sweep collects from its sources. Every recruited Ministry plant
-    files on one member of the cell that trusted it, on a cooldown — a slow
-    bleed a citizen only notices in their dossier, if they look.
+    files on one member of the circle that trusted it, on a cooldown — a
+    slow bleed a citizen only notices in their dossier, if they look.
     """
     from typeclasses.npcs import Informant
     from world import records
@@ -239,10 +244,10 @@ def collect_informant_reports():
         target = random.choice(members)
         records.add_record(
             target,
-            "Reported by a source: associates with an unregistered cell",
+            "Reported by a source: associates with an unregistered circle",
         )
         target.gain_exposure(tuning.INFORMANT_REPORT_EXPOSURE)
         logger.log_info(
             f"watchlog: informant {npc.key} filed on {target.key} "
-            f"(cell '{slug}')"
+            f"(circle '{slug}')"
         )

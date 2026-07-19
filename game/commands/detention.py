@@ -30,10 +30,10 @@ class CmdConfess(Command):
     help_category = "detention"
 
     def func(self):
-        from world import cells, watch
+        from world import circles, watch
 
         caller = self.caller
-        slug = cells.cell_of(caller)
+        slug = circles.circle_of(caller)
         mode = (self.args or "").strip().lower()
 
         if not slug:
@@ -54,7 +54,7 @@ class CmdConfess(Command):
             )
             return
 
-        blanks = len(cells.members_of(slug)) - 1
+        blanks = len(circles.members_of(slug)) - 1
         if mode not in ("names", "alone"):
             caller.msg(
                 "The officer slides the form across. Your part is small and "
@@ -68,7 +68,7 @@ class CmdConfess(Command):
             return
 
         if mode == "names":
-            named = cells.betray(caller)
+            named = circles.betray(caller)
             caller.msg(
                 "You fill Section C in the neat hand of a person being "
                 f"cooperative. {named} name{'s' if named != 1 else ''}, "
@@ -203,10 +203,13 @@ class DetainedCmdSet(CmdSet):
         self.add(CmdConfess())
         self.add(CmdWait())
         self.add(CmdDemand())
-        # The permitted remainder of a citizen's vocabulary.
+        # The permitted remainder of a citizen's vocabulary. `help` is in it
+        # — the first human playtest was detained with no idea what to do,
+        # and a room you can't ask questions in is a bug, not a mood.
         self.add(default_cmds.CmdLook())
         self.add(default_cmds.CmdSay())
         self.add(default_cmds.CmdQuit())
+        self.add(default_cmds.CmdHelp())
         from commands.dossier import CmdDossier
 
         self.add(CmdDossier())
