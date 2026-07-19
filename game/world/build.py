@@ -214,7 +214,10 @@ ROOMS = {
         "channel carries the public voice of Sector 9; it is public in "
         "every direction. Citizens seeking direction may ask after "
         "|cerrands|w - your orientation clerk keeps a short list of "
-        "constructive uses for a citizen's legs.\n"
+        "constructive uses for a citizen's legs. Standing may be spent at "
+        "the requisitions window in the Assignment Hall (|clist|w, "
+        "|cbuy|w, |cwear|w): badges, monitors, the small apparatus of "
+        "being legible.\n"
         "  When the loudspeakers convene a CIVIC ASSEMBLY, attend. "
         "Attendance is recorded with gratitude. Absence is also recorded.|n"
         "\n\n"
@@ -547,7 +550,10 @@ def build():
         "  |w- the queue pays legs. |ccarry|w for the broker, |cdeliver|w,\n"
         "    don't get checked. earn enough and she sells clean |cpapers|w.|n\n"
         "  |w- the lamp-mender has |cerrands|w for careful people. do the\n"
-        "    first one. the last one is worth more than it pays.|n"
+        "    first one. the last one is worth more than it pays.|n\n"
+        "  |w- the broker sells more than legs-work to people she knows.\n"
+        "    a coat that muffles. a pocket that lies. |clist|w, when your\n"
+        "    standing with the right people is more than nothing.|n"
         "\n\n"
         "Beneath, in different hands: initials, dates, and one line pressed "
         "hard enough to break the chalk: |wthey write it down. so can we.|n"
@@ -669,6 +675,37 @@ def build():
     broker.db.react_hot = (
         "{npc} becomes, with no visible transition, a tired woman holding "
         "turnips who has never met anyone in her life."
+    )
+    # The broker's second shelf (v0.10): black-market gear, shown only to
+    # citizens the underground already knows.
+    broker.tags.add("vendor", category="grid")
+    broker.db.stock_underground = ["dampener", "pocket"]
+
+    # The requisitions clerk (v0.10): state issue, logged with pleasure.
+    requisitions = create_object(
+        "typeclasses.npcs.Citizen",
+        key="the requisitions clerk",
+        location=rooms["hall"],
+    )
+    requisitions.tags.add("vendor", category="grid")
+    requisitions.db.stock = ["badge", "cuff"]
+    requisitions.db.desc = (
+        "A side window of the Assignment Hall counter, and in it a clerk "
+        "surrounded by grey boxes with excellent labels. State issue: "
+        "badges, monitors, the small apparatus of being legible. |cList|n "
+        "the stock; every issue is recorded, which is not a warning, "
+        "citizen, it is a service."
+    )
+    requisitions.db.react_calm = (
+        "{npc} aligns a grey box with the edge of the counter, restoring a "
+        "symmetry only they had noticed was broken."
+    )
+    requisitions.db.react_noticed = (
+        "{npc} looks from {name} to the requisition ledger, as if "
+        "estimating a size."
+    )
+    requisitions.db.react_hot = (
+        "{npc} slides the ledger two centimeters further from the window."
     )
 
     # The archivist: the sanctioned route to a different past (ADR 0005).

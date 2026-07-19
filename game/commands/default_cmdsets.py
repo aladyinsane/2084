@@ -28,6 +28,7 @@ from commands.civic import (
 )
 from commands.dossier import CmdDossier
 from commands.errands import CmdErrands
+from commands.gear import CmdBuy, CmdList, CmdRemoveGear, CmdWear
 from commands.map import CmdMap
 from commands.underground import CmdCarry, CmdDeliver, CmdPapers, CmdSabotage
 
@@ -68,6 +69,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdPapers())
         self.add(CmdMap())
         self.add(CmdErrands())
+        self.add(CmdList())
+        self.add(CmdBuy())
+        self.add(CmdWear())
+        self.add(CmdRemoveGear())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):

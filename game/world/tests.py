@@ -976,6 +976,139 @@ class TestLegibility(EvenniaTest):
             self.assertTrue(entry["text"].strip())
 
 
+class TestGear(EvenniaTest):
+    """v0.10: the implant catalog, worn — every item a trade."""
+
+    def _vendor(self, stock=("badge", "cuff"), underground=None):
+        vendor = create.create_object(
+            "typeclasses.npcs.Citizen", key="the requisitions clerk",
+            location=self.room1,
+        )
+        vendor.tags.add("vendor", category="grid")
+        vendor.db.stock = list(stock)
+        if underground:
+            vendor.db.stock_underground = list(underground)
+        return vendor
+
+    def _gear(self, kind, slot="wrist", worn=True):
+        item = create.create_object(
+            "typeclasses.gear.Gear", key=f"test {kind}", location=self.char1
+        )
+        item.db.gear_kind = kind
+        item.db.slot = slot
+        item.db.worn = worn
+        return item
+
+    def test_buy_costs_standing_and_state_issue_is_recorded(self):
+        from world import records, tuning
+
+        self._vendor()
+        self.char1.db.influence = {"Ministry of Records": 10}
+        self.char1.execute_cmd("buy badge")
+        self.assertEqual(
+            (self.char1.db.influence or {}).get("Ministry of Records"),
+            10 - tuning.GEAR_PRICES["badge"][1],
+        )
+        self.assertTrue(
+            any(
+                "Issued" in r.db.content
+                for r in records.records_for(self.char1, kind="observation")
+            )
+        )
+        # No spares.
+        self.char1.db.influence = {"Ministry of Records": 10}
+        self.char1.execute_cmd("buy badge")
+        badges = [
+            o for o in self.char1.contents if o.db.gear_kind == "badge"
+        ]
+        self.assertEqual(len(badges), 1)
+
+    def test_underground_shelf_needs_standing(self):
+        from world import tuning
+
+        vendor = self._vendor(stock=(), underground=("pocket",))
+        from commands.gear import _stock_for
+
+        self.assertEqual(_stock_for(vendor, self.char1), [])
+        self.char1.db.influence = {tuning.UNDERGROUND: 1}
+        self.assertEqual(_stock_for(vendor, self.char1), ["pocket"])
+
+    def test_one_item_per_slot(self):
+        self._gear("badge", slot="wrist", worn=True)
+        cuff = self._gear("cuff", slot="wrist", worn=False)
+        self.char1.execute_cmd(f"wear {cuff.key}")
+        self.assertFalse(cuff.db.worn)
+
+    def test_badge_pays_and_burns(self):
+        from world import tuning
+
+        self._gear("badge")
+        self.room1.tags.add("workplace", category="grid")
+        self.char1.execute_cmd("work")
+        self.assertEqual(
+            (self.char1.db.influence or {}).get("Ministry of Records"),
+            tuning.WORK_INFLUENCE + tuning.BADGE_WORK_BONUS,
+        )
+        # And it identifies you in watched rooms.
+        self.room2.db.visibility = tuning.BADGE_VIS_THRESHOLD
+        self.char1.db.exposure = 0
+        self.char1.move_to(self.room2)
+        expected = (
+            tuning.VISIBILITY_EXPOSURE[tuning.BADGE_VIS_THRESHOLD]
+            + tuning.BADGE_ROOM_EXPOSURE
+        )
+        self.assertEqual(self.char1.db.exposure, expected)
+
+    def test_dampener_shaves_room_exposure(self):
+        from world import tuning
+
+        self._gear("dampener", slot="coat")
+        self.room2.db.visibility = 4
+        self.char1.db.exposure = 0
+        self.char1.move_to(self.room2)
+        self.assertEqual(
+            self.char1.db.exposure,
+            tuning.VISIBILITY_EXPOSURE[4] - tuning.DAMPENER_ROOM_RELIEF,
+        )
+
+    def test_cuff_cools_faster(self):
+        from typeclasses.scripts import ExposureDecayScript
+        from world import tuning
+
+        self._gear("cuff")
+        script = create.create_script(ExposureDecayScript)
+        self.char1.db.exposure = 10
+        script.at_repeat()
+        self.assertEqual(
+            self.char1.db.exposure,
+            10 - tuning.EXPOSURE_DECAY_AMOUNT * tuning.CUFF_DECAY_MULT,
+        )
+        script.stop()
+
+    def test_pocket_eats_exactly_one_search(self):
+        from world import records, underground
+
+        broker = create.create_object(
+            "typeclasses.npcs.Citizen", key="the broker", location=self.room1
+        )
+        broker.tags.add("courier_broker", category="grid")
+        self.char1.execute_cmd("carry quiet")
+        pocket = self._gear("pocket", slot="pocket")
+        # First search: eaten — cargo survives, no incident, pocket spent.
+        self.assertFalse(underground.seize_contraband(self.char1))
+        self.assertEqual(len(underground.carried_parcels(self.char1)), 1)
+        self.assertFalse(
+            any(
+                "unregistered goods" in r.db.content
+                for r in records.records_for(self.char1)
+            )
+        )
+        self.assertIsNone(pocket.pk)  # spent
+        # Second search: the usual afternoon.
+        self.assertTrue(underground.seize_contraband(self.char1))
+        self.assertEqual(len(underground.carried_parcels(self.char1)), 0)
+
+
 class TestErrands(EvenniaTest):
     """v0.9: the quest system listens to verbs the player already has."""
 

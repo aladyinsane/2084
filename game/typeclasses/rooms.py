@@ -49,6 +49,12 @@ class Room(ObjectParent, DefaultRoom):
         )
         if hasattr(moved_obj, "gain_exposure"):
             gain = self.exposure_gain()
+            # Worn gear reads/misreads you (v0.10): the badge identifies,
+            # the coat muffles. Gear can shave a positive gain to zero but
+            # never mints relief out of walking.
+            from typeclasses.gear import room_exposure_delta
+
+            gain = max(0, gain + room_exposure_delta(moved_obj, self))
             if gain:
                 moved_obj.gain_exposure(gain)
             self._maybe_log_movement(moved_obj)
@@ -71,7 +77,13 @@ class Room(ObjectParent, DefaultRoom):
 
         if not moved_obj.has_account:
             return
-        if (moved_obj.db.exposure or 0) < tuning.SENSOR_LOG_MIN_EXPOSURE:
+        threshold = tuning.SENSOR_LOG_MIN_EXPOSURE
+        # A wellness monitor makes you easier to hear (v0.10).
+        from typeclasses.gear import worn_kind
+
+        if worn_kind(moved_obj, "cuff"):
+            threshold //= tuning.CUFF_LOG_DIVISOR
+        if (moved_obj.db.exposure or 0) < threshold:
             return
         live = [
             obj

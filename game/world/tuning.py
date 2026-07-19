@@ -198,6 +198,25 @@ UNDERGROUND = "the underground"      # the faction ledger both loops pay
 ERRAND_REWARD_SMALL = 2
 ERRAND_REWARD_MEDIUM = 3
 
+# --- v0.10: gear (the implant catalog, adapted) ----------------------------
+
+# The want-ladder (fun-and-game-feel.md dullness #5). Every item is a
+# trade, never a straight upgrade — 3M's memory-slot lesson, worn instead
+# of implanted because Airstrip One is an analog place.
+GEAR_PRICES = {
+    "badge": ("Ministry of Records", 5),
+    "cuff": ("Ministry of Records", 4),
+    "dampener": (UNDERGROUND, 8),
+    "pocket": (UNDERGROUND, 5),
+}
+BADGE_WORK_BONUS = 1        # the badge pays better at the counter...
+BADGE_VIS_THRESHOLD = 3     # ...and identifies you in watched rooms:
+BADGE_ROOM_EXPOSURE = 1     # extra exposure entering vis >= threshold
+CUFF_DECAY_MULT = 2         # the cuff cools you twice as fast...
+CUFF_LOG_DIVISOR = 2        # ...and halves the sensor-logging threshold
+DAMPENER_ROOM_RELIEF = 1    # the coat shaves room exposure (floor 0)...
+DAMPENER_WORK_PENALTY = 1   # ...and clerks distrust it (worse pay, min 1)
+
 # --- v0.8.5: juice (fun-and-game-feel.md) ----------------------------------
 
 # Ambient texture: rooms murmur on a slow tick, rate-limited per room.

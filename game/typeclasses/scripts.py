@@ -123,11 +123,17 @@ class ExposureDecayScript(Script):
         from world import tuning
 
         from .characters import Character
+        from .gear import worn_kind
 
         for char in Character.objects.all():
             exposure = char.db.exposure or 0
             if exposure > 0:
-                char.db.exposure = max(0, exposure - tuning.EXPOSURE_DECAY_AMOUNT)
+                amount = tuning.EXPOSURE_DECAY_AMOUNT
+                # The Ministry worries less about citizens it can hear
+                # (v0.10): a worn wellness monitor cools you faster.
+                if worn_kind(char, "cuff"):
+                    amount *= tuning.CUFF_DECAY_MULT
+                char.db.exposure = max(0, exposure - amount)
 
 
 class WatchSweepScript(Script):
