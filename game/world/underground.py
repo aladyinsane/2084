@@ -111,6 +111,22 @@ def seize_contraband(char, found_by="an officer of the Watch"):
     parcels = carried_parcels(char)
     if not parcels:
         return False
+    # A dead-man pocket eats exactly one search (v0.10). The seam is
+    # single-use; the incident never happens; the officer finds a pocket
+    # containing pocket.
+    from typeclasses.gear import worn_kind
+
+    pocket = worn_kind(char, "pocket")
+    if pocket:
+        pocket.delete()
+        char.msg(
+            "|gGloved hands find the pocket — and the pocket, with one "
+            "soft click of its seam, gives them its emptiness.|n The "
+            "search moves on. Your cargo settles back against your ribs. "
+            "The seam hangs slack now, spent."
+        )
+        logger.log_info(f"watchlog: dead-man pocket ate a search ({char.key})")
+        return False
     for parcel in parcels:
         parcel.delete()
     abandon_job(char)

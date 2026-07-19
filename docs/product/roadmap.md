@@ -266,11 +266,22 @@ work with a destination, a condition, and a payout.
 inverted for the Grid: the state issues what it can monitor; the black market
 sells what it can't.
 
-- [ ] Wear/remove slots; state-issued equipment (function badges, monitor
-      cuffs) with benefits *and* surveillance costs
-- [ ] Black-market gear (dampeners, dead-man pockets) with exposure benefits
-      and seizure risk
-- [ ] Principle 9 gate: every item passes the no-magic-missile rule
+- [x] Wear/remove slots (one item per slot — 3M's memory-slot lesson, worn
+      instead of implanted because Airstrip One is analog); MUD-stock verbs
+      per the audit: `list`/`buy`/`wear`/`remove`. State issue at the new
+      requisitions window: the **badge** (better counter pay / warmer in
+      watched rooms) and the **wellness monitor** (heat fades twice as
+      fast / movements log twice as easily). Every issue recorded, of
+      course
+- [x] Black-market gear on the broker's second shelf, shown only to
+      citizens the underground knows: the **foil-lined coat** (entry heat
+      shaved / clerks distrust it) and the **dead-man pocket** (eats
+      exactly one search, then it's spent) — the courier's insurance
+      policy
+- [x] Principle 9 gate: every item is cloth, foil, or lamination doing
+      exactly what such a thing could do; every item is a trade, never an
+      upgrade. Playtest caught the buy message advertising an alias the
+      item didn't have ("wear cuff") — fixed
 
 ## v0.11 — Circle benefits
 

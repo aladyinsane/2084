@@ -144,6 +144,14 @@ class CmdWork(Command):
         caller.db.last_work = now
         caller.msg(random.choice(shifts))
         skill = caller.improve_skill(skill_name)
+        # What you wear changes what the counter pays (v0.10): a badge
+        # legitimizes; a foil-lined coat gets looked at twice.
+        from typeclasses.gear import worn_kind
+
+        if worn_kind(caller, "badge"):
+            pay += tuning.BADGE_WORK_BONUS
+        if worn_kind(caller, "dampener"):
+            pay = max(1, pay - tuning.DAMPENER_WORK_PENALTY)
         total = caller.gain_influence(faction, pay)
         caller.gain_exposure(-tuning.WORK_EXPOSURE_RELIEF)
         caller.msg(
