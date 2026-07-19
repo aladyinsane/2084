@@ -226,9 +226,17 @@ Disorientation stopped being tonally useful and started being friction.
 Default choice per the parking lot: the `ingame_map_display` contrib over
 our grid-consistent room graph, presented in-fiction.
 
-- [ ] `map` command rendering the local area from the room/exit graph
-- [ ] In-fiction framing (a citizen's mental map / a contraband sketch, not
-      a Ministry handout)
+- [x] `map` command rendering the local area from the room/exit graph
+      (`ingame_map_display` contrib subclassed — ADR 0007's discipline paid
+      off: zero migration, the world just mapped)
+- [x] In-fiction framing: your own recollection, since no map of Sector 9
+      is issued or acknowledged to exist. The 2084 twist: rooms render as
+      their |wvisibility digits|n, so the map is a route-planning tool for
+      staying dark, not a convenience. Locked exits aren't drawn past —
+      the Spire is off your map until you hold C-1 (though the gate's
+      dangling exit-line hints at it, which is better fiction than hiding
+      the gate). The Bolt-Hole maps as 0: the map is your knowledge, and
+      your knowledge is exactly as good as the room's lie
 
 ## v0.9 — Errands (the quest system)
 
