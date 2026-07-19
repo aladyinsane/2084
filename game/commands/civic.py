@@ -377,7 +377,7 @@ class CmdForge(Command):
 
     key = "forge"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "the underground"
 
     def func(self):
         from world import records, watch

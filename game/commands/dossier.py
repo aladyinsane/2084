@@ -25,7 +25,9 @@ class CmdDossier(Command):
     """
 
     key = "dossier"
-    aliases = ["file", "record"]
+    # "score" is what thirty years of MUD muscle memory will type for
+    # "show me my character" — it should land somewhere useful (v0.7).
+    aliases = ["file", "record", "score"]
     locks = "cmd:all()"
     help_category = "the grid"
 

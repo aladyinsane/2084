@@ -162,7 +162,7 @@ ROOMS = {
         "|w  WELCOME, CITIZEN. THE GRID PROVIDES. THE GRID OBSERVES.\n"
         "  Read every room carefully; rooms are how the Grid explains\n"
         "  itself. The numbers in your prompt are yours: Vis is how\n"
-        "  watched a place is (0-5). Exp is how interesting you have\n"
+        "  watched a place is (0-5). Exposure is how interesting you have\n"
         "  made yourself. Low numbers are a virtue.\n"
         "  Proceed NORTH when ready. Type |chelp|w at any difficulty.|n",
     ),
@@ -172,7 +172,7 @@ ROOMS = {
         "Diagrams of street corners cover the walls, each with sight-lines "
         "drawn in red. A placard reads:\n\n"
         "|w  The Watch protects you by knowing you. Moving through watched "
-        "space raises your Exp; time and good conduct lower it. Citizens "
+        "space raises your Exposure; time and good conduct lower it. Citizens "
         "of interest may be stopped and checked - cooperation clears you, "
         "and clearing is itself a credential. Citizens of |rgreat|w interest "
         "are detained for their protection.\n"
@@ -222,7 +222,7 @@ ROOMS = {
         "lens. A counter above the far door displays your exposure in "
         "figures a hand tall, updating as you walk. A placard reads:\n\n"
         "|w  This corridor is watched at the highest civic grade, so that "
-        "you may feel the difference. Note the Exp figure in your prompt "
+        "you may feel the difference. Note the Exposure figure in your prompt "
         "as you entered. This sensation - of a number rising because you "
         "went somewhere - is the fundamental transaction of the Grid. "
         "Spend it wisely.\n"
@@ -238,7 +238,14 @@ ROOMS = {
         "with no handle on this side. A grille at eye level lets the corridor "
         "look in; it does not particularly let you look out. Someone has "
         "scratched four thin lines into the bench. There is a fifth line, "
-        "fainter, abandoned halfway.",
+        "fainter, abandoned halfway.\n\n"
+        "A card is screwed to the wall at eye height, in Ministry typeface:\n"
+        "|w  NOTICE OF REMAINING ENTITLEMENTS (FORM 12-D)\n"
+        "  The detainee may: |cwait|w. The detainee may: |cconfess|w.\n"
+        "  The detainee may: |cdemand|w (see reverse). The detainee\n"
+        "  retains the rights of speech (|csay|w), of reviewing their\n"
+        "  file (|cdossier|w), and of |chelp|w, within reason.|n\n"
+        "There is no reverse. The card is screwed flat to the wall.",
     ),
 }
 
@@ -469,13 +476,13 @@ def build():
         "    files the form. remember what a form can do.|n\n"
         "  |w- heat fades. sit. breathe. count the water drips. then go up\n"
         "    and be boring.|n\n"
-        "  |w- alone you are a file. together you are a problem. |ccell|w,\n"
-        "    down here, with people you'd go to the cells for.|n\n"
+        "  |w- alone you are a file. together you are a problem. draw a\n"
+        "    |ccircle|w, down here, with people you'd go to the cells for.|n\n"
         "  |w- pass word with |csignal|w. from quiet places only. walls\n"
         "    have wires in them sometimes.|n\n"
         "  |w- people on corners hear things. |crecruit|w them if you must,\n"
-        "    but |csound|w them first, and learn to look before you trust\n"
-        "    the sounding. not every ear is yours. some can be bought\n"
+        "    but |cjudge|w them first, and learn to look before you trust\n"
+        "    the judging. not every ear is yours. some can be bought\n"
         "    back (|cflip|w). none can be returned.|n\n"
         "  |w- the bolt-hole west of here has cots and a kettle. somebody\n"
         "    keeps it nice. ask yourself who.|n\n"

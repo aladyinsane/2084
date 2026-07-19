@@ -1,58 +1,91 @@
 """
-File-based help entries. These complements command-based help and help entries
-added in the database using the `sethelp` command in-game.
-
-Control where Evennia reads these entries with `settings.FILE_HELP_ENTRY_MODULES`,
-which is a list of python-paths to modules to read.
-
-A module like this should hold a global `HELP_ENTRY_DICTS` list, containing
-dicts that each represent a help entry. If no `HELP_ENTRY_DICTS` variable is
-given, all top-level variables that are dicts in the module are read as help
-entries.
-
-Each dict is on the form
-::
-
-    {'key': <str>,
-     'text': <str>}``     # the actual help text. Can contain # subtopic sections
-     'category': <str>,   # optional, otherwise settings.DEFAULT_HELP_CATEGORY
-     'aliases': <list>,   # optional
-     'locks': <str>       # optional, 'view' controls seeing in help index, 'read'
-                          #           if the entry can be read. If 'view' is unset,
-                          #           'read' is used for the index. If unset, everyone
-                          #           can read/view the entry.
-
+File-based help entries (v0.7): the two core stats and the game's shape,
+written in the world's voice. Read via settings.FILE_HELP_ENTRY_MODULES.
+The first human playtest found that the game's two most important numbers
+had no helpfiles at all.
 """
 
 HELP_ENTRY_DICTS = [
     {
-        "key": "evennia",
-        "aliases": ["ev"],
-        "category": "General",
-        "locks": "read:perm(Developer)",
+        "key": "exposure",
+        "aliases": ["exp", "heat"],
+        "category": "the grid",
         "text": """
-            Evennia is a MU-game server and framework written in Python. You can read more
-            on https://www.evennia.com.
+            The number in your prompt where |wdown is good|n.
 
-            # subtopics
+            Exposure (0-100) is how interesting you currently are to the
+            state. It is not experience points. There are no experience
+            points. There is only how much of you the Grid has recently
+            seen.
 
-            ## Installation
+            |wIt rises|n when you move through watched places (see |chelp
+            visibility|n), pass scanners, speak on the public channel, and
+            generally exist where the apparatus can notice you existing.
 
-            You'll find installation instructions on https://www.evennia.com.
+            |wIt falls|n slowly with time; faster through visible
+            usefulness (|cwork|n), through being stopped, checked and
+            cleared, and through attending assemblies when convened.
 
-            ## Community
+            |wWhat it costs you:|n above 20 or so, the Watch's sweeps may
+            select you — a papers check if you are middling, detainment at
+            50 and up. Patrols detain the hot on sight. Citizens read your
+            heat off your face and act accordingly.
 
-            There are many ways to get help and communicate with other devs!
+            Below 20 you are, in the Grid's own idiom, nobody. Being
+            nobody is a strategy. Some say it is the only one.
+        """,
+    },
+    {
+        "key": "visibility",
+        "aliases": ["vis"],
+        "category": "the grid",
+        "text": """
+            The other number in your prompt: how watched |wthis place|n is,
+            from 0 to 5.
 
-            ### Discussions
+            0 means nothing watches here at all — no fixtures, no ambient
+            coverage. 5 is the checkpoint: white light, no shadows,
+            architecture designed to be seen in. Entering a place accrues
+            Exposure in proportion to its visibility, plus whatever live
+            devices hang there (|cobserve|n counts them — attention is a
+            skill).
 
-            The Discussions forum is found at https://github.com/evennia/evennia/discussions.
+            Visibility belongs to the room, not to you, and it does not
+            change on its own — though devices can break, and broken
+            devices watch nothing.
 
-            ### Discord
+            A place showing Vis 0 with nothing live in it is a |wdead
+            zone|n: sweeps cannot select you there, and certain things
+            become possible that are possible nowhere else. Whether a
+            place that *looks* like a dead zone actually is one is a
+            separate question, and the careful have ways of checking.
+        """,
+    },
+    {
+        "key": "the grid",
+        "aliases": ["2084", "sector 9", "basics"],
+        "category": "the grid",
+        "text": """
+            2084 is not a game about killing things; there is nothing to
+            kill and no experience points for killing it. It is a game
+            about being |wseen|n, being |wwritten down|n, and what you are
+            willing to do about the file that results.
 
-            There is also a discord channel for chatting - connect using the
-            following link: https://discord.gg/AJJpcRUhtF
+            The short version of everything:
 
+            - Your prompt shows |wVis|n (how watched this place is; |chelp
+              visibility|n) and |wExposure|n (how interesting you are;
+              |chelp exposure|n).
+            - Your |cdossier|n (or |cscore|n) is what the state says you
+              are. It is not necessarily what happened. That distinction
+              is most of the game.
+            - Sanctioned life: |creport|n for a function, |cwork|n your
+              post, earn standing, |cpetition|n corrections, |capply|n for
+              clearance, attend assemblies when the loudspeakers say so.
+            - The rest of life is taught elsewhere. Rooms explain
+              themselves; read them. The Orientation Wing (east of the
+              Assignment Hall) is the sanctioned classroom. Sector 9 has
+              at least one other, for those who look down as well as up.
         """,
     },
 ]

@@ -69,9 +69,11 @@ class Character(ObjectParent, DefaultCharacter):
 
     def get_prompt(self):
         # The trend-telegraph promised by principle 3: the player always sees
-        # how watched here is, and how hot they are.
+        # how watched here is, and how hot they are. "Exposure" is spelled
+        # out because "Exp" reads as experience points to every MUD veteran
+        # (first-human-playtest finding #3).
         vis = getattr(self.location, "visibility", "-")
-        return f"|=m[|nVis:{vis} Exp:{self.exposure}|=m]|n > "
+        return f"|=m[|nVis:{vis} Exposure:{self.exposure}|=m]|n > "
 
     def send_prompt(self):
         self.msg(prompt=self.get_prompt())

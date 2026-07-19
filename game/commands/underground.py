@@ -37,7 +37,7 @@ class CmdSabotage(Command):
 
     key = "sabotage"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "the underground"
 
     def func(self):
         from world import underground
@@ -107,7 +107,7 @@ class CmdCarry(Command):
 
     key = "carry"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "the underground"
 
     def func(self):
         from world import underground
@@ -175,7 +175,7 @@ class CmdDeliver(Command):
 
     key = "deliver"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "the underground"
 
     def func(self):
         from world import underground
@@ -218,7 +218,7 @@ class CmdPapers(Command):
 
     key = "papers"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "the underground"
 
     def func(self):
         from world import underground

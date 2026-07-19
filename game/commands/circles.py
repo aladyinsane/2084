@@ -1,10 +1,14 @@
 """
-The underground verbs (v0.5, principle 6): cells, signals, and informants.
+The underground verbs (v0.5, principle 6): circles, signals, and informants.
 
 None of these are taught by the Orientation Wing. The chalk in Tunnel B
 teaches them, which is the correct classroom: every one of these verbs
 either requires a dead zone or gets safer in one, and every one of them
 creates something a confession could later spend.
+
+(v0.7 renames, from the first human playtest: player "cells" are now
+"circles" — the holding cell had the word first — and `sound` is now
+`judge`, which says what it does.)
 """
 
 from evennia import Command
@@ -26,30 +30,28 @@ def _informant_here(caller, name):
     return target
 
 
-class CmdCell(Command):
+class CmdCircle(Command):
     """
-    Your cell: the people who know your name and shouldn't.
+    Your circle: the people who know your name and shouldn't.
 
     Usage:
-      cell                     - who you are in this with
-      cell form <name>         - found a cell (only where nothing watches)
-      cell invite <citizen>    - invite someone present (same condition)
-      cell join                - accept an invitation (same condition)
-      cell leave               - walk away (the file you already share stays shared)
+      circle                   - who you are in this with
+      circle form <name>       - found a circle (only where nothing watches)
+      circle invite <citizen>  - invite someone present (same condition)
+      circle join              - accept an invitation (same condition)
+      circle leave             - walk away (what you already share stays shared)
 
-    A cell is not a guild. There is no roster the Grid can read, no hall,
+    A circle is not a guild. There is no roster the Grid can read, no hall,
     no banner. There are only people who trusted each other somewhere dark —
-    and everything the Ministry ever learns about a cell, it learns from
+    and everything the Ministry ever learns about a circle, it learns from
     one of them.
     """
 
-    key = "cell"
+    key = "circle"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "the underground"
 
     def func(self):
-        from world import cells
-
         caller = self.caller
         args = (self.args or "").strip()
         action, _, rest = args.partition(" ")
@@ -67,21 +69,23 @@ class CmdCell(Command):
         elif action == "leave":
             self.do_leave()
         else:
-            caller.msg("Usage: cell [form <name> | invite <citizen> | join | leave]")
+            caller.msg(
+                "Usage: circle [form <name> | invite <citizen> | join | leave]"
+            )
 
     def show_status(self):
-        from world import cells
+        from world import circles
 
         caller = self.caller
-        slug = cells.cell_of(caller)
+        slug = circles.circle_of(caller)
         if not slug:
-            invite = caller.db.cell_invite
+            invite = caller.db.circle_invite
             if invite:
                 caller.msg(
                     "You carry an invitation nobody wrote down: "
-                    f"|w{cells.cell_name(invite)}|n. Accept it (|ccell join|n) "
-                    "somewhere nothing watches, or let it stay a thing that "
-                    "never happened."
+                    f"|w{circles.circle_name(invite)}|n. Accept it "
+                    "(|ccircle join|n) somewhere nothing watches, or let it "
+                    "stay a thing that never happened."
                 )
             else:
                 caller.msg(
@@ -89,9 +93,9 @@ class CmdCell(Command):
                     "correct citizenship."
                 )
             return
-        members = cells.members_of(slug)
+        members = circles.members_of(slug)
         lines = [
-            f"|wCell: {cells.cell_name(slug)}|n "
+            f"|wCircle: {circles.circle_name(slug)}|n "
             "(a name that appears in no registry the Grid admits to)"
         ]
         for member in sorted(members, key=lambda m: m.key):
@@ -100,39 +104,39 @@ class CmdCell(Command):
             lines.append(f" - {member.key}{you} — {here}")
         lines.append(
             "|=mEach name on this list can end every other name on it. "
-            "That is what a cell is.|n"
+            "That is what a circle is.|n"
         )
         caller.msg("\n".join(lines))
 
     def do_form(self, name):
-        from world import cells
+        from world import circles
 
         caller = self.caller
         if not _dead_zone(caller.location):
             caller.msg(
-                "Not here. A cell is founded where nothing watches, or it "
-                "is founded in a file."
+                "Not here. A circle is drawn where nothing watches, or it "
+                "is drawn in a file."
             )
             return
-        slug, err = cells.form(caller, name)
+        slug, err = circles.form(caller, name)
         if err:
             caller.msg(err)
             return
         caller.msg(
             f"In the dark, with no witnesses worth the word, "
-            f"|w{cells.cell_name(slug)}|n begins to exist. It has one member "
-            "and no evidence. Keep it that way as long as you can.\n"
-            "|=mInvite others here with |ccell invite <citizen>|n|=m — "
+            f"|w{circles.circle_name(slug)}|n begins to exist. It has one "
+            "member and no evidence. Keep it that way as long as you can.\n"
+            "|=mInvite others here with |ccircle invite <citizen>|n|=m — "
             "they must be standing where you are standing: nowhere.|n"
         )
 
     def do_invite(self, name):
-        from world import cells
+        from world import circles
 
         caller = self.caller
-        slug = cells.cell_of(caller)
+        slug = circles.circle_of(caller)
         if not slug:
-            caller.msg("You have no cell to invite anyone into.")
+            caller.msg("You have no circle to invite anyone into.")
             return
         if not _dead_zone(caller.location):
             caller.msg("Not here. Invitations are made where nothing watches.")
@@ -148,57 +152,58 @@ class CmdCell(Command):
                 "Citizens only."
             )
             return
-        if cells.cell_of(target):
+        if circles.circle_of(target):
             caller.msg(f"{target.key} already belongs to somebody's risk.")
             return
-        target.db.cell_invite = slug
+        target.db.circle_invite = slug
         caller.msg(
             f"You put it to {target.key} in the fewest words it has ever "
             "been put in."
         )
         target.msg(
             f"|c{caller.key} leans close|n and offers you a name: "
-            f"|w{cells.cell_name(slug)}|n. No paper changes hands; that is "
-            "the entire attraction. |=mAccept with |ccell join|n|=m, here or "
-            "in any place this dark. Or don't, and this never happened.|n"
+            f"|w{circles.circle_name(slug)}|n. No paper changes hands; that "
+            "is the entire attraction. |=mAccept with |ccircle join|n|=m, "
+            "here or in any place this dark. Or don't, and this never "
+            "happened.|n"
         )
 
     def do_join(self):
-        from world import cells
+        from world import circles
 
         caller = self.caller
-        slug = caller.db.cell_invite
+        slug = caller.db.circle_invite
         if not slug:
             caller.msg("Nobody has offered you a name to join.")
             return
         if not _dead_zone(caller.location):
             caller.msg("Not here. Accept it where nothing watches, or not at all.")
             return
-        err = cells.join(caller, slug)
-        caller.db.cell_invite = None
+        err = circles.join(caller, slug)
+        caller.db.circle_invite = None
         if err:
             caller.msg(err)
             return
-        others = [m.key for m in cells.members_of(slug) if m is not caller]
+        others = [m.key for m in circles.members_of(slug) if m is not caller]
         caller.msg(
-            f"You are now part of |w{cells.cell_name(slug)}|n, alongside "
+            f"You are now part of |w{circles.circle_name(slug)}|n, alongside "
             f"{', '.join(sorted(others)) if others else 'no one, anymore'}. "
             "\n|=mPass word with |csignal <message>|n|=m — safe from quiet "
             "places, less so from watched ones. And understand the "
-            "arithmetic: everything the cell does, every member can "
+            "arithmetic: everything the circle does, every member can "
             "eventually be made to sign for.|n"
         )
 
     def do_leave(self):
-        from world import cells
+        from world import circles
 
         caller = self.caller
-        slug = cells.leave(caller)
+        slug = circles.leave(caller)
         if not slug:
-            caller.msg("You are not in a cell.")
+            caller.msg("You are not in a circle.")
             return
         caller.msg(
-            f"You stop being part of {cells.cell_name(slug)}. The others "
+            f"You stop being part of {circles.circle_name(slug)}. The others "
             "will notice the way one notices weather. What you already "
             "know, you still know — and so does anyone who ever signs a "
             "form about it."
@@ -207,7 +212,7 @@ class CmdCell(Command):
 
 class CmdSignal(Command):
     """
-    Pass word to your cell.
+    Pass word to your circle.
 
     Usage:
       signal <message>
@@ -221,48 +226,48 @@ class CmdSignal(Command):
 
     key = "signal"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "the underground"
 
     def func(self):
-        from world import cells
+        from world import circles
 
         caller = self.caller
         message = (self.args or "").strip()
-        if not cells.cell_of(caller):
-            caller.msg("You have no one to signal. A cell comes first.")
+        if not circles.circle_of(caller):
+            caller.msg("You have no one to signal. A circle comes first.")
             return
         if not message:
             caller.msg("Usage: signal <message>")
             return
-        cells.send_signal(caller, message)
+        circles.send_signal(caller, message)
 
 
 class CmdRecruit(Command):
     """
-    Bring an informant into the cell's confidence.
+    Bring an informant into the circle's confidence.
 
     Usage:
       recruit <someone>
 
     Some citizens hear things: menders, vendors, people whose work keeps
-    them on corners. Recruited, they pass word to your cell — who was
+    them on corners. Recruited, they pass word to your circle — who was
     taken, when the street goes quiet. It is done in quiet places, and it
     is a bet: you are trusting that the person who listens for you does
-    not also listen for someone else. Read them first (|csound|n), if you
-    can read at all.
+    not also listen for someone else. |cjudge|n them first, if you can
+    judge at all.
     """
 
     key = "recruit"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "the underground"
 
     def func(self):
-        from world import cells
+        from world import circles
 
         caller = self.caller
-        slug = cells.cell_of(caller)
+        slug = circles.circle_of(caller)
         if not slug:
-            caller.msg("Recruit them into what? A cell comes first.")
+            caller.msg("Recruit them into what? A circle comes first.")
             return
         vis = getattr(caller.location, "visibility", 0)
         if vis > tuning.RECRUIT_MAX_VISIBILITY:
@@ -293,17 +298,17 @@ class CmdRecruit(Command):
             f"{target.key} listens, looks at the middle distance for a "
             "while, and names no price, which is either loyalty or the "
             "first installment of something.\n"
-            "|=mThey will pass word to your cell — if word is what they "
+            "|=mThey will pass word to your circle — if word is what they "
             "actually deal in.|n"
         )
 
 
-class CmdSound(Command):
+class CmdJudge(Command):
     """
     Take the measure of an informant.
 
     Usage:
-      sound <someone>
+      judge <someone>
 
     Loyalty is not written on a face, but faces leak. What you get depends
     entirely on how well you have learned to look (the |cobserve|n skill):
@@ -311,9 +316,10 @@ class CmdSound(Command):
     one reads the truth.
     """
 
-    key = "sound"
+    key = "judge"
+    aliases = ["sound"]  # the old name, kept as a courtesy
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "the underground"
 
     def func(self):
         caller = self.caller
@@ -370,11 +376,9 @@ class CmdFlip(Command):
 
     key = "flip"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "the underground"
 
     def func(self):
-        from world import cells, records
-
         caller = self.caller
         target = _informant_here(caller, self.args)
         if not target:

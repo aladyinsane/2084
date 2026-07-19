@@ -85,11 +85,12 @@ def detain(char, reason="routine sweep"):
     char.move_to(cell, quiet=True, move_type="detained")
     char.cmdset.add(DetainedCmdSet, persistent=True)
     char.execute_cmd("look")
-    # If the street has ears that answer to this citizen's cell, the cell
-    # hears about the van (v0.5 — and only if those ears are really theirs).
-    from world import cells
+    # If the street has ears that answer to this citizen's circle, the
+    # circle hears about the van (v0.5 — and only if those ears are really
+    # theirs).
+    from world import circles
 
-    cells.notify_detention(char)
+    circles.notify_detention(char)
     return True
 
 

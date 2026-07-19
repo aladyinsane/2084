@@ -606,13 +606,13 @@ class TestTrust(EvenniaTest):
         self.room1.tags.add("release_point", category="grid")
         return room
 
-    def _cell_of_two(self, name="redbird"):
-        """char1 founds a cell in room1 (a true dead zone) and char2 joins."""
-        from world import cells
+    def _circle_of_two(self, name="redbird"):
+        """char1 founds a circle in room1 (a true dead zone) and char2 joins."""
+        from world import circles
 
-        slug, err = cells.form(self.char1, name)
+        slug, err = circles.form(self.char1, name)
         self.assertIsNone(err)
-        self.char2.tags.add(slug, category="cell")
+        self.char2.tags.add(slug, category="circle")
         return slug
 
     def _captured(self, char, command):
@@ -627,51 +627,51 @@ class TestTrust(EvenniaTest):
 
     # --- cells --------------------------------------------------------------
 
-    def test_cell_forms_only_in_dead_zones(self):
-        from world import cells
+    def test_circle_forms_only_in_dead_zones(self):
+        from world import circles
 
         self.room1.db.visibility = 3
-        self.char1.execute_cmd("cell form redbird")
-        self.assertIsNone(cells.cell_of(self.char1))
+        self.char1.execute_cmd("circle form redbird")
+        self.assertIsNone(circles.circle_of(self.char1))
         self.room1.db.visibility = 0
-        self.char1.execute_cmd("cell form redbird")
-        self.assertEqual(cells.cell_of(self.char1), "redbird")
+        self.char1.execute_cmd("circle form redbird")
+        self.assertEqual(circles.circle_of(self.char1), "redbird")
         # One cell per citizen.
-        _, err = cells.form(self.char1, "second-try")
+        _, err = circles.form(self.char1, "second-try")
         self.assertIsNotNone(err)
 
     def test_invite_and_join_flow(self):
-        from world import cells
+        from world import circles
 
-        self.char1.execute_cmd("cell form redbird")
-        self.char1.execute_cmd("cell invite Char2")
-        self.assertEqual(self.char2.db.cell_invite, "redbird")
-        self.char2.execute_cmd("cell join")
-        self.assertEqual(cells.cell_of(self.char2), "redbird")
-        self.assertEqual(len(cells.members_of("redbird")), 2)
+        self.char1.execute_cmd("circle form redbird")
+        self.char1.execute_cmd("circle invite Char2")
+        self.assertEqual(self.char2.db.circle_invite, "redbird")
+        self.char2.execute_cmd("circle join")
+        self.assertEqual(circles.circle_of(self.char2), "redbird")
+        self.assertEqual(len(circles.members_of("redbird")), 2)
         # Leaving works, and the last member out dissolves the registry entry.
-        self.char2.execute_cmd("cell leave")
-        self.assertIsNone(cells.cell_of(self.char2))
-        cells.leave(self.char1)
-        slug, err = cells.form(self.char1, "redbird")  # name is free again
+        self.char2.execute_cmd("circle leave")
+        self.assertIsNone(circles.circle_of(self.char2))
+        circles.leave(self.char1)
+        slug, err = circles.form(self.char1, "redbird")  # name is free again
         self.assertIsNone(err)
 
     def test_signal_intercepted_only_above_safe_visibility(self):
         from unittest.mock import patch
 
-        from world import cells, tuning
+        from world import circles, tuning
 
-        self._cell_of_two()
+        self._circle_of_two()
         # From a dead zone: even a doomed roll cannot intercept.
         self.char1.db.exposure = 0
-        with patch("world.cells.random.random", return_value=0.0):
-            intercepted = cells.send_signal(self.char1, "lie low")
+        with patch("world.circles.random.random", return_value=0.0):
+            intercepted = circles.send_signal(self.char1, "lie low")
         self.assertFalse(intercepted)
         self.assertEqual(self.char1.db.exposure, 0)
         # From the plaza: the wall has a wire in it.
         self.room1.db.visibility = 4
-        with patch("world.cells.random.random", return_value=0.0):
-            intercepted = cells.send_signal(self.char1, "meet at the usual")
+        with patch("world.circles.random.random", return_value=0.0):
+            intercepted = circles.send_signal(self.char1, "meet at the usual")
         self.assertTrue(intercepted)
         self.assertEqual(
             self.char1.db.exposure, tuning.SIGNAL_INTERCEPT_EXPOSURE
@@ -683,10 +683,10 @@ class TestTrust(EvenniaTest):
     # --- Section C ----------------------------------------------------------
 
     def test_confess_names_betrays_the_cell(self):
-        from world import cells, tuning, watch
+        from world import circles, tuning, watch
 
         self._holding_cell()
-        slug = self._cell_of_two()
+        slug = self._circle_of_two()
         self.char1.db.exposure = 60
         self.char2.db.exposure = 0
         watch.detain(self.char1)
@@ -696,7 +696,7 @@ class TestTrust(EvenniaTest):
         # Completing Section C releases you and burns everyone else.
         self.char1.execute_cmd("confess names")
         self.assertFalse(watch.is_detained(self.char1))
-        self.assertIsNone(cells.cell_of(self.char1))
+        self.assertIsNone(circles.circle_of(self.char1))
         self.assertEqual(self.char2.db.exposure, tuning.CELL_NAMED_EXPOSURE)
         self.assertTrue(
             any(
@@ -709,17 +709,17 @@ class TestTrust(EvenniaTest):
         )
 
     def test_confess_alone_costs_the_confessor_only(self):
-        from world import cells, tuning, watch
+        from world import circles, tuning, watch
 
         self._holding_cell()
-        self._cell_of_two()
+        self._circle_of_two()
         self.char1.db.exposure = 60
         self.char2.db.exposure = 0
         watch.detain(self.char1)
         self.char1.execute_cmd("confess alone")
         self.assertFalse(watch.is_detained(self.char1))
         # Loyalty keeps the cell intact and the comrade's file clean...
-        self.assertEqual(cells.cell_of(self.char1), "redbird")
+        self.assertEqual(circles.circle_of(self.char1), "redbird")
         self.assertEqual(self.char2.db.exposure, 0)
         # ...and leaves *you* on a shorter leash.
         self.assertEqual(
@@ -741,12 +741,12 @@ class TestTrust(EvenniaTest):
         return npc
 
     def test_recruit_needs_cell_and_quiet(self):
-        from world import cells, tuning
+        from world import circles, tuning
 
         npc = self._informant("street")
         self.char1.execute_cmd("recruit tea vendor")
         self.assertIsNone(npc.db.recruited_by)  # no cell yet
-        slug = self._cell_of_two()
+        slug = self._circle_of_two()
         self.room1.db.visibility = tuning.RECRUIT_MAX_VISIBILITY + 1
         self.char1.execute_cmd("recruit tea vendor")
         self.assertIsNone(npc.db.recruited_by)  # too bright here
@@ -755,13 +755,13 @@ class TestTrust(EvenniaTest):
         self.assertEqual(npc.db.recruited_by, slug)
 
     def test_ministry_plant_files_on_the_cell(self):
-        from world import cells, tuning
+        from world import circles, tuning
 
-        slug = self._cell_of_two()
+        slug = self._circle_of_two()
         npc = self._informant("ministry")
         npc.db.recruited_by = slug
         npc.db.last_report = 0
-        cells.collect_informant_reports()
+        circles.collect_informant_reports()
         reported = [
             c
             for member in (self.char1, self.char2)
@@ -770,7 +770,7 @@ class TestTrust(EvenniaTest):
         ]
         self.assertEqual(len(reported), 1)
         # Cooldown: an immediate second collection files nothing new.
-        cells.collect_informant_reports()
+        circles.collect_informant_reports()
         reported = [
             c
             for member in (self.char1, self.char2)
@@ -779,15 +779,15 @@ class TestTrust(EvenniaTest):
         ]
         self.assertEqual(len(reported), 1)
 
-    def test_sound_reads_truth_only_at_skill(self):
+    def test_judge_reads_truth_only_at_skill(self):
         from world import tuning
 
         self._informant("ministry")
         self.char1.db.skills = {"observation": 0}
-        blob = self._captured(self.char1, "sound tea vendor")
+        blob = self._captured(self.char1, "judge tea vendor")
         self.assertIn("learned nothing", blob)
         self.char1.db.skills = {"observation": tuning.OBSERVE_TIER_DETAIL}
-        blob = self._captured(self.char1, "sound tea vendor")
+        blob = self._captured(self.char1, "judge tea vendor")
         self.assertIn("Ministry", blob)
 
     def test_flip_buys_a_plant_and_only_a_plant(self):
@@ -922,6 +922,58 @@ class TestTrust(EvenniaTest):
         self.char1.db.skills = {"observation": tuning.OBSERVE_TIER_CONCEALED}
         blob = self._captured(self.char1, "observe")
         self.assertIn("concealed", blob)
+
+
+class TestLegibility(EvenniaTest):
+    """v0.7: the first human playtest's fixes, verified."""
+
+    def test_prompt_spells_out_exposure(self):
+        prompt = self.char1.get_prompt()
+        self.assertIn("Exposure:", prompt)
+        self.assertNotIn("Exp:", prompt.replace("Exposure:", ""))
+
+    def test_the_prefixed_keys_get_no_article(self):
+        chalk = create.create_object(
+            "typeclasses.objects.Object", key="the chalk marks",
+            location=self.room1,
+        )
+        name = chalk.get_numbered_name(1, self.char1, return_string=True)
+        self.assertEqual(str(name), "the chalk marks")
+
+    def test_npc_display_name_capitalized(self):
+        clerk = create.create_object(
+            "typeclasses.npcs.Citizen", key="the ration clerk",
+            location=self.room1,
+        )
+        self.assertEqual(clerk.get_display_name(self.char1), "The ration clerk")
+        self.assertEqual(clerk.key, "the ration clerk")  # key untouched
+
+    def test_help_available_while_detained(self):
+        from commands.detention import DetainedCmdSet
+
+        cmdset = DetainedCmdSet()
+        cmdset.at_cmdset_creation()
+        keys = {cmd.key for cmd in cmdset.commands}
+        self.assertIn("help", keys)
+
+    def test_score_reaches_the_dossier(self):
+        old = self.char1.msg
+        seen = []
+        self.char1.msg = lambda text=None, **kw: seen.append(str(text))
+        try:
+            self.char1.execute_cmd("score")
+        finally:
+            self.char1.msg = old
+        self.assertIn("CITIZEN FILE", "\n".join(seen))
+
+    def test_help_entries_well_formed(self):
+        from world.help_entries import HELP_ENTRY_DICTS
+
+        keys = {entry["key"] for entry in HELP_ENTRY_DICTS}
+        self.assertIn("exposure", keys)
+        self.assertIn("visibility", keys)
+        for entry in HELP_ENTRY_DICTS:
+            self.assertTrue(entry["text"].strip())
 
 
 class TestTheGrind(EvenniaTest):

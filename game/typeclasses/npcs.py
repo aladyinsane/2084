@@ -23,6 +23,13 @@ class Citizen(ObjectParent, DefaultCharacter):
     the room calls `at_watched_arrival` for each arriving character.
     """
 
+    def get_display_name(self, looker=None, **kwargs):
+        # NPC keys are lowercase in the fiction ("the ration clerk") but
+        # display capitalized in listings and poses — first-human-playtest
+        # finding #4. Mid-sentence uses should format `.key` directly.
+        name = super().get_display_name(looker, **kwargs)
+        return name[0].upper() + name[1:] if name else name
+
     def at_object_creation(self):
         super().at_object_creation()
         # (cold, noticed, calm) reaction poses, formatted with {name}.
@@ -117,10 +124,11 @@ class WatchPatrol(Citizen):
             return
         exit_obj = random.choice(exits)
         old_room = location
+        name = self.get_display_name()
         self.move_to(exit_obj.destination, quiet=True, move_type="patrol")
-        old_room.msg_contents(f"{self.key} sweeps out, unhurried, toward the {exit_obj.key}.")
+        old_room.msg_contents(f"{name} sweeps out, unhurried, toward the {exit_obj.key}.")
         self.location.msg_contents(
-            f"{self.key} walks through in measured steps, visor turning as it goes.",
+            f"{name} walks through in measured steps, visor turning as it goes.",
             exclude=(self,),
         )
         # Arriving patrols read the room like anyone arriving would be read.
