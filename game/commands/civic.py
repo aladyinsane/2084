@@ -152,6 +152,10 @@ class CmdWork(Command):
             "cover.|n"
         )
         caller.send_prompt()
+        if caller.db.errand:
+            from world import errands
+
+            errands.check(caller, "shift")
 
 
 class CmdObserve(Command):
@@ -218,6 +222,10 @@ class CmdObserve(Command):
                 "|=mSomething settles in the way you look at rooms. You will "
                 "see more from now on.|n"
             )
+        if caller.db.errand:
+            from world import errands
+
+            errands.check(caller, "observe", room=room)
 
 
 class CmdListen(Command):

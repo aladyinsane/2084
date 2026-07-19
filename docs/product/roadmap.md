@@ -243,12 +243,22 @@ our grid-consistent room graph, presented in-fiction.
 The broker proved the shape; generalize it so any tagged NPC can hand out
 work with a destination, a condition, and a payout.
 
-- [ ] Quest framework: offer/accept/complete/abandon on any NPC, quest state
-      on the character, rewards in faction standing (either kind)
-- [ ] Convert courier runs to ride the framework (the broker becomes the
-      first quest-giver rather than a special case)
-- [ ] 3–5 launch quests spread across sanctioned (Ministry work orders) and
-      unsanctioned (underground favors) givers
+- [x] Quest framework (`world/errands.py`): one verb (`errands`) per the
+      command-surface audit; completion *listens* to verbs the player
+      already has (movement, `work`, `observe`, `deliver`, assembly rolls)
+      rather than minting quest actions. Risk stated on every offer;
+      chains gate on prerequisites and never repeat (a re-takeable
+      commendation would be a farm)
+- [x] The courier board rides the framework the other way round: courier
+      runs stay as they are, and errands can *require* one (the
+      lamp-mender's "Legs" sends you to the broker) — generalizing the
+      giver, not duplicating the run
+- [x] Five launch errands in two chains: the orientation clerk's "nobody"
+      questline (The Rounds → Visible Usefulness → Countable, ending in a
+      named commendation in your file — safe play is now a campaign, per
+      the fun research) and the lamp-mender's careful-people chain (Look
+      Closer → Legs, ending in the bolt-hole warning — a named reward
+      worth more than it pays)
 
 ## v0.10 — Implants (equipment)
 
