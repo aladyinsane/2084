@@ -21,7 +21,7 @@ are compass directions with true reciprocals. Sketch first, then code.
                  |         lattice, x=1..2,
               [TENEMENT]   see below)       Vis 1
                  |
-     (down) [TUNNEL]                        Vis 0
+     (down) [BOLT-HOLE]---[TUNNEL]  (z=-1)  Vis 0 / "0"
 
     Orientation Wing lattice (east of the Hall — 3M's tutorial-as-
     architecture pattern, docs/research/third-millennium-mud.md §5):
@@ -138,6 +138,18 @@ ROOMS = {
         "with you. Cables sag from the ceiling like jungle vines; water ticks "
         "somewhere in the dark. No sensors reach down here. The chalk marks on "
         "the wall are recent, and they are not the Ministry's.",
+    ),
+    # The honeypot (v0.5): reads as a dead zone, is not one. The tell is
+    # mechanical, not narrated — forge refuses here, the entry exposure tick
+    # is +1 at Vis 0, and a very practiced eye can find the seam.
+    "bolthole": (
+        "The Bolt-Hole",
+        0,
+        "An old valve room off Tunnel B, fitted out as a refuge: two cots "
+        "with folded blankets, a shelf of tinned rations, a kettle that has "
+        "been recently cleaned. The chalk mark on the door is the right "
+        "shape for |wsafe|n. Someone keeps this place nice. The blankets are "
+        "folded very precisely, for a place with no one in it.",
     ),
     # --- The Orientation Wing: rooms whose descriptions are the manual -----
     # (3M's tutorial-as-architecture; the Ministry teaches only the
@@ -297,6 +309,7 @@ LINKS = [
     ("hall", "alley", "south", 0),
     ("alley", "tenement", "south", 0),
     ("tenement", "tunnel", "down", 0),
+    ("tunnel", "bolthole", "west", 0),
     # The Orientation Wing lattice (see module docstring sketch).
     ("hall", "o_ante", "east", 0),
     ("o_ante", "o_watched", "north", 0),
@@ -375,6 +388,7 @@ def build():
     rooms["plaza"].tags.add("patrol_spawn", category="grid")
     rooms["hall"].tags.add("workplace", category="grid")
     rooms["queue"].tags.add("gossip_spot", category="grid")
+    rooms["plaza"].tags.add("assembly_point", category="grid")
 
     # The surveillance apparatus, in the world where it can be seen.
     for room_tag, key, desc, sensitivity, active in SENSORS:
@@ -451,12 +465,104 @@ def build():
         "  |w- the broken screen on the alley stays broken because nobody\n"
         "    files the form. remember what a form can do.|n\n"
         "  |w- heat fades. sit. breathe. count the water drips. then go up\n"
-        "    and be boring.|n\n\n"
+        "    and be boring.|n\n"
+        "  |w- alone you are a file. together you are a problem. |ccell|w,\n"
+        "    down here, with people you'd go to the cells for.|n\n"
+        "  |w- pass word with |csignal|w. from quiet places only. walls\n"
+        "    have wires in them sometimes.|n\n"
+        "  |w- the bolt-hole west of here has cots and a kettle. somebody\n"
+        "    keeps it nice. ask yourself who.|n\n\n"
         "Beneath, in different hands: initials, dates, and one line pressed "
         "hard enough to break the chalk: |wthey write it down. so can we.|n"
     )
     chalk.locks.add("get:false()")
     chalk.db.get_err_msg = "The wall declines to come along."
+
+    # The honeypot's hidden device: not described in the room (a concealed
+    # device is exactly the case principle 9's described-devices-exist rule
+    # does not cover — the room isn't promising it; the Ministry is hiding
+    # it). `observe` only surfaces it at a very practiced skill, `forge`
+    # refuses to work near it, and the sweep can reach past the chalk mark
+    # on the door.
+    seam = create_object(
+        "typeclasses.objects.Sensor",
+        key="a hairline seam in the conduit",
+        aliases=["seam", "conduit"],
+        location=rooms["bolthole"],
+    )
+    seam.db.desc = (
+        "Where the old valve conduit meets the ceiling, the cement has been "
+        "re-pointed — neatly, recently, and only there. Behind the seam, "
+        "something very small is very patient."
+    )
+    seam.db.sensitivity = 1
+    seam.db.active = True
+    seam.db.concealed = True
+    seam.locks.add("get:false()")
+    seam.db.get_err_msg = "The ceiling declines to be examined by touch."
+    # Concealed means concealed: not in the room listing, not lookable.
+    # `observe` at a practiced enough skill is the only in-fiction reveal
+    # (it scans contents in code, which no view lock touches) — playtest
+    # caught the seam standing in the open under "You see:".
+    seam.locks.add("view:false()")
+
+    # The listening trade (v0.5): two informants on the same crooked street.
+    # One of them is what they seem. Their loyalties are set here, in code,
+    # which is the only registry that will ever hold them.
+    mender = create_object(
+        "typeclasses.npcs.Informant",
+        key="the lamp-mender",
+        location=rooms["alley"],
+    )
+    mender.db.loyalty = "street"
+    mender.db.desc = (
+        "A stooped figure with a satchel of parts, forever half-way up a "
+        "ladder under one of the alley's dead lamps. The lamps stay dead. "
+        "The lamp-mender stays informed."
+    )
+    mender.db.demeanor = (
+        "Their hands are steady on the dead screen, and they have never "
+        "once filed the maintenance form. Whatever they serve, it files "
+        "nothing."
+    )
+    mender.db.react_calm = (
+        "{npc} taps a dead lamp, listens to it, and seems satisfied."
+    )
+    mender.db.react_noticed = (
+        "{npc} glances at {name} from the ladder, and the glance is an "
+        "inventory."
+    )
+    mender.db.react_hot = (
+        "{npc} begins packing the satchel, without hurry and without "
+        "missing anything."
+    )
+
+    vendor = create_object(
+        "typeclasses.npcs.Informant",
+        key="the tea vendor",
+        location=rooms["alley"],
+    )
+    vendor.db.loyalty = "ministry"
+    vendor.db.desc = (
+        "A folding table, a battered urn, small glasses in rows straighter "
+        "than the alley deserves. The tea is good and the prices are kind, "
+        "which in Sector 9 is its own kind of question."
+    )
+    vendor.db.demeanor = (
+        "They remember every order. Every order, every face, every time. "
+        "Kindness with a memory like that is being paid for by someone."
+    )
+    vendor.db.react_calm = (
+        "{npc} pours a glass unasked and nudges it forward. On the house."
+    )
+    vendor.db.react_noticed = (
+        "{npc} smiles at {name} with real warmth and remembers everything "
+        "about the moment."
+    )
+    vendor.db.react_hot = (
+        "{npc} polishes an already-clean glass, angled slightly toward "
+        "{name}."
+    )
 
     # The archivist: the sanctioned route to a different past (ADR 0005).
     archivist = create_object(

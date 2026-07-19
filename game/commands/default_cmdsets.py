@@ -16,6 +16,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 
 from evennia import default_cmds
 
+from commands.cells import CmdCell, CmdFlip, CmdRecruit, CmdSignal, CmdSound
 from commands.civic import (
     CmdApply,
     CmdForge,
@@ -53,6 +54,11 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdForge())
         self.add(CmdReport())
         self.add(CmdApply())
+        self.add(CmdCell())
+        self.add(CmdSignal())
+        self.add(CmdRecruit())
+        self.add(CmdSound())
+        self.add(CmdFlip())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):

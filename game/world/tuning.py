@@ -120,3 +120,38 @@ CLEARANCE_GRANT_EXPOSURE = 10     # elevation means scrutiny (M2)
 
 # Speaking on the gridwide channel is speaking into a microphone.
 CHANNEL_EXPOSURE = 2
+
+# --- v0.5: trust -----------------------------------------------------------
+
+# Signals between cell members are safe from rooms at or below this
+# visibility; above it, each further visibility point adds interception risk.
+SIGNAL_SAFE_VISIBILITY = 1
+SIGNAL_INTERCEPT_PER_VIS = 0.2
+SIGNAL_INTERCEPT_EXPOSURE = 12
+
+# Being named in a comrade's confession (Section C).
+CELL_NAMED_EXPOSURE = 25
+
+# Declining to complete Section C gets you released — onto a shorter leash.
+RELEASE_EXPOSURE_UNCOOPERATIVE = 20
+
+# Informants are recruited where the Grid watches loosely, if at all.
+RECRUIT_MAX_VISIBILITY = 2
+
+# Flipping a Ministry plant is a Commerce transaction (ration chits change
+# hands); reading them well enough to dare it is an observation problem.
+FLIP_COST = 5
+
+# A recruited Ministry plant files on one cell member per cooldown.
+INFORMANT_REPORT_COOLDOWN = 600  # seconds
+INFORMANT_REPORT_EXPOSURE = 5
+
+# Concealed devices only show themselves to a truly practiced eye.
+OBSERVE_TIER_CONCEALED = 45
+
+# Civic assemblies: the script ticks at ASSEMBLY_TICK; after announcement,
+# attendance is taken one tick later; then the Grid rests for REST_TICKS.
+ASSEMBLY_TICK = 120  # seconds
+ASSEMBLY_REST_TICKS = 8  # ~16 min between assemblies
+ASSEMBLY_ATTEND_RELIEF = 5
+ASSEMBLY_ABSENT_EXPOSURE = 10

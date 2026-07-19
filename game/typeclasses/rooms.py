@@ -34,6 +34,15 @@ class Room(ObjectParent, DefaultRoom):
         )
         return gain
 
+    def is_dead_zone(self):
+        """
+        Truly unwatched: visibility 0 *and* nothing live in the room. The
+        distinction matters because a room can look like a dead zone and not
+        be one (v0.5's honeypot) — the sweep, `forge`, and the underground
+        verbs all trust this method, not the label on the door.
+        """
+        return self.visibility == 0 and self.exposure_gain() == 0
+
     def at_object_receive(self, moved_obj, source_location, move_type="move", **kwargs):
         super().at_object_receive(
             moved_obj, source_location, move_type=move_type, **kwargs

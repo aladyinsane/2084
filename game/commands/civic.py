@@ -173,13 +173,16 @@ class CmdObserve(Command):
         room = caller.location
         if not room:
             return
+        skill = caller.skill("observation")
         sensors = [
             obj
             for obj in room.contents
             if hasattr(obj, "sensitivity") and not obj.destination
             and hasattr(obj, "db") and obj.db.active is not None
+            # Concealed devices (v0.5) do not exist below a practiced eye —
+            # which is what makes a honeypot a honeypot.
+            and (not obj.db.concealed or skill >= tuning.OBSERVE_TIER_CONCEALED)
         ]
-        skill = caller.skill("observation")
         vis = getattr(room, "visibility", 0)
 
         lines = [
@@ -200,13 +203,14 @@ class CmdObserve(Command):
         else:
             for sensor in sensors:
                 status = "|glive|n" if sensor.db.active else "|rdead|n"
+                hidden = "|r(concealed)|n " if sensor.db.concealed else ""
                 if skill >= tuning.OBSERVE_TIER_DETAIL and sensor.db.active:
                     lines.append(
-                        f" - {sensor.key}: {status}, sharpness "
+                        f" - {hidden}{sensor.key}: {status}, sharpness "
                         f"{sensor.db.sensitivity}"
                     )
                 else:
-                    lines.append(f" - {sensor.key}: {status}")
+                    lines.append(f" - {hidden}{sensor.key}: {status}")
         caller.msg("\n".join(lines))
         new_skill = caller.improve_skill("observation")
         if new_skill in (tuning.OBSERVE_TIER_STATUS, tuning.OBSERVE_TIER_DETAIL):
@@ -380,7 +384,10 @@ class CmdForge(Command):
 
         caller = self.caller
         room = caller.location
-        if getattr(room, "visibility", 1) != 0 or room.exposure_gain() > 0:
+        # is_dead_zone is the single source of truth on "truly unwatched"
+        # (v0.5): a hidden live device makes this refuse — which is the one
+        # honest tell a honeypot gives you.
+        if not room or not getattr(room, "is_dead_zone", lambda: False)():
             caller.msg(
                 "Not here. Whatever you're considering, it wants a place "
                 "with no eyes in it at all."

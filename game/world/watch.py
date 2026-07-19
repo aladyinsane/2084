@@ -81,17 +81,22 @@ def detain(char, reason="routine sweep"):
     char.move_to(cell, quiet=True, move_type="detained")
     char.cmdset.add(DetainedCmdSet, persistent=True)
     char.execute_cmd("look")
+    # If the street has ears that answer to this citizen's cell, the cell
+    # hears about the van (v0.5 — and only if those ears are really theirs).
+    from world import cells
+
+    cells.notify_detention(char)
     return True
 
 
-def release(char, note="Released.", farewell=None):
+def release(char, note="Released.", farewell=None, exposure=None):
     """Return a citizen to the street, changed."""
     from world import functions
 
     char.cmdset.remove(DetainedCmdSet)
     char.tags.remove("detained", category="status")
     char.db.detained_wait = 0
-    char.db.exposure = tuning.RELEASE_EXPOSURE
+    char.db.exposure = tuning.RELEASE_EXPOSURE if exposure is None else exposure
     add_record_note(char, note)
     # A detained citizen's function is suspended on release — your "class"
     # is the regime's to give and the regime's to shelve (ADR 0002).

@@ -122,10 +122,38 @@ The regime as economy: influence, clearances, and bureaucracy-as-content.
 
 The multiplayer thesis: betrayal outguns everything (principle 6).
 
-- [ ] Cells: small player groups with shared secrets and collective risk
-- [ ] Informant NPCs; recruitable, flippable, plantable
-- [ ] Scheduled world events where absence is data (assemblies, audits — M8)
-- [ ] First honeypot content: a safehouse that might not be
+- [x] Cells: formed, joined, and left only where nothing watches (`cell`,
+      taught by the chalk, not the Ministry); membership is a tag with no
+      object to seize; `signal` passes word cell-wide — safe from quiet
+      places, interceptable from watched ones. The collective risk is
+      **Section C**: a detained member's confession form arrives with
+      exactly as many blank lines as they have comrades — `confess names`
+      walks free on everyone else's file (+25 exposure each, incident
+      recorded), `confess alone` keeps faith and leaves on a shorter leash.
+      Verified two-player (claude + julia): the full arc, tip → betrayal →
+      julia alone in the kettle circle with two incidents she didn't earn
+- [x] Informant NPCs: `recruit`/`sound`/`flip`. Two in Neon Alley; one is
+      the Ministry's, and *which* is only readable at real observation
+      skill. Street informants tip the cell when a member is taken; plants
+      file "Reported by a source" incidents from inside on a cooldown.
+      Flipping a plant is a Commerce transaction, and requires being able
+      to read them at all
+- [x] Scheduled world events where absence is data (M8): civic assemblies
+      announce over every loudspeaker, then take the roll at Unity Plaza.
+      Present: exposure relief, attendance on file. Absent — *anywhere*,
+      including dead zones: an incident, because the list sees what the
+      sensors can't. Detainees excused; the Ministry knows where they are
+- [x] First honeypot: the Bolt-Hole off Tunnel B, chalk-marked safe,
+      Vis 0 — and lying. A concealed live sensor (view-locked; the playtest
+      caught it standing in plain sight under "You see:") means the sweep
+      reaches in, `forge` refuses without saying why, and movements are
+      logged. Fair-warning layers: the too-neat blankets, the chalk's own
+      "ask yourself who," the +1 exposure tick at Vis 0, and — if you run
+      hot enough to be logged — your own dossier names the room
+- [ ] Not yet from this version's ambitions: cell *benefits* beyond
+      communication (shared stashes, joint operations) — cells currently
+      pool risk more than they pool power. Deliberate: trust must cost
+      before it pays, but the pay side is v0.6+ material
 
 ## Later / undecided
 

@@ -166,8 +166,10 @@ class WatchSweepScript(Script):
             # cannot currently see (in-game verification caught the sweep
             # reaching into Tunnel B, where the fiction says nothing does).
             # Hiding works — but exposure barely decays, and you have to
-            # come up sometime.
-            if getattr(char.location, "visibility", 0) == 0:
+            # come up sometime. NB: *truly* dead (v0.5) — a visibility-0
+            # room with a live device hidden in it shelters nobody.
+            loc = char.location
+            if loc and getattr(loc, "is_dead_zone", lambda: False)():
                 continue
             exposure = char.db.exposure or 0
             if exposure < tuning.SWEEP_MIN_EXPOSURE:
@@ -198,6 +200,12 @@ class WatchSweepScript(Script):
                 self.db.quiet_ticks = 0
                 watch.set_alert(watch.get_alert() - 1)
 
+        # The sweep also collects from its sources (v0.5): recruited
+        # Ministry plants file on the cells that trusted them.
+        from world import cells
+
+        cells.collect_informant_reports()
+
     @staticmethod
     def papers_check(char):
         from world import tuning, watch
@@ -217,6 +225,122 @@ class WatchSweepScript(Script):
         char.gain_exposure(-tuning.PAPERS_CHECK_RELIEF)
         watch.add_record_note(char, "Papers checked in the street; cleared.")
         char.send_prompt()
+
+
+class AssemblyScript(Script):
+    """
+    Scheduled civic assemblies (v0.5, mechanism M8): the Grid periodically
+    requires everyone somewhere at once, and then reads the room. Presence
+    is rewarded the way cooperation always is; absence is *data* — the one
+    thing surveillance can collect without seeing you at all. Hiding in a
+    dead zone during roll call produces an incident precisely because
+    nothing saw you: the list did.
+
+    State machine on a fixed tick: rest for ASSEMBLY_REST_TICKS, announce,
+    then take attendance one tick later.
+    """
+
+    def at_script_creation(self):
+        from world import tuning
+
+        self.key = "assembly"
+        self.desc = "Announces civic assemblies and takes attendance."
+        self.interval = tuning.ASSEMBLY_TICK
+        self.persistent = True
+        self.db.rest = tuning.ASSEMBLY_REST_TICKS
+        self.db.announced = False
+
+    @staticmethod
+    def _assembly_point():
+        from evennia.utils.search import search_object_by_tag
+
+        rooms = search_object_by_tag("assembly_point", category="grid")
+        return rooms[0] if rooms else None
+
+    @staticmethod
+    def _citizens():
+        from .characters import Character
+
+        return [
+            char
+            for char in Character.objects.all()
+            if char.has_account and char.sessions.count()
+        ]
+
+    def at_repeat(self):
+        from evennia.utils import logger
+
+        from world import tuning, watch
+
+        point = self._assembly_point()
+        if not point:
+            return
+
+        if not self.db.announced:
+            rest = (self.db.rest or 0) - 1
+            self.db.rest = rest
+            if rest > 0:
+                return
+            self.db.announced = True
+            minutes = max(1, tuning.ASSEMBLY_TICK // 60)
+            for char in self._citizens():
+                char.msg(
+                    "|yEvery loudspeaker in Sector 9 clears its throat at "
+                    "once.|n\n\"CITIZENS. A CIVIC ASSEMBLY CONVENES AT "
+                    f"{point.key.upper()} IN {minutes} MINUTE"
+                    f"{'S' if minutes != 1 else ''}. ATTENDANCE IS THE "
+                    "GRID'S PLEASURE. THE ROLL IS THE GRID'S MEMORY.\""
+                )
+            logger.log_info("watchlog: assembly announced")
+            return
+
+        # Roll call.
+        self.db.announced = False
+        self.db.rest = tuning.ASSEMBLY_REST_TICKS
+        from world import records
+
+        present, absent = [], []
+        for char in self._citizens():
+            if watch.is_detained(char):
+                continue  # the Ministry knows exactly where you are
+            (present if char.location == point else absent).append(char)
+
+        point.msg_contents(
+            "The loudspeakers deliver four minutes of production figures "
+            "and one minute of gratitude. Somewhere behind the numbers, "
+            "a roll completes itself."
+        )
+        for char in present:
+            records.add_record(
+                char,
+                "Attended civic assembly",
+                author="Office of Assemblies",
+                kind="observation",
+            )
+            char.gain_exposure(-tuning.ASSEMBLY_ATTEND_RELIEF)
+            char.msg(
+                "|=mYour presence is recorded. Being countable is the "
+                "cheapest virtue the Grid sells.|n"
+            )
+            char.send_prompt()
+        for char in absent:
+            records.add_record(
+                char,
+                "Absent from mandatory civic assembly",
+                author="Office of Assemblies",
+                kind="incident",
+            )
+            char.gain_exposure(tuning.ASSEMBLY_ABSENT_EXPOSURE)
+            char.msg(
+                "|yFar away, a roll is read, and a silence occurs where "
+                "your name is.|n Absence is the one thing the Grid can "
+                "see anywhere."
+            )
+            char.send_prompt()
+        logger.log_info(
+            f"watchlog: assembly roll — {len(present)} present, "
+            f"{len(absent)} absent"
+        )
 
 
 class PatrolManagerScript(Script):

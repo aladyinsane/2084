@@ -406,7 +406,7 @@ class TestWorldBuild(EvenniaTest):
         from world import build
 
         rooms = build.build()
-        self.assertEqual(len(rooms), 15)  # 9 street + 5 orientation + cell
+        self.assertEqual(len(rooms), 16)  # 10 street + 5 orientation + cell
         for room in rooms.values():
             for ex in room.contents:
                 if not ex.destination or ex.key not in build.OPPOSITE:
@@ -577,10 +577,348 @@ class TestStandingAndPaperwork(EvenniaTest):
 
         from world import tuning
 
+        # Not named "gridwide": on Windows, a running dev server holds the
+        # real channel's log file open, and creating a same-key channel in
+        # the test tries to rotate that file and dies on the lock. The
+        # typeclass is what's under test, not the name.
         channel = ev_create.create_channel(
-            "gridwide", typeclass="typeclasses.channels.MonitoredChannel"
+            "testband", typeclass="typeclasses.channels.MonitoredChannel"
         )
         channel.connect(self.char1)
         self.char1.db.exposure = 0
         channel.msg("test transmission", senders=self.char1)
         self.assertEqual(self.char1.db.exposure, tuning.CHANNEL_EXPOSURE)
+
+
+class TestTrust(EvenniaTest):
+    """v0.5: cells, Section C, informants, assemblies, and the honeypot."""
+
+    def _file_contents(self, char):
+        from world import records
+
+        return [rec.db.content for rec in records.records_for(char)]
+
+    def _holding_cell(self):
+        room = create.create_object(
+            "typeclasses.rooms.Room", key="Holding Cell (test)"
+        )
+        room.tags.add("holding_cell", category="grid")
+        self.room1.tags.add("release_point", category="grid")
+        return room
+
+    def _cell_of_two(self, name="redbird"):
+        """char1 founds a cell in room1 (a true dead zone) and char2 joins."""
+        from world import cells
+
+        slug, err = cells.form(self.char1, name)
+        self.assertIsNone(err)
+        self.char2.tags.add(slug, category="cell")
+        return slug
+
+    def _captured(self, char, command):
+        old = char.msg
+        seen = []
+        char.msg = lambda text=None, **kw: seen.append(str(text))
+        try:
+            char.execute_cmd(command)
+        finally:
+            char.msg = old
+        return "\n".join(seen)
+
+    # --- cells --------------------------------------------------------------
+
+    def test_cell_forms_only_in_dead_zones(self):
+        from world import cells
+
+        self.room1.db.visibility = 3
+        self.char1.execute_cmd("cell form redbird")
+        self.assertIsNone(cells.cell_of(self.char1))
+        self.room1.db.visibility = 0
+        self.char1.execute_cmd("cell form redbird")
+        self.assertEqual(cells.cell_of(self.char1), "redbird")
+        # One cell per citizen.
+        _, err = cells.form(self.char1, "second-try")
+        self.assertIsNotNone(err)
+
+    def test_invite_and_join_flow(self):
+        from world import cells
+
+        self.char1.execute_cmd("cell form redbird")
+        self.char1.execute_cmd("cell invite Char2")
+        self.assertEqual(self.char2.db.cell_invite, "redbird")
+        self.char2.execute_cmd("cell join")
+        self.assertEqual(cells.cell_of(self.char2), "redbird")
+        self.assertEqual(len(cells.members_of("redbird")), 2)
+        # Leaving works, and the last member out dissolves the registry entry.
+        self.char2.execute_cmd("cell leave")
+        self.assertIsNone(cells.cell_of(self.char2))
+        cells.leave(self.char1)
+        slug, err = cells.form(self.char1, "redbird")  # name is free again
+        self.assertIsNone(err)
+
+    def test_signal_intercepted_only_above_safe_visibility(self):
+        from unittest.mock import patch
+
+        from world import cells, tuning
+
+        self._cell_of_two()
+        # From a dead zone: even a doomed roll cannot intercept.
+        self.char1.db.exposure = 0
+        with patch("world.cells.random.random", return_value=0.0):
+            intercepted = cells.send_signal(self.char1, "lie low")
+        self.assertFalse(intercepted)
+        self.assertEqual(self.char1.db.exposure, 0)
+        # From the plaza: the wall has a wire in it.
+        self.room1.db.visibility = 4
+        with patch("world.cells.random.random", return_value=0.0):
+            intercepted = cells.send_signal(self.char1, "meet at the usual")
+        self.assertTrue(intercepted)
+        self.assertEqual(
+            self.char1.db.exposure, tuning.SIGNAL_INTERCEPT_EXPOSURE
+        )
+        self.assertTrue(
+            any("coded signals" in c for c in self._file_contents(self.char1))
+        )
+
+    # --- Section C ----------------------------------------------------------
+
+    def test_confess_names_betrays_the_cell(self):
+        from world import cells, tuning, watch
+
+        self._holding_cell()
+        slug = self._cell_of_two()
+        self.char1.db.exposure = 60
+        self.char2.db.exposure = 0
+        watch.detain(self.char1)
+        # Bare confess only shows the form; you are still detained.
+        self.char1.execute_cmd("confess")
+        self.assertTrue(watch.is_detained(self.char1))
+        # Completing Section C releases you and burns everyone else.
+        self.char1.execute_cmd("confess names")
+        self.assertFalse(watch.is_detained(self.char1))
+        self.assertIsNone(cells.cell_of(self.char1))
+        self.assertEqual(self.char2.db.exposure, tuning.CELL_NAMED_EXPOSURE)
+        self.assertTrue(
+            any(
+                "Named as an associate" in c
+                for c in self._file_contents(self.char2)
+            )
+        )
+        self.assertTrue(
+            any("Section C complete" in c for c in self._file_contents(self.char1))
+        )
+
+    def test_confess_alone_costs_the_confessor_only(self):
+        from world import cells, tuning, watch
+
+        self._holding_cell()
+        self._cell_of_two()
+        self.char1.db.exposure = 60
+        self.char2.db.exposure = 0
+        watch.detain(self.char1)
+        self.char1.execute_cmd("confess alone")
+        self.assertFalse(watch.is_detained(self.char1))
+        # Loyalty keeps the cell intact and the comrade's file clean...
+        self.assertEqual(cells.cell_of(self.char1), "redbird")
+        self.assertEqual(self.char2.db.exposure, 0)
+        # ...and leaves *you* on a shorter leash.
+        self.assertEqual(
+            self.char1.db.exposure, tuning.RELEASE_EXPOSURE_UNCOOPERATIVE
+        )
+        self.assertTrue(
+            any("Section C" in c for c in self._file_contents(self.char1))
+        )
+
+    # --- informants ---------------------------------------------------------
+
+    def _informant(self, loyalty):
+        npc = create.create_object(
+            "typeclasses.npcs.Informant",
+            key="the tea vendor",
+            location=self.room1,
+        )
+        npc.db.loyalty = loyalty
+        return npc
+
+    def test_recruit_needs_cell_and_quiet(self):
+        from world import cells, tuning
+
+        npc = self._informant("street")
+        self.char1.execute_cmd("recruit tea vendor")
+        self.assertIsNone(npc.db.recruited_by)  # no cell yet
+        slug = self._cell_of_two()
+        self.room1.db.visibility = tuning.RECRUIT_MAX_VISIBILITY + 1
+        self.char1.execute_cmd("recruit tea vendor")
+        self.assertIsNone(npc.db.recruited_by)  # too bright here
+        self.room1.db.visibility = tuning.RECRUIT_MAX_VISIBILITY
+        self.char1.execute_cmd("recruit tea vendor")
+        self.assertEqual(npc.db.recruited_by, slug)
+
+    def test_ministry_plant_files_on_the_cell(self):
+        from world import cells, tuning
+
+        slug = self._cell_of_two()
+        npc = self._informant("ministry")
+        npc.db.recruited_by = slug
+        npc.db.last_report = 0
+        cells.collect_informant_reports()
+        reported = [
+            c
+            for member in (self.char1, self.char2)
+            for c in self._file_contents(member)
+            if "Reported by a source" in c
+        ]
+        self.assertEqual(len(reported), 1)
+        # Cooldown: an immediate second collection files nothing new.
+        cells.collect_informant_reports()
+        reported = [
+            c
+            for member in (self.char1, self.char2)
+            for c in self._file_contents(member)
+            if "Reported by a source" in c
+        ]
+        self.assertEqual(len(reported), 1)
+
+    def test_sound_reads_truth_only_at_skill(self):
+        from world import tuning
+
+        self._informant("ministry")
+        self.char1.db.skills = {"observation": 0}
+        blob = self._captured(self.char1, "sound tea vendor")
+        self.assertIn("learned nothing", blob)
+        self.char1.db.skills = {"observation": tuning.OBSERVE_TIER_DETAIL}
+        blob = self._captured(self.char1, "sound tea vendor")
+        self.assertIn("Ministry", blob)
+
+    def test_flip_buys_a_plant_and_only_a_plant(self):
+        from world import tuning
+
+        npc = self._informant("ministry")
+        self.char1.db.skills = {"observation": tuning.OBSERVE_TIER_DETAIL}
+        self.char1.db.influence = {}
+        self.char1.execute_cmd("flip tea vendor")
+        self.assertEqual(npc.db.loyalty, "ministry")  # can't afford it
+        self.char1.db.influence = {"Ministry of Commerce": tuning.FLIP_COST}
+        self.char1.execute_cmd("flip tea vendor")
+        self.assertEqual(npc.db.loyalty, "street")
+        self.assertEqual(
+            (self.char1.db.influence or {}).get("Ministry of Commerce"), 0
+        )
+
+    # --- assemblies ---------------------------------------------------------
+
+    def _assembly(self):
+        from typeclasses.scripts import AssemblyScript
+
+        self.room2.tags.add("assembly_point", category="grid")
+        script = create.create_script(AssemblyScript)
+        return script
+
+    def test_absence_is_data(self):
+        from world import tuning
+
+        script = self._assembly()
+        script.db.announced = True  # skip straight to roll call
+        self.char1.db.exposure = 0
+        script.at_repeat()
+        self.assertEqual(self.char1.db.exposure, tuning.ASSEMBLY_ABSENT_EXPOSURE)
+        self.assertTrue(
+            any(
+                "Absent from mandatory civic assembly" in c
+                for c in self._file_contents(self.char1)
+            )
+        )
+        script.stop()
+
+    def test_attendance_is_the_cheapest_virtue(self):
+        from world import records, tuning
+
+        script = self._assembly()
+        script.db.announced = True
+        self.char1.move_to(self.room2)
+        start = self.char1.db.exposure or 0
+        script.at_repeat()
+        self.assertEqual(
+            self.char1.db.exposure,
+            max(0, start - tuning.ASSEMBLY_ATTEND_RELIEF),
+        )
+        observations = [
+            r.db.content
+            for r in records.records_for(self.char1, kind="observation")
+        ]
+        self.assertIn("Attended civic assembly", observations)
+        script.stop()
+
+    def test_detained_are_excused_from_assembly(self):
+        from world import watch
+
+        self._holding_cell()
+        script = self._assembly()
+        self.char1.db.exposure = 60
+        watch.detain(self.char1)
+        files_before = len(self._file_contents(self.char1))
+        script.db.announced = True
+        script.at_repeat()
+        self.assertEqual(len(self._file_contents(self.char1)), files_before)
+        script.stop()
+        watch.release(self.char1)
+
+    # --- the honeypot -------------------------------------------------------
+
+    def _honeypot(self):
+        """A room that reads Vis 0 and is lying about it."""
+        self.room2.db.visibility = 0
+        seam = create.create_object(
+            "typeclasses.objects.Sensor", key="a seam", location=self.room2
+        )
+        seam.db.sensitivity = 1
+        seam.db.active = True
+        seam.db.concealed = True
+        return seam
+
+    def test_honeypot_is_not_a_dead_zone(self):
+        self._honeypot()
+        self.assertFalse(self.room2.is_dead_zone())
+        self.room1.db.visibility = 0
+        self.assertTrue(self.room1.is_dead_zone())
+
+    def test_forge_refuses_in_the_honeypot(self):
+        from world import records, watch
+
+        self._honeypot()
+        watch.add_record_note(self.char1, "DETAINED: test")
+        self.char1.move_to(self.room2)
+        self.char1.execute_cmd("forge 1 = Commended for vigilance")
+        self.assertEqual(
+            records.incident_by_number(self.char1, 1).db.content,
+            "DETAINED: test",
+        )
+
+    def test_sweep_reaches_past_the_chalk_mark(self):
+        from unittest.mock import patch
+
+        from typeclasses.scripts import WatchSweepScript
+        from world import watch
+
+        self._holding_cell()
+        self._honeypot()
+        script = create.create_script(WatchSweepScript)
+        self.char1.move_to(self.room2)
+        self.char1.db.exposure = 90
+        with patch("random.random", return_value=0.0):
+            script.at_repeat()
+        self.assertTrue(watch.is_detained(self.char1))
+        script.stop()
+        watch.release(self.char1)
+
+    def test_observe_reveals_concealed_only_to_practiced_eyes(self):
+        from world import tuning
+
+        self._honeypot()
+        self.char1.move_to(self.room2)
+        self.char1.db.skills = {"observation": tuning.OBSERVE_TIER_DETAIL}
+        blob = self._captured(self.char1, "observe")
+        self.assertIn("no fixed devices", blob)
+        self.char1.db.skills = {"observation": tuning.OBSERVE_TIER_CONCEALED}
+        blob = self._captured(self.char1, "observe")
+        self.assertIn("concealed", blob)

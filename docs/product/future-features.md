@@ -89,7 +89,37 @@ it enough mechanics to teach. Kept here per parking-lot discipline: being on the
 is not a commitment, and leaving it gets recorded.* The one part still parked: being
 *told your function* by the regime — that's v0.4's work assignments.
 
-### Endgame paths (escape / overthrow / inner circle)
+### The Grind Shelf *(brainstormed 2026-07-18, from [grind-loops-without-killing.md](../research/grind-loops-without-killing.md))*
+
+Lauren's ask: experienced mudders arrive wanting the mob-grind's *shape* —
+repeatable verb, visible numbers, session-sized satisfaction — and ADR 0006 rules
+out the usual implementation. These are candidate loops that keep the psychology
+(measurable progress, small frequent pay, variable jackpots, opt-in risk) with the
+Grid's own materials. **Options, not decisions** — an ADR happens when one is picked.
+
+1. **Sensor sabotage circuit ("the dark game").** Devices become attackable-in-place:
+   `jam`/`blind`/`cut` a sensor through a skill check; the Ministry repairs them on a
+   timer, so the map itself respawns. Pay: sabotage skill, a growing personal dark
+   zone, jackpot when a whole street goes dark. Risk: failure is an incident; repairs
+   raise district alert. The closest 1:1 mob-grind analogue — the bestiary is the
+   apparatus.
+2. **Courier runs ("the queue is the dungeon").** Contraband parcels from gossip-spot
+   NPCs: carry X from A to B without being scanned. Pay scales with route visibility
+   (opt-in difficulty tiers = zones); random rare packages pay standing with the
+   *underground*. Death-equivalent: being scanned mid-run (parcel seized, incident).
+3. **Interrogation-resistance sparring.** PvE "combat" where the enemy is an
+   interrogator and HP is composure: rounds of pressure vs. `deflect`/`stonewall`/
+   `misdirect`. Trains a resistance skill that later matters in real detention
+   (Section C under duress). Turn-based combat, no blood.
+4. **Records archaeology.** Grinding the archive itself: `research` at the Annex
+   surfaces fragments; assembling a story about an unperson pays influence jackpots.
+   The rare-drop table is narrative.
+5. **Watch-the-Watch bounties.** The underground pays for verified observation:
+   patrol schedules, sensor sharpness reports (`observe` output becomes a sellable
+   commodity). Turns the existing skill into an income loop with a market.
+
+Common properties: all pass principle 9 (each verb is something a citizen of Sector 9
+would actually do), all single-player-viable (principle 8), none mandatory.
 Long-horizon goals matter for retention.
 **Why not now:** endgames only mean something once the midgame exists. Sequencing, not
 doubt.

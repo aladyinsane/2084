@@ -49,6 +49,11 @@ dropping connections — live-development is the normal workflow (`evennia reloa
 | Clearance | `clearance(N)` lockfunc in `server/conf/lockfuncs.py`; granted by Form C-1 | Access is a lock string, never a plot flag |
 | Form C-1 | `world/form_c1.py` (EvMenu ceremony) over `functions.adjudicate_c1` (pure decision logic) | Ceremony and logic split so the paperwork is testable without the theatre |
 | Gridwide channel | `typeclasses/channels.py` (`MonitoredChannel`) + `DEFAULT_CHANNELS` in settings | Defined in settings, not renamed post-hoc — renaming after creation silently breaks auto-subscription (playtest finding) |
+| Cells | `world/cells.py` (registry in `ServerConfig`, membership as Tags, category `cell`) + `commands/cells.py` | No cell object exists to seize — the Ministry learns of cells only through Section C, intercepted signals, or plants |
+| Section C | `commands/detention.py` (`CmdConfess` modes) + `cells.betray()` | The prisoner's dilemma at the heart of principle 6; the form knows the member count before you confirm it |
+| Informants | `typeclasses/npcs.py` (`Informant`, hidden `db.loyalty`) + recruit/sound/flip in `commands/cells.py`; plant reports collected on the sweep tick | Loyalty readable only at `OBSERVE_TIER_DETAIL`; demeanor hints below that are true but inconclusive |
+| Assemblies | `typeclasses/scripts.py` — `AssemblyScript` (announce tick, roll-call tick, rest) | Absence-is-data: the roll writes incidents no sensor could; detainees excused |
+| Dead-zone truth | `Room.is_dead_zone()` — visibility 0 **and** zero exposure gain | Single source of truth for the sweep, `forge`, and the underground verbs; what makes the Bolt-Hole honeypot honest (concealed live sensor ⇒ not a dead zone) |
 
 ## Data-model conventions
 

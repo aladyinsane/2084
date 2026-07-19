@@ -16,9 +16,13 @@ class CmdConfess(Command):
 
     Usage:
       confess
+      confess names   - complete Section C (Associates)
+      confess alone   - strike Section C and sign only for yourself
 
     To what? That has never mattered. A confession is a formality the file
-    requires; the file is patient, and so are the officers.
+    requires; the file is patient, and so are the officers. Citizens who
+    have associates will find the form already knows how many lines
+    Section C needs — only the confirmation is theirs to give, or refuse.
     """
 
     key = "confess"
@@ -26,22 +30,83 @@ class CmdConfess(Command):
     help_category = "detention"
 
     def func(self):
-        from world import watch
+        from world import cells, watch
 
         caller = self.caller
-        caller.msg(
-            "You confess. The words arrange themselves surprisingly easily — "
-            "the form on the table is mostly pre-printed, and your part is "
-            "small.\n\nThe officer countersigns without reading it."
-        )
-        watch.release(
-            caller,
-            note="Confession recorded (contents unspecified). Released.",
-            farewell=(
-                "Processing is brisk. A stamp, a second stamp, the return of "
-                "your bootlaces. The door opens."
-            ),
-        )
+        slug = cells.cell_of(caller)
+        mode = (self.args or "").strip().lower()
+
+        if not slug:
+            # No associates: the v0.2 confession, unchanged.
+            caller.msg(
+                "You confess. The words arrange themselves surprisingly "
+                "easily — the form on the table is mostly pre-printed, and "
+                "your part is small.\n\nThe officer countersigns without "
+                "reading it."
+            )
+            watch.release(
+                caller,
+                note="Confession recorded (contents unspecified). Released.",
+                farewell=(
+                    "Processing is brisk. A stamp, a second stamp, the "
+                    "return of your bootlaces. The door opens."
+                ),
+            )
+            return
+
+        blanks = len(cells.members_of(slug)) - 1
+        if mode not in ("names", "alone"):
+            caller.msg(
+                "The officer slides the form across. Your part is small and "
+                "mostly pre-printed — except |wSection C: Associates|n, "
+                f"which has been ruled with |r{blanks}|n blank line"
+                f"{'s' if blanks != 1 else ''}. Not a guess. A count.\n\n"
+                "The officer waits. |cconfess names|n completes Section C. "
+                "|cconfess alone|n strikes it out and signs only for "
+                "yourself, which the Ministry will remember you chose."
+            )
+            return
+
+        if mode == "names":
+            named = cells.betray(caller)
+            caller.msg(
+                "You fill Section C in the neat hand of a person being "
+                f"cooperative. {named} name{'s' if named != 1 else ''}, "
+                "block capitals, no crossings-out.\n\nThe officer "
+                "countersigns, and for one professional instant looks at "
+                "you the way you will now always suspect people of "
+                "looking at you."
+            )
+            watch.release(
+                caller,
+                note="Confession recorded; Section C complete. Released "
+                "with the Ministry's appreciation.",
+                farewell=(
+                    "Processing is immediate. Both stamps land together. "
+                    "Someone has already brought your coat."
+                ),
+            )
+        else:
+            watch.add_record_note(
+                caller, "Declined to complete Section C of confession."
+            )
+            caller.msg(
+                "You draw one line through Section C and sign your own "
+                "part only.\n\nThe officer looks at the strike-through "
+                "longer than they looked at you, initials the margin, and "
+                "files the form somewhere that sounds further away than "
+                "the drawer it goes into."
+            )
+            watch.release(
+                caller,
+                note="Confession recorded; Section C returned blank. "
+                "Released under continued observation.",
+                farewell=(
+                    "Processing is unhurried in a way that is doing it on "
+                    "purpose. Eventually: a stamp, your bootlaces, the door."
+                ),
+                exposure=tuning.RELEASE_EXPOSURE_UNCOOPERATIVE,
+            )
 
 
 class CmdWait(Command):

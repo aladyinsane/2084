@@ -47,6 +47,28 @@ class Citizen(ObjectParent, DefaultCharacter):
             )
 
 
+class Informant(Citizen):
+    """
+    A citizen who hears things, and can be persuaded to pass them on.
+
+    `db.loyalty` is the hidden truth: "street" informants genuinely serve
+    the cell that recruits them (they tip the cell when a member is taken);
+    "ministry" plants serve the Watch, and being recruited is their whole
+    assignment — they file on the cell, slowly, from the inside.
+
+    Nothing in the game states loyalty outright below a practiced
+    observation skill: `db.demeanor` is the only tell most citizens will
+    ever get, and it is written to be true without being conclusive.
+    """
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        self.db.loyalty = "street"
+        self.db.recruited_by = None
+        self.db.last_report = 0
+        self.db.demeanor = "They give away exactly nothing, professionally."
+
+
 class WatchPatrol(Citizen):
     """
     An officer of the Watch on foot patrol. Wanders rooms at or above
