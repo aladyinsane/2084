@@ -100,17 +100,62 @@ def join(char, slug):
     return None
 
 
+def _dissolve_if_empty(slug):
+    """Last member out: registry entry goes; the cache spills where it is."""
+    if members_of(slug):
+        return
+    reg = _registry()
+    reg.pop(slug, None)
+    _save_registry(reg)
+    cache = cache_of(slug)
+    if cache:
+        for item in list(cache.contents):
+            item.move_to(cache.location, quiet=True, move_type="spilled")
+        cache.delete()
+
+
 def leave(char):
     """Leave a circle; dissolve the registry entry if it empties."""
     slug = circle_of(char)
     if not slug:
         return None
     char.tags.remove(slug, category=MEMBER_TAG_CATEGORY)
-    if not members_of(slug):
-        reg = _registry()
-        reg.pop(slug, None)
-        _save_registry(reg)
+    _dissolve_if_empty(slug)
     return slug
+
+
+# --- the stash (v0.11) ------------------------------------------------------
+
+CACHE_TAG_CATEGORY = "circle_cache"
+
+
+def cache_of(slug):
+    """The circle's cache object, or None."""
+    caches = search_object_by_tag(slug, category=CACHE_TAG_CATEGORY)
+    return caches[0] if caches else None
+
+
+def establish_cache(char, room):
+    """
+    First stash establishes the cache: a loose brick, a hollow pipe,
+    a place you'd have to know. Invisible to everyone — members included;
+    knowing where it is IS the membership. One cache per circle.
+    """
+    from evennia import create_object
+
+    slug = circle_of(char)
+    cache = create_object(
+        "typeclasses.objects.Object",
+        key="a place you'd have to know",
+        location=room,
+    )
+    cache.tags.add(slug, category=CACHE_TAG_CATEGORY)
+    cache.locks.add("view:false();get:false()")
+    cache.db.desc = "A loose brick. A hollow pipe. You'd have to know."
+    logger.log_info(
+        f"watchlog: (unknown to the Watch) circle '{slug}' cached at {room.key}"
+    )
+    return cache
 
 
 # --- signals ----------------------------------------------------------------
@@ -177,11 +222,23 @@ def betray(confessor):
             member, "Named as an associate in a recorded confession"
         )
         member.gain_exposure(tuning.CELL_NAMED_EXPOSURE)
+    # Section C has an address line (v0.11): the van goes to the brick
+    # first. A confessed circle's stash is confiscated wholesale.
+    cache = cache_of(slug)
+    if cache:
+        for item in list(cache.contents):
+            item.delete()
+        cache.delete()
+        for member in online_members(slug):
+            if member is not confessor:
+                member.msg(
+                    "|rWord comes the way bad word does: the brick is "
+                    "empty.|n Everything the circle kept, the Ministry "
+                    "keeps now."
+                )
+        logger.log_info(f"watchlog: circle '{slug}' cache confiscated")
     confessor.tags.remove(slug, category=MEMBER_TAG_CATEGORY)
-    if not members_of(slug):
-        reg = _registry()
-        reg.pop(slug, None)
-        _save_registry(reg)
+    _dissolve_if_empty(slug)
     logger.log_info(
         f"watchlog: Section C complete — {confessor.key} named {len(named)} "
         f"member(s) of '{slug}'"

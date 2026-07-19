@@ -287,10 +287,19 @@ sells what it can't.
 
 The pay side of trust (owed since ADR 0008 named the one-sink economy).
 
-- [ ] Shared stash (a circle-locked cache in a dead zone)
-- [ ] Joint operations: at least one errand that requires two circle members
-      acting together
-- [ ] Underground-ledger sinks sized against what the grind now pays
+- [x] Shared stash: `stash` establishes one cache per circle, first use,
+      dead zones only — a loose brick, invisible to everyone including
+      members (knowing where it is IS the membership; no lock ever worked
+      better). And Section C has an address line now: a confessed circle's
+      cache is confiscated wholesale, the last member out spills it where
+      it stands. Emergent bonus found in playtest: caching a parcel
+      mid-run is real smuggling risk-management
+- [x] Joint operation: the lamp-mender's "Four Hands" — completes only
+      with a circle-mate standing in the same dark room, whichever of you
+      arrives second
+- [x] Underground-ledger sinks: v0.10's black-market shelf (8+5) plus
+      papers already sized the sink side; the stash adds storable value.
+      Watch inflation at the next playtest gate regardless
 
 ## v0.8.5 — Juice (from [fun-and-game-feel.md](../research/fun-and-game-feel.md))
 

@@ -976,6 +976,105 @@ class TestLegibility(EvenniaTest):
             self.assertTrue(entry["text"].strip())
 
 
+class TestCircleBenefits(EvenniaTest):
+    """v0.11: the pay side of trust — the stash and joint work."""
+
+    def _circle(self, name="redbird"):
+        from world import circles
+
+        slug, err = circles.form(self.char1, name)
+        self.assertIsNone(err)
+        self.char2.tags.add(slug, category="circle")
+        return slug
+
+    def test_stash_establishes_in_dead_zones_only(self):
+        from world import circles
+
+        slug = self._circle()
+        thing = create.create_object(
+            "typeclasses.objects.Object", key="a tin of tea",
+            location=self.char1,
+        )
+        self.room1.db.visibility = 3
+        self.char1.execute_cmd(f"stash {thing.key}")
+        self.assertIsNone(circles.cache_of(slug))
+        self.room1.db.visibility = 0
+        self.char1.execute_cmd(f"stash {thing.key}")
+        cache = circles.cache_of(slug)
+        self.assertIsNotNone(cache)
+        self.assertIn(thing, cache.contents)
+        # Invisible to everyone: knowing where it is IS the membership.
+        self.assertFalse(cache.access(self.char2, "view"))
+
+    def test_stash_take_is_in_person(self):
+        from world import circles
+
+        self._circle()
+        thing = create.create_object(
+            "typeclasses.objects.Object", key="a tin of tea",
+            location=self.char1,
+        )
+        self.char1.execute_cmd(f"stash {thing.key}")
+        self.char1.move_to(self.room2)
+        self.char1.execute_cmd(f"stash take {thing.key}")
+        self.assertNotIn(thing, self.char1.contents)  # wrong room
+        self.char1.move_to(self.room1)
+        self.char1.execute_cmd(f"stash take {thing.key}")
+        self.assertIn(thing, self.char1.contents)
+
+    def test_betrayal_confiscates_the_cache(self):
+        from world import circles, watch
+
+        holding = create.create_object(
+            "typeclasses.rooms.Room", key="Holding Cell (test)"
+        )
+        holding.tags.add("holding_cell", category="grid")
+        self.room1.tags.add("release_point", category="grid")
+        slug = self._circle()
+        thing = create.create_object(
+            "typeclasses.objects.Object", key="a tin of tea",
+            location=self.char1,
+        )
+        self.char1.execute_cmd(f"stash {thing.key}")
+        self.char1.db.exposure = 60
+        watch.detain(self.char1)
+        self.char1.execute_cmd("confess names")
+        self.assertIsNone(circles.cache_of(slug))
+        self.assertIsNone(thing.pk)  # the Ministry keeps it now
+
+    def test_last_member_out_spills_the_cache(self):
+        from world import circles
+
+        slug = self._circle()
+        thing = create.create_object(
+            "typeclasses.objects.Object", key="a tin of tea",
+            location=self.char1,
+        )
+        self.char1.execute_cmd(f"stash {thing.key}")
+        self.char2.tags.remove(slug, category="circle")
+        circles.leave(self.char1)
+        self.assertIsNone(circles.cache_of(slug))
+        self.assertEqual(thing.location, self.room1)  # spilled where it was
+
+    def test_four_hands_needs_both_pairs(self):
+        from world import errands
+
+        self._circle()
+        giver = create.create_object(
+            "typeclasses.npcs.Citizen", key="the lamp-mender",
+            location=self.room1,
+        )
+        giver.tags.add("errand_giver", category="grid")
+        self.char1.db.errands_done = ["look-closer", "legs"]
+        self.char1.execute_cmd("errands take four-hands")
+        self.room2.key = "Tunnel B"
+        self.char2.move_to(self.room1)  # mate elsewhere first
+        self.char1.move_to(self.room2)
+        self.assertIsNotNone(errands.current(self.char1))  # alone: no
+        self.char2.move_to(self.room2)  # the other pair of hands arrives
+        self.assertIsNone(errands.current(self.char1))
+
+
 class TestGear(EvenniaTest):
     """v0.10: the implant catalog, worn — every item a trade."""
 

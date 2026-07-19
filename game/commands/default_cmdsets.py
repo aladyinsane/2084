@@ -16,7 +16,14 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 
 from evennia import default_cmds
 
-from commands.circles import CmdCircle, CmdFlip, CmdJudge, CmdRecruit, CmdSignal
+from commands.circles import (
+    CmdCircle,
+    CmdFlip,
+    CmdJudge,
+    CmdRecruit,
+    CmdSignal,
+    CmdStash,
+)
 from commands.civic import (
     CmdApply,
     CmdForge,
@@ -63,6 +70,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdRecruit())
         self.add(CmdJudge())
         self.add(CmdFlip())
+        self.add(CmdStash())
         self.add(CmdSabotage())
         self.add(CmdCarry())
         self.add(CmdDeliver())

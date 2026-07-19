@@ -67,6 +67,15 @@ class Room(ObjectParent, DefaultRoom):
             for obj in list(self.contents):
                 if obj is not moved_obj and hasattr(obj, "at_watched_arrival"):
                     delay(0.3, obj.at_watched_arrival, moved_obj)
+        # An arrival can complete someone ELSE's errand (v0.11's joint
+        # work: the other pair of hands walking in counts) — checked for
+        # any arrival, cheap for everyone without an active errand.
+        if move_type in ("move", "traverse"):
+            from world import errands
+
+            for obj in list(self.contents):
+                if obj is not moved_obj and obj.db.errand:
+                    errands.check(obj, "visit", room=self)
 
     def _maybe_log_movement(self, moved_obj):
         """
