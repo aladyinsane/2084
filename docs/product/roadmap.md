@@ -271,10 +271,24 @@ The pay side of trust (owed since ADR 0008 named the one-sink economy).
       acting together
 - [ ] Underground-ledger sinks sized against what the grind now pays
 
+## v0.8.5 — Juice (from [fun-and-game-feel.md](../research/fun-and-game-feel.md))
+
+The cheap immediate fixes for "a bit dull," ahead of the content versions:
+
+- [ ] Near-miss telegraphy: sweep rolls and scanner rolls that *miss* are
+      felt ("a visor lingers a half-second too long") — dread we already
+      compute and currently throw away
+- [ ] Login digest: "Since you were last on the Grid:" — file changes,
+      missed signals, assembly outcomes (principle 8, pointed home)
+- [ ] Ambient texture tick: rooms murmur on a slow, rate-limited script;
+      dead zones get their silence described
+
 ## Cross-cutting for the batch
 
-- The **fun research pass** (game feel, incentive gradients, "why dull?")
-  lands before v0.9 so quests and implants inherit its answers
+- ~~The **fun research pass**~~ done — [fun-and-game-feel.md](../research/fun-and-game-feel.md):
+  five named dullnesses, each assigned to a version; quests and implants
+  inherit its shapes (risk tiers stated up front, named rewards, the
+  want-ladder, a "nobody" questline so lying low is a campaign)
 - Curriculum audit per version (contributing rule 9), as always
 
 ## Later / undecided
