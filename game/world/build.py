@@ -164,6 +164,9 @@ ROOMS = {
         "  itself. The numbers in your prompt are yours: Vis is how\n"
         "  watched a place is (0-5). Exposure is how interesting you have\n"
         "  made yourself. Low numbers are a virtue.\n"
+        "  A citizen is expected to know their sector. Consult your own\n"
+        "  recollection at any time: |cmap|w. The Ministry issues no maps\n"
+        "  and is confident you will not need one.\n"
         "  Proceed NORTH when ready. Type |chelp|w at any difficulty.|n",
     ),
     "o_watched": (

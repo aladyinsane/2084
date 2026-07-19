@@ -38,6 +38,9 @@ SERVERNAME = "2084"
 # the game's shape get real helpfiles.
 FILE_HELP_ENTRY_MODULES = ["world.help_entries"]
 
+# The mental map's reach, in rooms from your position (v0.8).
+BASIC_MAP_SIZE = 3
+
 # The one default channel is the Grid's own, monitored band. Defined here
 # (not renamed after the fact) so account creation auto-subscribes citizens
 # to it — in-game verification caught the rename approach leaving new

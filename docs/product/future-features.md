@@ -11,7 +11,13 @@ bottom — soft spots we shipped on purpose, recorded so we revisit them deliber
 
 ## Strong candidates
 
-### ASCII map (planned, deliberately not v1)
+### ~~ASCII map (planned, deliberately not v1)~~ — LEFT THE LOT (v0.8, 2026-07-19)
+
+*Shipped on request after the first human playtest, via door #1 below
+(`ingame_map_display` subclass, `commands/map.py`) — the grid-consistency
+bet paid exactly as designed. The "thematically interesting version"
+(maps as in-fiction seizable objects, accuracy as gameplay) remains parked
+below; visibility-digit rendering delivered a slice of it early.*
 
 An in-game `map` command rendering the local area as ASCII. We built one before (the
 Another World project); that experience informs this, but the design here is **fresh,

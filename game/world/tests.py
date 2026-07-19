@@ -976,6 +976,54 @@ class TestLegibility(EvenniaTest):
             self.assertTrue(entry["text"].strip())
 
 
+class TestMap(EvenniaTest):
+    """v0.8: the mental map — visibility digits over the room graph."""
+
+    def _map_text(self):
+        from commands.map import GridMap
+
+        return GridMap(self.char1, size=3).show_map()
+
+    def test_map_shows_you_and_neighbor_visibility(self):
+        self.room1.db.visibility = 0
+        self.room2.db.visibility = 4
+        # EvenniaTest's stock exit is "out" (non-compass); give it a compass
+        # exit so the mapper can walk it (ADR 0007's whole point).
+        create.create_object(
+            "typeclasses.exits.Exit", key="north", location=self.room1,
+            destination=self.room2,
+        )
+        create.create_object(
+            "typeclasses.exits.Exit", key="south", location=self.room2,
+            destination=self.room1,
+        )
+        text = self._map_text()
+        self.assertIn("@", text)   # you are here
+        self.assertIn("4", text)   # the neighbor's visibility digit
+
+    def test_locked_exits_hide_whats_beyond(self):
+        create.create_object(
+            "typeclasses.exits.Exit", key="north", location=self.room1,
+            destination=self.room2,
+        )
+        self.room2.db.visibility = 5
+        exit_obj = [e for e in self.room1.contents if e.destination][-1]
+        exit_obj.locks.add("traverse:false()")
+        text = self._map_text()
+        self.assertNotIn("5", text)  # beyond your clearance = not anywhere
+
+    def test_map_command_runs(self):
+        old = self.char1.msg
+        seen = []
+        self.char1.msg = lambda text=None, **kw: seen.append(str(text))
+        try:
+            self.char1.execute_cmd("map")
+        finally:
+            self.char1.msg = old
+        blob = "\n".join(seen)
+        self.assertIn("Sector 9", blob)
+
+
 class TestTheGrind(EvenniaTest):
     """v0.6 (ADR 0008): sabotage circuit, courier runs, the underground."""
 
