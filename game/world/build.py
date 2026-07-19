@@ -209,7 +209,10 @@ ROOMS = {
         "Annex for Spire clearance. Between shifts, stand in the ration "
         "queue and |clisten|w - hearing is not yet a crime. The |cgridwide|w "
         "channel carries the public voice of Sector 9; it is public in "
-        "every direction.|n\n\n"
+        "every direction.\n"
+        "  When the loudspeakers convene a CIVIC ASSEMBLY, attend. "
+        "Attendance is recorded with gratitude. Absence is also recorded.|n"
+        "\n\n"
         "Continue SOUTH for the practical portion of your orientation.",
     ),
     "o_corridor": (
@@ -470,8 +473,17 @@ def build():
         "    down here, with people you'd go to the cells for.|n\n"
         "  |w- pass word with |csignal|w. from quiet places only. walls\n"
         "    have wires in them sometimes.|n\n"
+        "  |w- people on corners hear things. |crecruit|w them if you must,\n"
+        "    but |csound|w them first, and learn to look before you trust\n"
+        "    the sounding. not every ear is yours. some can be bought\n"
+        "    back (|cflip|w). none can be returned.|n\n"
         "  |w- the bolt-hole west of here has cots and a kettle. somebody\n"
-        "    keeps it nice. ask yourself who.|n\n\n"
+        "    keeps it nice. ask yourself who.|n\n"
+        "  |w- every lens you |csabotage|w is a street that forgets you.\n"
+        "    the crew fixes them oldest-first. so there is always work.|n\n"
+        "  |w- the queue pays legs. |ccarry|w for the broker, |cdeliver|w,\n"
+        "    don't get checked. earn enough and she sells clean |cpapers|w.|n"
+        "\n\n"
         "Beneath, in different hands: initials, dates, and one line pressed "
         "hard enough to break the chalk: |wthey write it down. so can we.|n"
     )
@@ -562,6 +574,35 @@ def build():
     vendor.db.react_hot = (
         "{npc} polishes an already-clean glass, angled slightly toward "
         "{name}."
+    )
+
+    # The broker (v0.6, ADR 0008): the courier trade's one visible node.
+    # She stands in the ration queue because the queue is the only place in
+    # Sector 9 where standing still for hours is above suspicion.
+    broker = create_object(
+        "typeclasses.npcs.Citizen",
+        key="the broker",
+        aliases=["broker", "woman with the string bag"],
+        location=rooms["queue"],
+    )
+    broker.tags.add("courier_broker", category="grid")
+    broker.db.desc = (
+        "A middle-aged woman with a string bag, holding a place in line she "
+        "never advances. The bag has held the same three turnips for as "
+        "long as anyone can remember. People drift near her, adjust a coat "
+        "or a parcel, and drift away carrying slightly different weight. "
+        "Ask her to |ccarry|n something, if your legs are honest."
+    )
+    broker.db.react_calm = (
+        "{npc} recounts the queue ahead of her, arriving as always at a "
+        "number that does not require her to move."
+    )
+    broker.db.react_noticed = (
+        "{npc} adjusts her string bag so it hangs between herself and {name}."
+    )
+    broker.db.react_hot = (
+        "{npc} becomes, with no visible transition, a tired woman holding "
+        "turnips who has never met anyone in her life."
     )
 
     # The archivist: the sanctioned route to a different past (ADR 0005).

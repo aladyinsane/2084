@@ -27,6 +27,7 @@ from commands.civic import (
     CmdWork,
 )
 from commands.dossier import CmdDossier
+from commands.underground import CmdCarry, CmdDeliver, CmdPapers, CmdSabotage
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
@@ -59,6 +60,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdRecruit())
         self.add(CmdSound())
         self.add(CmdFlip())
+        self.add(CmdSabotage())
+        self.add(CmdCarry())
+        self.add(CmdDeliver())
+        self.add(CmdPapers())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):

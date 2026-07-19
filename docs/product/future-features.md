@@ -97,13 +97,17 @@ out the usual implementation. These are candidate loops that keep the psychology
 (measurable progress, small frequent pay, variable jackpots, opt-in risk) with the
 Grid's own materials. **Options, not decisions** — an ADR happens when one is picked.
 
-1. **Sensor sabotage circuit ("the dark game").** Devices become attackable-in-place:
+*(Update 2026-07-18: Lauren picked options 1+2; they LEFT THE LOT as v0.6 —
+[ADR 0008](../decisions/0008-grind-loops-sabotage-and-couriering.md). Options
+3–5 remain parked.)*
+
+1. ~~**Sensor sabotage circuit ("the dark game").**~~ **Shipped, v0.6.** Devices become attackable-in-place:
    `jam`/`blind`/`cut` a sensor through a skill check; the Ministry repairs them on a
    timer, so the map itself respawns. Pay: sabotage skill, a growing personal dark
    zone, jackpot when a whole street goes dark. Risk: failure is an incident; repairs
    raise district alert. The closest 1:1 mob-grind analogue — the bestiary is the
    apparatus.
-2. **Courier runs ("the queue is the dungeon").** Contraband parcels from gossip-spot
+2. ~~**Courier runs ("the queue is the dungeon").**~~ **Shipped, v0.6.** Contraband parcels from gossip-spot
    NPCs: carry X from A to B without being scanned. Pay scales with route visibility
    (opt-in difficulty tiers = zones); random rare packages pay standing with the
    *underground*. Death-equivalent: being scanned mid-run (parcel seized, incident).

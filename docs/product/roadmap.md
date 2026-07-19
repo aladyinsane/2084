@@ -155,6 +155,37 @@ The multiplayer thesis: betrayal outguns everything (principle 6).
       pool risk more than they pool power. Deliberate: trust must cost
       before it pays, but the pay side is v0.6+ material
 
+## v0.6 — The grind ([ADR 0008](../decisions/0008-grind-loops-sabotage-and-couriering.md))
+
+The mob-grind's shape without the corpse: Lauren picked options 1+2 off the
+grind shelf ([research](../research/grind-loops-without-killing.md)). Both loops
+pay **the underground** — the first non-Ministry ledger.
+
+- [x] Sensor sabotage circuit: `sabotage <device>` skill checks against live
+      devices; failure is an incident + heat (verified live: "the housing
+      gives, then bites back", +12 Exp, fault report filed); the maintenance
+      crew repairs oldest-first on a timer so the circuit respawns — and only
+      repairs *sabotage*: the alley screen predates the backlog and stays
+      broken, because nobody files the form. Concealed devices targetable
+      only at a practiced observation skill (the honeypot can be blinded —
+      temporarily, expensively, gloriously)
+- [x] Courier runs: the broker in the ration queue, four destination tiers
+      priced by visibility, parcels as real objects, seizure via the systems
+      that already exist (papers checks, detainment processing, scanner
+      gates). Verified live: a gate run that paid 8+4 jackpot, and a second
+      one where gloved hands found the parcel on the second pat — and the
+      exposure from *that* fed the patrol detention two rooms later. The
+      systems chain without being told to
+- [x] The underground's first sink: clean `papers` (standing → exposure
+      relief) so the loop closes in one session. Playtest caught the dossier
+      leaking the underground's ledger and the off-the-books aptitudes
+      (including `forgery`, leaking since v0.3) — the Ministry's file now
+      contains only what the Ministry could have observed
+- [x] Curriculum audit (contributing.md rule 9, new this version): assemblies
+      added to the Wing's civic placard; sabotage/carry/papers added to the
+      chalk — and the audit itself caught that v0.5 never chalked the
+      informant verbs (recruit/sound/flip). Now it does
+
 ## Later / undecided
 
 The parking lot, including the **ASCII map**: [future-features.md](future-features.md).
@@ -163,6 +194,9 @@ The parking lot, including the **ASCII map**: [future-features.md](future-featur
 
 - World stays grid-consistent — every batch-built room passes the ADR 0007 discipline
 - Every loop single-player-viable before it ships (principle 8's test)
+- Every version audits the curriculum before merge: new sanctioned verbs reach the
+  Orientation Wing placards, new unsanctioned ones reach the Tunnel B chalk
+  (contributing.md rule 9)
 - Playtest gate between versions: the named risks in
   [future-features.md](future-features.md#known-risks-in-shipped-features) get checked
   against real sessions, not intuition

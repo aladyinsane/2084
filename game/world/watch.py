@@ -61,6 +61,10 @@ def detain(char, reason="routine sweep"):
     char.tags.add("detained", category="status")
     char.db.detained_wait = 0
     add_record_note(char, f"DETAINED: {reason}.")
+    # Processing inventories your effects (v0.6): a courier's run ends here.
+    from world import underground
+
+    underground.seize_contraband(char, found_by="detainment processing")
     set_alert(get_alert() + 1)
     logger.log_info(
         f"watchlog: detain {char.key} (exposure {char.db.exposure}) — {reason}"

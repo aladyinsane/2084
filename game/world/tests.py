@@ -922,3 +922,225 @@ class TestTrust(EvenniaTest):
         self.char1.db.skills = {"observation": tuning.OBSERVE_TIER_CONCEALED}
         blob = self._captured(self.char1, "observe")
         self.assertIn("concealed", blob)
+
+
+class TestTheGrind(EvenniaTest):
+    """v0.6 (ADR 0008): sabotage circuit, courier runs, the underground."""
+
+    def _file_contents(self, char):
+        from world import records
+
+        return [rec.db.content for rec in records.records_for(char)]
+
+    def _sensor(self, room=None, active=True, concealed=False):
+        sensor = create.create_object(
+            "typeclasses.objects.Sensor",
+            key="a lens",
+            location=room or self.room1,
+        )
+        sensor.db.sensitivity = 1
+        sensor.db.active = active
+        sensor.db.concealed = concealed
+        return sensor
+
+    def _broker(self):
+        broker = create.create_object(
+            "typeclasses.npcs.Citizen", key="the broker", location=self.room1
+        )
+        broker.tags.add("courier_broker", category="grid")
+        return broker
+
+    # --- sabotage -----------------------------------------------------------
+
+    def test_sabotage_success_pays_the_underground(self):
+        from unittest.mock import patch
+
+        from world import tuning
+
+        sensor = self._sensor()
+        self.room1.db.visibility = 0  # one sensor is all that watches here
+        with patch("world.underground.random.random", return_value=0.0):
+            self.char1.execute_cmd("sabotage lens")
+        self.assertFalse(sensor.db.active)
+        self.assertIsNotNone(sensor.db.sabotaged_at)
+        self.assertEqual(self.char1.skill("sabotage"), 1)
+        # Room went fully dark: base pay + dark bonus.
+        self.assertEqual(
+            (self.char1.db.influence or {}).get(tuning.UNDERGROUND),
+            tuning.SABOTAGE_INFLUENCE + tuning.SABOTAGE_DARK_BONUS,
+        )
+
+    def test_sabotage_failure_is_an_incident(self):
+        from unittest.mock import patch
+
+        from world import tuning
+
+        sensor = self._sensor()
+        self.char1.db.exposure = 0
+        with patch("world.underground.random.random", return_value=0.99):
+            self.char1.execute_cmd("sabotage lens")
+        self.assertTrue(sensor.db.active)  # device survives
+        self.assertEqual(self.char1.db.exposure, tuning.SABOTAGE_FAIL_EXPOSURE)
+        self.assertTrue(
+            any("interference" in c for c in self._file_contents(self.char1))
+        )
+
+    def test_concealed_devices_need_a_practiced_eye(self):
+        from unittest.mock import patch
+
+        from world import tuning
+
+        sensor = self._sensor(concealed=True)
+        with patch("world.underground.random.random", return_value=0.0):
+            self.char1.execute_cmd("sabotage lens")
+        self.assertTrue(sensor.db.active)  # can't cut what you can't find
+        self.char1.db.skills = {"observation": tuning.OBSERVE_TIER_CONCEALED}
+        with patch("world.underground.random.random", return_value=0.0):
+            self.char1.execute_cmd("sabotage lens")
+        self.assertFalse(sensor.db.active)
+
+    def test_maintenance_repairs_oldest_first(self):
+        from typeclasses.scripts import MaintenanceScript
+
+        # Script first: it fires at_repeat once on creation, and must find
+        # an empty backlog then.
+        script = create.create_script(MaintenanceScript)
+        first = self._sensor()
+        second = self._sensor()
+        first.db.active = False
+        first.db.sabotaged_at = 100.0
+        second.db.active = False
+        second.db.sabotaged_at = 200.0
+        script.at_repeat()
+        self.assertTrue(first.db.active)
+        self.assertFalse(second.db.active)
+        script.at_repeat()
+        self.assertTrue(second.db.active)
+        # The alley pattern: broken-but-never-sabotaged stays broken.
+        unreported = self._sensor(active=False)
+        script.at_repeat()
+        self.assertFalse(unreported.db.active)
+        script.stop()
+
+    # --- courier runs -------------------------------------------------------
+
+    def test_carry_and_deliver_pays(self):
+        from unittest.mock import patch
+
+        from world import tuning, underground
+
+        self._broker()
+        dest_key, pay, _ = tuning.COURIER_JOBS["quiet"]
+        self.room2.key = dest_key
+        self.char1.execute_cmd("carry quiet")
+        self.assertEqual(underground.current_job(self.char1), "quiet")
+        self.assertEqual(len(underground.carried_parcels(self.char1)), 1)
+        # Wrong room: no dice.
+        result = underground.deliver(self.char1)
+        self.assertIsInstance(result, str)
+        self.char1.move_to(self.room2)
+        with patch("world.underground.random.random", return_value=0.99):
+            total, jackpot = underground.deliver(self.char1)
+        self.assertEqual(total, pay)
+        self.assertFalse(jackpot)
+        self.assertIsNone(underground.current_job(self.char1))
+        self.assertEqual(len(underground.carried_parcels(self.char1)), 0)
+        self.assertEqual(
+            (self.char1.db.influence or {}).get(tuning.UNDERGROUND), pay
+        )
+        self.assertEqual(self.char1.skill("couriering"), 1)
+
+    def test_papers_check_seizes_contraband(self):
+        from typeclasses.scripts import WatchSweepScript
+
+        from world import underground
+
+        self._broker()
+        self.char1.execute_cmd("carry quiet")
+        self.char1.db.exposure = 30
+        WatchSweepScript.papers_check(self.char1)
+        self.assertEqual(len(underground.carried_parcels(self.char1)), 0)
+        self.assertIsNone(underground.current_job(self.char1))
+        self.assertTrue(
+            any(
+                "unregistered goods" in c
+                for c in self._file_contents(self.char1)
+            )
+        )
+        # And no cleared-is-an-alibi relief when you're caught holding.
+        self.assertEqual(self.char1.db.exposure, 30)
+
+    def test_scanner_gate_rolls_for_contraband(self):
+        from unittest.mock import patch
+
+        from world import underground
+
+        self._broker()
+        self.char1.execute_cmd("carry quiet")
+        self.exit.db.exposure_modifier = 2
+        with patch("random.random", return_value=0.0):
+            self.char1.execute_cmd(self.exit.key)
+        self.assertEqual(self.char1.location, self.room2)  # you pass; it doesn't
+        self.assertEqual(len(underground.carried_parcels(self.char1)), 0)
+        self.assertTrue(
+            any(
+                "unregistered goods" in c
+                for c in self._file_contents(self.char1)
+            )
+        )
+
+    def test_detainment_processing_seizes(self):
+        from world import underground, watch
+
+        room = create.create_object(
+            "typeclasses.rooms.Room", key="Holding Cell (test)"
+        )
+        room.tags.add("holding_cell", category="grid")
+        self.room1.tags.add("release_point", category="grid")
+        self._broker()
+        self.char1.execute_cmd("carry quiet")
+        self.char1.db.exposure = 60
+        watch.detain(self.char1)
+        self.assertEqual(len(underground.carried_parcels(self.char1)), 0)
+        watch.release(self.char1)
+
+    def test_dossier_hides_the_unsanctioned(self):
+        # Playtest catch: the citizen file was printing underground standing
+        # and off-the-books aptitudes. The Ministry's file contains only
+        # what the Ministry could have observed.
+        from world import tuning
+
+        self.char1.db.skills = {"clerking": 3, "sabotage": 5, "forgery": 2}
+        self.char1.db.influence = {
+            "Ministry of Records": 4,
+            tuning.UNDERGROUND: 14,
+        }
+        old = self.char1.msg
+        seen = []
+        self.char1.msg = lambda text=None, **kw: seen.append(str(text))
+        try:
+            self.char1.execute_cmd("dossier")
+        finally:
+            self.char1.msg = old
+        blob = "\n".join(seen)
+        self.assertIn("clerking", blob)
+        self.assertIn("Ministry of Records", blob)
+        self.assertNotIn("sabotage", blob)
+        self.assertNotIn("forgery", blob)
+        self.assertNotIn(tuning.UNDERGROUND, blob)
+
+    def test_papers_sink_closes_the_loop(self):
+        from world import tuning
+
+        self._broker()
+        self.char1.db.exposure = 40
+        self.char1.execute_cmd("papers")  # can't afford it yet
+        self.assertEqual(self.char1.db.exposure, 40)
+        self.char1.db.influence = {tuning.UNDERGROUND: tuning.PAPERS_COST}
+        self.char1.execute_cmd("papers")
+        self.assertEqual(
+            self.char1.db.exposure, 40 - tuning.PAPERS_RELIEF
+        )
+        self.assertEqual(
+            (self.char1.db.influence or {}).get(tuning.UNDERGROUND), 0
+        )

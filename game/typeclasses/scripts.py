@@ -208,8 +208,14 @@ class WatchSweepScript(Script):
 
     @staticmethod
     def papers_check(char):
-        from world import tuning, watch
+        from world import tuning, underground, watch
 
+        # A pat-down finds what a wrist scan wouldn't (v0.6): carrying
+        # contraband turns a routine check into a much worse afternoon —
+        # and forfeits the cleared-is-an-alibi relief.
+        if underground.seize_contraband(char, found_by="a papers check"):
+            char.send_prompt()
+            return
         char.msg(
             "|yAn officer of the Watch angles across your path and stops you "
             "with two fingers.|n Papers. You produce them. A scanner passes "
@@ -341,6 +347,43 @@ class AssemblyScript(Script):
             f"watchlog: assembly roll — {len(present)} present, "
             f"{len(absent)} absent"
         )
+
+
+class MaintenanceScript(Script):
+    """
+    The maintenance crew (v0.6, ADR 0008): works the sabotage backlog
+    oldest-first, one device per interval. This is what makes sabotage a
+    circuit instead of a heist — the map respawns. Note the crew only
+    repairs *sabotage*: the alley watchscreen predates the backlog, and
+    nobody has filed the form.
+    """
+
+    def at_script_creation(self):
+        from world import tuning
+
+        self.key = "maintenance"
+        self.desc = "Repairs sabotaged devices, oldest first."
+        self.interval = tuning.REPAIR_INTERVAL
+        self.persistent = True
+
+    def at_repeat(self):
+        from evennia.utils import logger
+
+        from world import underground
+
+        sensor = underground.oldest_sabotaged_sensor()
+        if not sensor:
+            return
+        sensor.db.active = True
+        sensor.db.sabotaged_at = None
+        if sensor.location:
+            sensor.location.msg_contents(
+                "A maintenance crew in Ministry coveralls arrives, replaces "
+                f"a component in {sensor.key} with six practiced motions, "
+                "and leaves without looking at anyone. The diode comes back "
+                "on like an opinion."
+            )
+        logger.log_info(f"watchlog: maintenance repaired {sensor.key}")
 
 
 class PatrolManagerScript(Script):

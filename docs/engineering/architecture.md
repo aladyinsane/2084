@@ -54,6 +54,9 @@ dropping connections — live-development is the normal workflow (`evennia reloa
 | Informants | `typeclasses/npcs.py` (`Informant`, hidden `db.loyalty`) + recruit/sound/flip in `commands/cells.py`; plant reports collected on the sweep tick | Loyalty readable only at `OBSERVE_TIER_DETAIL`; demeanor hints below that are true but inconclusive |
 | Assemblies | `typeclasses/scripts.py` — `AssemblyScript` (announce tick, roll-call tick, rest) | Absence-is-data: the roll writes incidents no sensor could; detainees excused |
 | Dead-zone truth | `Room.is_dead_zone()` — visibility 0 **and** zero exposure gain | Single source of truth for the sweep, `forge`, and the underground verbs; what makes the Bolt-Hole honeypot honest (concealed live sensor ⇒ not a dead zone) |
+| The underground | `world/underground.py` + `commands/underground.py` (`sabotage`/`carry`/`deliver`/`papers`) | ADR 0008's grind loops; both pay the `UNDERGROUND` ledger, which the dossier deliberately cannot see (`UNSANCTIONED_SKILLS`/`_FACTIONS` in tuning) |
+| Maintenance crew | `typeclasses/scripts.py` — `MaintenanceScript` | Repairs the sabotage backlog oldest-first; only repairs *sabotage* — the alley screen predates the backlog and stays broken |
+| Contraband seizure | `underground.seize_contraband`, called from papers checks, `watch.detain`, and scanner-gate `at_traverse` | The courier run's "death"; the Watch never hunts couriers, it just finds them through systems that already exist |
 
 ## Data-model conventions
 

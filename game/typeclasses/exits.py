@@ -30,4 +30,16 @@ class Exit(ObjectParent, DefaultExit):
         # through the gate.
         if self.exposure_modifier and hasattr(traversing_object, "gain_exposure"):
             traversing_object.gain_exposure(self.exposure_modifier)
+            # A scanner that looks at you may also look at what you carry
+            # (v0.6): contraband rolls for seizure at every scanned passage.
+            import random
+
+            from world import tuning, underground
+
+            if underground.carried_parcels(traversing_object) and (
+                random.random() < tuning.CONTRABAND_SCAN_CHANCE
+            ):
+                underground.seize_contraband(
+                    traversing_object, found_by=f"the {self.key} scanner gate"
+                )
         super().at_traverse(traversing_object, target_location, **kwargs)

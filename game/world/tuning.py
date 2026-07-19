@@ -155,3 +155,46 @@ ASSEMBLY_TICK = 120  # seconds
 ASSEMBLY_REST_TICKS = 8  # ~16 min between assemblies
 ASSEMBLY_ATTEND_RELIEF = 5
 ASSEMBLY_ABSENT_EXPOSURE = 10
+
+# --- v0.6: the grind (ADR 0008) --------------------------------------------
+
+# Sabotage: chance ramps with the skill; failure is an incident and heat.
+SABOTAGE_BASE_CHANCE = 0.30
+SABOTAGE_SKILL_BONUS = 0.01          # per skill point: +50% at cap
+SABOTAGE_FAIL_EXPOSURE = 12
+SABOTAGE_INFLUENCE = 2               # underground standing per dead device
+SABOTAGE_DARK_BONUS = 3              # extra when the room goes fully dark
+
+# The maintenance crew repairs the oldest sabotage on this interval — the
+# circuit respawns, which is what makes it a grind and not a heist.
+REPAIR_INTERVAL = 600  # seconds
+
+# Courier runs: destination tiers by visibility; pay in underground standing.
+# (tier key: destination room key, pay, description of the drop)
+COURIER_JOBS = {
+    "quiet": ("Tenement Row", 2, "a door on the airshaft side, third knock"),
+    "street": ("Neon Alley", 3, "under the tea urn's spare tin"),
+    "bright": ("Unity Plaza", 5, "the bench with the cracked slat, mid-crowd"),
+    "gate": (
+        "Central Spire Checkpoint",
+        8,
+        "a coat pocket that will be walking past you",
+    ),
+}
+COURIER_JACKPOT_CHANCE = 0.15
+COURIER_JACKPOT_BONUS = 4
+CONTRABAND_SCAN_CHANCE = 0.5         # per scanner-gate traversal while carrying
+
+# The underground's first sink: clean papers, standing for exposure.
+PAPERS_COST = 6
+PAPERS_RELIEF = 15
+
+UNDERGROUND = "the underground"      # the faction ledger both loops pay
+
+# What the Ministry's file cannot contain: aptitudes learned off the books
+# and ledgers nobody writes down. The dossier filters these (playtest catch:
+# the citizen file was printing "the underground: 14", which is a ledger the
+# Grid cannot read by construction — and "forgery" as a *recorded* aptitude
+# was the same leak, shipped unnoticed since v0.3).
+UNSANCTIONED_SKILLS = ("forgery", "sabotage", "couriering")
+UNSANCTIONED_FACTIONS = (UNDERGROUND,)

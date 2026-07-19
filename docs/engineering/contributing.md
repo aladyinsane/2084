@@ -41,6 +41,12 @@ upgrading Evennia is a deliberate chore with its own commit, never a side effect
 7. **Gameplay numbers live in `world/tuning.py`**, nowhere else.
 8. **The world is code.** Rooms are built by batch files under `world/`, not by
    hand-`dig`ging on the live server. If it isn't in the repo, it doesn't exist.
+9. **Every feature updates the curriculum.** Before a version merges, audit both
+   classrooms against the new verbs: sanctioned mechanics belong in the
+   **Orientation Wing** placards (usually `o_civic` or `o_watched`), unsanctioned
+   ones in the **Tunnel B chalk**. A verb no room teaches is a verb that fails
+   principle 9 from the other side — the world must explain itself. (Standing
+   instruction from Lauren, 2026-07-18, added with v0.6.)
 
 ## Workflow
 

@@ -30,12 +30,23 @@ class CmdDossier(Command):
     help_category = "the grid"
 
     def func(self):
-        from world import records
+        from world import records, tuning
 
         caller = self.caller
-        skills = caller.db.skills or {}
+        # The file contains what the Ministry observed, and only that: the
+        # skills you learned off the books and the ledger the Grid cannot
+        # read are not in it. Your absence of paperwork is your own.
+        skills = {
+            name: value
+            for name, value in (caller.db.skills or {}).items()
+            if name not in tuning.UNSANCTIONED_SKILLS
+        }
         standing = caller.db.standing or {}
-        influence = caller.db.influence or {}
+        influence = {
+            faction: value
+            for faction, value in (caller.db.influence or {}).items()
+            if faction not in tuning.UNSANCTIONED_FACTIONS
+        }
 
         width = 52
         lines = [
