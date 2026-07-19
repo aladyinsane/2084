@@ -411,3 +411,116 @@ class CmdFlip(Command):
             "|gWhat they hear is yours now. What they already reported "
             "stays reported — files do not un-happen.|n"
         )
+
+
+class CmdStash(Command):
+    """
+    The circle's cache: what you keep where nothing watches.
+
+    Usage:
+      stash                - where the cache is, and what's in it
+      stash <item>         - put something in (establishes the cache if
+                             the circle has none — only in a dead zone)
+      stash take <item>    - take something out (at the cache)
+
+    A loose brick, a hollow pipe: one hiding place per circle, invisible
+    to anyone who doesn't already know, which is the only lock that has
+    ever worked. Knowing where it is *is* the membership — and Section C
+    has an address line. A confessed circle's stash belongs to the
+    Ministry before the confessor's coat is returned.
+    """
+
+    key = "stash"
+    locks = "cmd:all()"
+    help_category = "the underground"
+
+    def func(self):
+        from world import circles
+
+        caller = self.caller
+        slug = circles.circle_of(caller)
+        if not slug:
+            caller.msg(
+                "You have no circle, so you have no brick. Property is "
+                "the second thing trust buys."
+            )
+            return
+        args = (self.args or "").strip()
+        cache = circles.cache_of(slug)
+
+        if not args:
+            self.show(cache)
+            return
+        if args.lower().startswith("take "):
+            self.do_take(cache, args[5:].strip())
+            return
+        self.do_put(cache, args)
+
+    def show(self, cache):
+        caller = self.caller
+        if not cache:
+            caller.msg(
+                "The circle keeps nothing yet. |cStash <item>|n somewhere "
+                "truly unwatched, and it will start."
+            )
+            return
+        where = cache.location.key if cache.location else "nowhere"
+        items = [obj.key for obj in cache.contents]
+        caller.msg(
+            f"The circle's cache is at |w{where}|n. "
+            + (
+                f"In it: {', '.join(items)}."
+                if items
+                else "It is currently empty, which is also safe."
+            )
+        )
+
+    def do_put(self, cache, item_name):
+        from world import circles
+
+        caller = self.caller
+        item = caller.search(item_name, candidates=caller.contents)
+        if not item:
+            return
+        room = caller.location
+        if cache is None:
+            if not _dead_zone(room):
+                caller.msg(
+                    "Not here. A cache begins somewhere nothing watches "
+                    "at all."
+                )
+                return
+            cache = circles.establish_cache(caller, room)
+            caller.msg(
+                "You find it almost without looking: a loose brick, a "
+                "gap behind a pipe — a place you'd have to know. "
+                "|=mThe circle has a cache now. Its members will know "
+                "where by knowing you.|n"
+            )
+        if cache.location != room:
+            caller.msg(
+                f"The circle's brick is at {cache.location.key}, not here. "
+                "One hiding place; that's what makes it one."
+            )
+            return
+        item.move_to(cache, quiet=True, move_type="stashed")
+        caller.msg(
+            f"{item.key} goes where things go to not exist for a while."
+        )
+
+    def do_take(self, cache, item_name):
+        caller = self.caller
+        if not cache:
+            caller.msg("The circle keeps nothing yet.")
+            return
+        if cache.location != caller.location:
+            caller.msg(
+                f"The brick is at {cache.location.key}. Things come out "
+                "of it the way they went in: in person."
+            )
+            return
+        item = caller.search(item_name, candidates=cache.contents)
+        if not item:
+            return
+        item.move_to(caller, quiet=True, move_type="unstashed")
+        caller.msg(f"{item.key} exists again, and is yours.")

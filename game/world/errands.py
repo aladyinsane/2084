@@ -138,6 +138,29 @@ ERRANDS = {
             "nice before you trust it. That's the whole lesson. That's "
             "everything I know.\""
         ),
+        "next": "four-hands",
+    },
+    "four-hands": {
+        "giver": "the lamp-mender",
+        "title": "Four Hands",
+        "brief": (
+            "\"Some work needs four hands and zero witnesses. Be in "
+            "Tunnel B with someone your circle trusts — both of you, at "
+            "once, where the chalk is. What happens down there is the "
+            "two of you knowing you both showed. That is the work.\""
+        ),
+        "risk": "The tunnel is dark; getting two people there quietly is "
+        "the exercise. Requires a circle-mate present.",
+        "type": "joint_visit",
+        "room": "Tunnel B",
+        "reward_faction": tuning.UNDERGROUND,
+        "reward_size": "medium",
+        "done": (
+            "Nothing changes hands in Tunnel B; that was never the point. "
+            "The point stands next to you, breathing the same dark. "
+            "Later, the lamp-mender nods to you both, separately, on "
+            "different days, so that it never happened all at once."
+        ),
     },
 }
 
@@ -276,3 +299,29 @@ def check(char, event, room=None, tier=None):
             _complete(char, spec)
     elif etype == "attend" and event == "attend":
         _complete(char, spec)
+    elif etype == "joint_visit" and event == "visit" and room is not None:
+        # Four hands (v0.11): completes only with a circle-mate standing
+        # in the same room — cooperation as a completion condition.
+        if room.key != spec["room"]:
+            return
+        from world import circles
+
+        slug = circles.circle_of(char)
+        if not slug:
+            char.msg(
+                "|=m[Four Hands: this needs a circle, and you are in "
+                "this alone.]|n"
+            )
+            return
+        mates_here = [
+            obj
+            for obj in room.contents
+            if obj is not char and obj in circles.members_of(slug)
+        ]
+        if mates_here:
+            _complete(char, spec)
+        else:
+            char.msg(
+                f"|=m[{spec['title']}: right place. Now the other pair "
+                "of hands.]|n"
+            )
