@@ -130,9 +130,32 @@ Grid's own materials. **Options, not decisions** — an ADR happens when one is 
 
 Common properties: all pass principle 9 (each verb is something a citizen of Sector 9
 would actually do), all single-player-viable (principle 8), none mandatory.
+
+### Endgame paths (escape / overthrow / inner circle)
 Long-horizon goals matter for retention.
 **Why not now:** endgames only mean something once the midgame exists. Sequencing, not
 doubt.
+
+### The trust-machine backlog *(from game-theory research, 2026-07-19)*
+[game-theory-of-the-grid.md](../research/game-theory-of-the-grid.md) audited the
+betrayal mechanics against the repeated-prisoner's-dilemma literature and named four
+gaps, in leverage order:
+
+1. **Reputation must travel.** A Section C signer can currently walk into a new circle
+   whose members never read his file. Fix: `judge` works on citizens too, reading
+   betrayal-shaped file entries at sufficient observation skill — earned, diegetic.
+2. **Escalating circle projects.** Joint errand chains with growing pots, so continued
+   membership is worth more than one defection pays. The stash starts this; projects
+   finish it.
+3. **Suspected, not proven.** Every future leak mechanic must preserve deniability
+   (plant reports have no fingerprints; interceptions don't name the room). Provable
+   betrayal generates kick-lists; suspectable betrayal generates the game.
+4. **Vouching.** Staking a little standing on another citizen — small, capped,
+   recoverable — as trust-game participation below circle stakes.
+
+Design invariant across all of it: **betrayal profitable once, costly as a career.**
+A risk-free betrayal loop or unbeatable informant build kills cooperation
+population-wide, and the multiplayer thesis with it.
 
 ## Deliberately deferred (with reasons)
 
