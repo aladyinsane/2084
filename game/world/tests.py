@@ -976,6 +976,80 @@ class TestLegibility(EvenniaTest):
             self.assertTrue(entry["text"].strip())
 
 
+class TestJuice(EvenniaTest):
+    """v0.8.5: near-misses felt, digests delivered, rooms murmuring."""
+
+    def _captured_msgs(self, char):
+        seen = []
+        char.msg = lambda text=None, **kw: seen.append(str(text))
+        return seen
+
+    def test_sweep_near_miss_is_felt(self):
+        from unittest.mock import patch
+
+        from typeclasses.scripts import WatchSweepScript
+        from world import tuning
+
+        script = create.create_script(WatchSweepScript)
+        self.room1.db.visibility = 3  # dead zones are skipped by design
+        self.char1.db.exposure = tuning.SWEEP_MIN_EXPOSURE + 10
+        old = self.char1.msg
+        seen = self._captured_msgs(self.char1)
+        try:
+            with patch("random.random", return_value=0.999):  # always miss
+                script.at_repeat()
+        finally:
+            self.char1.msg = old
+        blob = "\n".join(seen)
+        self.assertTrue(
+            any(phrase in blob for phrase in ("visor", "hum", "van", "photograph")),
+            f"no near-miss line in: {blob!r}",
+        )
+        script.stop()
+
+    def test_login_digest_reports_new_entries(self):
+        import time
+
+        from world import records
+
+        self.char1.db.last_on = time.time() - 60
+        records.add_record(self.char1, "Absent from mandatory civic assembly")
+        digest = self.char1.login_digest()
+        self.assertIsNotNone(digest)
+        self.assertIn("Absent from mandatory", digest)
+        # Nothing new: no digest.
+        self.char1.db.last_on = time.time() + 60
+        self.assertIsNone(self.char1.login_digest())
+
+    def test_ambience_murmurs_occupied_rooms(self):
+        from unittest.mock import patch
+
+        from typeclasses.scripts import AmbienceScript
+
+        script = create.create_script(AmbienceScript)
+        self.room1.db.ambience = ["The pipes knock twice, politely."]
+        self.room1.db.last_ambience = 0
+        old = self.char1.msg
+        seen = self._captured_msgs(self.char1)
+        try:
+            with patch("random.random", return_value=0.0):  # always murmur
+                script.at_repeat()
+        finally:
+            self.char1.msg = old
+        self.assertTrue(any("pipes knock" in s for s in seen))
+        # Cooldown: an immediate second tick stays quiet.
+        seen.clear()
+        old = self.char1.msg
+        seen = self._captured_msgs(self.char1)
+        try:
+            with patch("random.random", return_value=0.0):
+                script.at_repeat()
+        finally:
+            self.char1.msg = old
+        self.assertFalse(any("pipes knock" in s for s in seen))
+        script.stop()
+
+
 class TestMap(EvenniaTest):
     """v0.8: the mental map — visibility digits over the room graph."""
 

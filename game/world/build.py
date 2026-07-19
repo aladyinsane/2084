@@ -394,6 +394,56 @@ def build():
         "does not."
     )
 
+    # Ambient texture (v0.8.5): the rooms with the most life get their own
+    # murmur lines; everywhere else falls back to the AmbienceScript's
+    # visibility-based defaults.
+    rooms["hall"].db.ambience = [
+        "The clerk's stamp comes down three times, pauses, and comes down "
+        "once more, harder, on the same form.",
+        "The watchscreen cycles to a new directive. Nobody looks up, which "
+        "is a way of reading it.",
+        "Somewhere in the queue, someone practices saying a sentence "
+        "under their breath until it sounds unrehearsed.",
+    ]
+    rooms["plaza"].db.ambience = [
+        "The loudspeakers announce that production is up. The crowd's "
+        "pace stays exactly the same, which is also a figure.",
+        "A child points at the big screen. An adult gently repositions "
+        "the arm to point at nothing.",
+        "Two officers cross the plaza diagonally. The crowd re-forms "
+        "around their path like water that has opinions.",
+    ]
+    rooms["queue"].db.ambience = [
+        "The line advances one place. Nobody saw the front of it move. "
+        "Nobody has ever seen the front of it move.",
+        "Somewhere behind you: '—and I said, you can't redact what I '"
+        "'never said, and he wrote that down—'",
+        "The distribution window opens, dispenses one (1) of something, "
+        "and closes with the finality of a stamp.",
+    ]
+    rooms["alley"].db.ambience = [
+        "A vendor rearranges the tea tins. One of them sloshes. Tea "
+        "tins don't slosh.",
+        "The dead watchscreen reflects the alley back at itself, which "
+        "is the most honest surveillance in Sector 9.",
+        "Someone up a ladder mutters at a lamp that has been beyond "
+        "muttering for years.",
+    ]
+    rooms["tenement"].db.ambience = [
+        "The radio upstairs finds the end of the old song and starts it "
+        "again. Nobody minds. It's older than the curfew.",
+        "The kettle argument enters its third movement, allegro.",
+        "Laundry shifts overhead: today's flags of every household that "
+        "is keeping its head down successfully.",
+    ]
+    rooms["tunnel"].db.ambience = [
+        "Water ticks in the dark, keeping its own census.",
+        "Far off down the tunnel, something settles: masonry, or the "
+        "past. Nothing comes of it.",
+        "Your light finds a chalk mark you hadn't noticed, older than "
+        "the others, worn to a ghost: just an arrow, pointing down.",
+    ]
+
     # Functional tags: where the Watch takes you, releases you, and musters —
     # and where citizens work, and where the queue talks.
     rooms["cell"].tags.add("holding_cell", category="grid")

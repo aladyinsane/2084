@@ -147,6 +147,20 @@ class WatchSweepScript(Script):
         self.interval = tuning.WATCH_SWEEP_INTERVAL
         self.persistent = True
 
+    # Near-miss telegraphy (v0.8.5): a sweep roll that MISSES is dread we
+    # already computed — the player should feel the machine consider them
+    # and move on (fun-and-game-feel.md, dullness #2).
+    NEAR_MISSES = [
+        "|yA visor across the street holds on you a half-second too "
+        "long,|n then moves on.",
+        "|ySomewhere nearby, a scanner's idle hum changes pitch,|n and "
+        "then decides it was nothing.",
+        "|yA grey van slows as it passes you.|n It does not stop. This "
+        "time it does not stop.",
+        "|yYou have the sudden, specific feeling of a photograph being "
+        "compared to your face.|n The feeling passes.",
+    ]
+
     def at_repeat(self):
         import random
 
@@ -184,6 +198,7 @@ class WatchSweepScript(Script):
                 f"chance={chance:.2f} roll={roll:.2f}"
             )
             if roll >= chance:
+                char.msg(random.choice(self.NEAR_MISSES))
                 continue
             if exposure >= tuning.DETAIN_THRESHOLD:
                 watch.detain(char, reason="selected in a routine sweep")
@@ -347,6 +362,68 @@ class AssemblyScript(Script):
             f"watchlog: assembly roll — {len(present)} present, "
             f"{len(absent)} absent"
         )
+
+
+class AmbienceScript(Script):
+    """
+    Texture (v0.8.5, fun-and-game-feel.md dullness #3): the world speaks
+    between events. Occupied rooms murmur on a slow, rate-limited tick —
+    loudspeakers, queue shuffles, distant vans; dead zones get their
+    silence described. Rooms opt in via `db.ambience` (a list of lines,
+    set by the world build); rooms without get quiet defaults by
+    visibility.
+    """
+
+    DEFAULT_WATCHED = [
+        "A loudspeaker somewhere clears its throat, reconsiders, and "
+        "resumes the production figures.",
+        "A grey van passes at the speed of a vehicle with nowhere "
+        "particular to be, which is a speed the Grid practices.",
+        "High up, a lens turns through its arc with a sound like a "
+        "patient tongue-click.",
+    ]
+    DEFAULT_DARK = [
+        "Water ticks somewhere in the dark, keeping its own census.",
+        "The silence here has texture: pipes, breath, distance. Nothing "
+        "in it is listening. You check anyway.",
+    ]
+
+    def at_script_creation(self):
+        from world import tuning
+
+        self.key = "ambience"
+        self.desc = "Gives occupied rooms their murmur."
+        self.interval = tuning.AMBIENCE_INTERVAL
+        self.persistent = True
+
+    def at_repeat(self):
+        import random
+        import time
+
+        from world import tuning
+
+        from .characters import Character
+
+        now = time.time()
+        rooms = {
+            char.location
+            for char in Character.objects.all()
+            if char.has_account and char.sessions.count() and char.location
+        }
+        for room in rooms:
+            if random.random() >= tuning.AMBIENCE_CHANCE:
+                continue
+            if now - (room.db.last_ambience or 0) < tuning.AMBIENCE_ROOM_COOLDOWN:
+                continue
+            lines = room.db.ambience
+            if not lines:
+                lines = (
+                    self.DEFAULT_DARK
+                    if getattr(room, "visibility", 0) == 0
+                    else self.DEFAULT_WATCHED
+                )
+            room.db.last_ambience = now
+            room.msg_contents(f"|=m{random.choice(lines)}|n")
 
 
 class MaintenanceScript(Script):
