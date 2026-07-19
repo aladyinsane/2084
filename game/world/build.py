@@ -212,7 +212,9 @@ ROOMS = {
         "Annex for Spire clearance. Between shifts, stand in the ration "
         "queue and |clisten|w - hearing is not yet a crime. The |cgridwide|w "
         "channel carries the public voice of Sector 9; it is public in "
-        "every direction.\n"
+        "every direction. Citizens seeking direction may ask after "
+        "|cerrands|w - your orientation clerk keeps a short list of "
+        "constructive uses for a citizen's legs.\n"
         "  When the loudspeakers convene a CIVIC ASSEMBLY, attend. "
         "Attendance is recorded with gratitude. Absence is also recorded.|n"
         "\n\n"
@@ -491,6 +493,7 @@ def build():
         key="the orientation clerk",
         location=rooms["o_ante"],
     )
+    orienter.tags.add("errand_giver", category="grid")
     orienter.db.desc = (
         "Young, pressed, and reciting even when silent. Their lanyard "
         "photograph smiles slightly more than they do. They administer the "
@@ -542,7 +545,9 @@ def build():
         "  |w- every lens you |csabotage|w is a street that forgets you.\n"
         "    the crew fixes them oldest-first. so there is always work.|n\n"
         "  |w- the queue pays legs. |ccarry|w for the broker, |cdeliver|w,\n"
-        "    don't get checked. earn enough and she sells clean |cpapers|w.|n"
+        "    don't get checked. earn enough and she sells clean |cpapers|w.|n\n"
+        "  |w- the lamp-mender has |cerrands|w for careful people. do the\n"
+        "    first one. the last one is worth more than it pays.|n"
         "\n\n"
         "Beneath, in different hands: initials, dates, and one line pressed "
         "hard enough to break the chalk: |wthey write it down. so can we.|n"
@@ -586,6 +591,7 @@ def build():
         key="the lamp-mender",
         location=rooms["alley"],
     )
+    mender.tags.add("errand_giver", category="grid")
     mender.db.loyalty = "street"
     mender.db.desc = (
         "A stooped figure with a satchel of parts, forever half-way up a "

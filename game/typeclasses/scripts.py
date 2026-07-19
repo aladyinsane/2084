@@ -344,6 +344,10 @@ class AssemblyScript(Script):
                 "cheapest virtue the Grid sells.|n"
             )
             char.send_prompt()
+            if char.db.errand:
+                from world import errands
+
+                errands.check(char, "attend")
         for char in absent:
             records.add_record(
                 char,

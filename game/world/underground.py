@@ -87,6 +87,10 @@ def deliver(char):
     total = pay + (tuning.COURIER_JACKPOT_BONUS if jackpot else 0)
     char.gain_influence(tuning.UNDERGROUND, total)
     char.improve_skill("couriering")
+    if char.db.errand:
+        from world import errands
+
+        errands.check(char, "deliver", tier=tier)
     return total, jackpot
 
 

@@ -191,6 +191,13 @@ PAPERS_RELIEF = 15
 
 UNDERGROUND = "the underground"      # the faction ledger both loops pay
 
+# --- v0.9: errands ---------------------------------------------------------
+
+# Errand payouts by catalog size (the catalog's prose lives in
+# world/errands.py; its numbers live here).
+ERRAND_REWARD_SMALL = 2
+ERRAND_REWARD_MEDIUM = 3
+
 # --- v0.8.5: juice (fun-and-game-feel.md) ----------------------------------
 
 # Ambient texture: rooms murmur on a slow tick, rate-limited per room.

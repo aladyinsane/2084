@@ -82,6 +82,11 @@ class Character(ObjectParent, DefaultCharacter):
         super().at_post_move(source_location, move_type=move_type, **kwargs)
         if self.has_account:
             self.send_prompt()
+            # Errands listen to the verbs you already have (v0.9).
+            if self.location and self.db.errand:
+                from world import errands
+
+                errands.check(self, "visit", room=self.location)
 
     def login_digest(self):
         """

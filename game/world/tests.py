@@ -976,6 +976,120 @@ class TestLegibility(EvenniaTest):
             self.assertTrue(entry["text"].strip())
 
 
+class TestErrands(EvenniaTest):
+    """v0.9: the quest system listens to verbs the player already has."""
+
+    def _giver(self, key="the orientation clerk"):
+        giver = create.create_object(
+            "typeclasses.npcs.Citizen", key=key, location=self.room1
+        )
+        giver.tags.add("errand_giver", category="grid")
+        return giver
+
+    def test_take_requires_the_giver_present(self):
+        from world import errands
+
+        self.char1.execute_cmd("errands take rounds")
+        self.assertIsNone(errands.current(self.char1))
+        self._giver()
+        self.char1.execute_cmd("errands take rounds")
+        self.assertEqual(errands.current(self.char1)["key"], "rounds")
+        # One at a time.
+        self.char1.execute_cmd("errands take usefulness")
+        self.assertEqual(errands.current(self.char1)["key"], "rounds")
+
+    def test_visit_errand_progresses_and_completes(self):
+        from world import errands, tuning
+
+        self._giver()
+        self.char1.execute_cmd("errands take rounds")
+        spec = errands.ERRANDS["rounds"]
+        for name in spec["rooms"]:
+            room = create.create_object("typeclasses.rooms.Room", key=name)
+            self.char1.move_to(room)
+        self.assertIsNone(errands.current(self.char1))
+        self.assertEqual(
+            (self.char1.db.influence or {}).get("Ministry of Records"),
+            tuning.ERRAND_REWARD_SMALL,
+        )
+
+    def test_shifts_errand_rides_work(self):
+        from world import errands
+
+        self.room1.tags.add("workplace", category="grid")
+        self._giver()
+        self.char1.db.errands_done = ["rounds"]  # chain gate
+        self.char1.execute_cmd("errands take usefulness")
+        for _ in range(3):
+            self.char1.db.last_work = 0
+            self.char1.execute_cmd("work")
+        self.assertIsNone(errands.current(self.char1))
+
+    def test_chains_gate_and_never_repeat(self):
+        from world import errands
+
+        self._giver()
+        # A chained link is closed until its prerequisite is done...
+        self.char1.execute_cmd("errands take usefulness")
+        self.assertIsNone(errands.current(self.char1))
+        # ...and a completed errand never re-opens.
+        self.char1.db.errands_done = ["rounds"]
+        self.assertFalse(errands.available_to(self.char1, "rounds"))
+        self.assertTrue(errands.available_to(self.char1, "usefulness"))
+
+    def test_attend_errand_rides_the_assembly(self):
+        from typeclasses.scripts import AssemblyScript
+        from world import errands, records
+
+        self._giver()
+        self.char1.db.errands_done = ["rounds", "usefulness"]  # chain gate
+        self.char1.execute_cmd("errands take countable")
+        self.room2.tags.add("assembly_point", category="grid")
+        script = create.create_script(AssemblyScript)
+        script.db.announced = True
+        self.char1.move_to(self.room2)
+        script.at_repeat()
+        self.assertIsNone(errands.current(self.char1))
+        observations = [
+            r.db.content
+            for r in records.records_for(self.char1, kind="observation")
+        ]
+        self.assertTrue(any("Commended" in c for c in observations))
+        script.stop()
+
+    def test_deliver_errand_rides_the_courier_board(self):
+        from unittest.mock import patch
+
+        from world import errands, tuning, underground
+
+        self._giver("the lamp-mender")
+        self.char1.db.errands_done = ["look-closer"]  # chain gate
+        self.char1.execute_cmd("errands take legs")
+        broker = create.create_object(
+            "typeclasses.npcs.Citizen", key="the broker", location=self.room1
+        )
+        broker.tags.add("courier_broker", category="grid")
+        self.char1.execute_cmd("carry street")
+        dest_key, _, _ = tuning.COURIER_JOBS["street"]
+        self.room2.key = dest_key
+        self.char1.move_to(self.room2)
+        with patch("world.underground.random.random", return_value=0.99):
+            underground.deliver(self.char1)
+        self.assertIsNone(errands.current(self.char1))
+        self.assertGreater(
+            (self.char1.db.influence or {}).get(tuning.UNDERGROUND, 0),
+            0,
+        )
+
+    def test_drop_clears_the_errand(self):
+        from world import errands
+
+        self._giver()
+        self.char1.execute_cmd("errands take rounds")
+        self.char1.execute_cmd("errands drop")
+        self.assertIsNone(errands.current(self.char1))
+
+
 class TestJuice(EvenniaTest):
     """v0.8.5: near-misses felt, digests delivered, rooms murmuring."""
 
