@@ -191,6 +191,16 @@ PAPERS_RELIEF = 15
 
 UNDERGROUND = "the underground"      # the faction ledger both loops pay
 
+# --- v0.8.5: juice (fun-and-game-feel.md) ----------------------------------
+
+# Ambient texture: rooms murmur on a slow tick, rate-limited per room.
+AMBIENCE_INTERVAL = 45   # seconds between script ticks
+AMBIENCE_CHANCE = 0.4    # chance an occupied room murmurs on a tick
+AMBIENCE_ROOM_COOLDOWN = 90  # seconds between murmurs in the same room
+
+# Login digest: how many new file entries to show at "since you were gone".
+DIGEST_MAX_ENTRIES = 3
+
 # What the Ministry's file cannot contain: aptitudes learned off the books
 # and ledgers nobody writes down. The dossier filters these (playtest catch:
 # the citizen file was printing "the underground: 14", which is a ledger the

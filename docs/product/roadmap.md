@@ -275,13 +275,16 @@ The pay side of trust (owed since ADR 0008 named the one-sink economy).
 
 The cheap immediate fixes for "a bit dull," ahead of the content versions:
 
-- [ ] Near-miss telegraphy: sweep rolls and scanner rolls that *miss* are
-      felt ("a visor lingers a half-second too long") — dread we already
-      compute and currently throw away
-- [ ] Login digest: "Since you were last on the Grid:" — file changes,
-      missed signals, assembly outcomes (principle 8, pointed home)
-- [ ] Ambient texture tick: rooms murmur on a slow, rate-limited script;
-      dead zones get their silence described
+- [x] Near-miss telegraphy: sweep rolls and scanner-gate rolls that *miss*
+      are felt ("a visor lingers a half-second too long"; "the scanner's
+      tone deepens for one syllable") — dread we already computed and were
+      throwing away
+- [x] Login digest: "Since you were last on the Grid:" — new file entries
+      since last logout, plus which of your circle is out there now.
+      Deliberately silent when there is nothing to tell
+- [x] Ambient texture tick: `AmbienceScript`, occupied rooms only,
+      rate-limited per room; six rooms got bespoke murmur lines and the
+      rest fall back by visibility (dead zones get their silence described)
 
 ## Cross-cutting for the batch
 

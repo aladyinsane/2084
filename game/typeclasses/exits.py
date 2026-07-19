@@ -36,10 +36,16 @@ class Exit(ObjectParent, DefaultExit):
 
             from world import tuning, underground
 
-            if underground.carried_parcels(traversing_object) and (
-                random.random() < tuning.CONTRABAND_SCAN_CHANCE
-            ):
-                underground.seize_contraband(
-                    traversing_object, found_by=f"the {self.key} scanner gate"
-                )
+            if underground.carried_parcels(traversing_object):
+                if random.random() < tuning.CONTRABAND_SCAN_CHANCE:
+                    underground.seize_contraband(
+                        traversing_object, found_by=f"the {self.key} scanner gate"
+                    )
+                else:
+                    # The near-miss is the product working (v0.8.5).
+                    traversing_object.msg(
+                        "|yThe scanner's tone deepens for one syllable as "
+                        "you pass|n — and resumes. Your parcel weighs "
+                        "nothing again."
+                    )
         super().at_traverse(traversing_object, target_location, **kwargs)

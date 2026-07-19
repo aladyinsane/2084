@@ -83,6 +83,59 @@ class Character(ObjectParent, DefaultCharacter):
         if self.has_account:
             self.send_prompt()
 
+    def login_digest(self):
+        """
+        "Since you were last on the Grid:" — what accumulated in your file
+        while you were away, plus who of your circle is out here now
+        (v0.8.5, principle 8 pointed at the returning player). Returns
+        None when there is nothing to tell.
+        """
+        import time
+
+        from world import circles, records, tuning
+
+        last_on = self.db.last_on
+        if not last_on:
+            return None
+        lines = []
+        new = [
+            rec
+            for rec in records.records_for(self)
+            if (rec.db.audit and rec.db.audit[0]["at"] > last_on)
+            and not rec.db.redacted
+        ]
+        if new:
+            shown = new[-tuning.DIGEST_MAX_ENTRIES:]
+            lines.append(
+                f"Your file grew by {len(new)} "
+                f"entr{'ies' if len(new) != 1 else 'y'} while you were "
+                "elsewhere:"
+            )
+            lines.extend(f"  - {rec.db.content}" for rec in shown)
+        slug = circles.circle_of(self)
+        if slug:
+            out = [m.key for m in circles.online_members(slug) if m is not self]
+            if out:
+                lines.append(
+                    f"Of {circles.circle_name(slug)}: "
+                    f"{', '.join(sorted(out))} — on the Grid right now."
+                )
+        if not lines:
+            return None
+        return (
+            "|=mSince you were last on the Grid:|n\n" + "\n".join(lines)
+        )
+
     def at_post_puppet(self, **kwargs):
         super().at_post_puppet(**kwargs)
+        digest = self.login_digest()
+        if digest:
+            self.msg(digest)
         self.send_prompt()
+
+    def at_post_unpuppet(self, account=None, session=None, **kwargs):
+        super().at_post_unpuppet(account=account, session=session, **kwargs)
+        if not self.sessions.count():
+            import time
+
+            self.db.last_on = time.time()
