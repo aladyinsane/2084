@@ -217,6 +217,21 @@ fails. Principle 3 stakes our answer on trend-legibility (prompt, patrols, NPC c
 **What tells us it's happening:** playtesters describing a detainment as "out of
 nowhere." Any single such report outweighs our intuition.
 
+### Idlers are farmed for incidents
+*Found in the v0.12 playtest.*
+
+The assembly roll penalizes every connected, undetained citizen who isn't at
+the plaza — including someone who left the client open overnight (claude
+accrued 35 absence incidents and their exposure ticked up all night). MUD
+players idle as a way of life; punishing the open window punishes presence
+itself, and a returning player finds a file full of absences they never
+chose. Candidate fixes when revisited: only roll citizens active within the
+last N minutes, or cap consecutive unexcused absences ("the Office of
+Assemblies assumes hospitalization"). Not changed unilaterally because
+absence-as-data is a designed pillar (M8) — the fix needs a decision about
+what idling *means* in-fiction. **What tells us it's urgent:** any real
+player mentioning they got detained after stepping away for dinner.
+
 ### Classless convergence
 *From [ADR 0002](../decisions/0002-no-race-no-class.md).*
 

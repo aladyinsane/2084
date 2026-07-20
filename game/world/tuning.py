@@ -227,6 +227,22 @@ AMBIENCE_ROOM_COOLDOWN = 90  # seconds between murmurs in the same room
 # Login digest: how many new file entries to show at "since you were gone".
 DIGEST_MAX_ENTRIES = 3
 
+# --- v0.12: citizen grades --------------------------------------------------
+
+# The ladder (the-first-hour.md): one visible grade derived from sanctioned
+# merit. Civil-service shape — grades DESCEND toward status, 6 (probationary)
+# to 1. Threshold = merit required to reach that grade.
+GRADE_THRESHOLDS = {5: 4, 4: 15, 3: 35, 2: 65, 1: 100}
+
+# Merit sources. Lifetime sanctioned influence counts 1:1 (tracked in
+# db.influence_earned so spending never demotes); the rest are flat.
+GRADE_MERIT_PER_ERRAND = 3   # per completed *sanctioned* errand
+GRADE_MERIT_FUNCTION = 5     # holding a function
+GRADE_MERIT_CLEARANCE = 10   # per clearance level held
+GRADE_MERIT_ORIENTATION = 4  # walking the Demonstration Corridor — sized to
+                             # reach Grade 5 exactly (endowed progress: the
+                             # first grade-up lands minutes into play)
+
 # What the Ministry's file cannot contain: aptitudes learned off the books
 # and ledgers nobody writes down. The dossier filters these (playtest catch:
 # the citizen file was printing "the underground: 14", which is a ledger the

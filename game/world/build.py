@@ -210,7 +210,12 @@ ROOMS = {
         "your ministry. Standing buys the Ministry's services, and in time, "
         "elevation: citizens of good record may |capply|w at the Archive "
         "Annex for Spire clearance. Between shifts, stand in the ration "
-        "queue and |clisten|w - hearing is not yet a crime. The |cgridwide|w "
+        "queue and |clisten|w - hearing is not yet a crime. Merit accrues "
+        "to the visibly useful, and merit is graded: every citizen holds a "
+        "CIVIC GRADE, 6 down to 1, revised as the record warrants. Your "
+        "grade rides in your prompt; your |cdossier|w states the review "
+        "threshold. The Grid does not hide the ladder. The ladder is the "
+        "point. The |cgridwide|w "
         "channel carries the public voice of Sector 9; it is public in "
         "every direction. Citizens seeking direction may ask after "
         "|cerrands|w - your orientation clerk keeps a short list of "
@@ -234,7 +239,9 @@ ROOMS = {
         "as you entered. This sensation - of a number rising because you "
         "went somewhere - is the fundamental transaction of the Grid. "
         "Spend it wisely.\n"
-        "  Your orientation is complete. Exit WEST, then SOUTH, then WEST "
+        "  Your orientation is complete, and has been credited: note the "
+        "revision of your civic grade. The ladder runs from Grade 6 to "
+        "Grade 1, and you are now on it. Exit WEST, then SOUTH, then WEST "
         "to the Assignment Hall. The Grid is waiting.|n",
     ),
     # Off-plan by design: you are *taken* here, never walked (documented
@@ -387,6 +394,10 @@ def build():
 
     for source, dest, direction, modifier in LINKS:
         _link(rooms[source], rooms[dest], direction, modifier)
+
+    # Walking the Demonstration Corridor completes orientation and credits
+    # a citizen's first merit (v0.12) — the tag is what rooms.py reads.
+    rooms["o_corridor"].tags.add("orients", category="grid")
 
     # The Spire gate: the first clearance-locked exit in the Grid (locks,
     # not plot flags). The way back out is never locked — the Spire has no
