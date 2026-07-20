@@ -32,7 +32,9 @@ class CmdErrands(Command):
     """
 
     key = "errands"
-    aliases = ["errand"]
+    # "quests" is what the rest of the genre calls these; the alias costs
+    # nothing and answers the first thing a MUD veteran will type (v0.13).
+    aliases = ["errand", "quests", "quest"]
     locks = "cmd:all()"
     help_category = "the grid"
 
