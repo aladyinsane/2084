@@ -396,6 +396,23 @@ Sequencing the existing surface. Nothing locked, everything staged.
       missing an assembly announced before the account existed (entry
       updated under known risks)
 
+## v0.14 — The Grid hears you (from the [ten-persona playtest](../research/playtest-2026-07-20-ten-personas.md))
+
+The command-not-found overhaul: six of ten personas hit the default
+fuzzy-suggester, which leaks the unsanctioned curriculum (`sabotage`,
+`stash`), leaks engine verbs (`charcreate`, `setdesc`), and answers the
+commonest newbie error (a direction with no exit) with nonsense.
+
+- [ ] Custom no-match handler: unknown directions answer in-fiction with
+      what actually leads out
+- [ ] Instinct verbs (kill/attack/flee/cast/hide/sneak/talk/ask/where/
+      read/stats/go) each get a bespoke line in the Ministry's voice,
+      with a mechanical pointer where one exists — the "no combat"
+      thesis finally gets to speak when someone types `kill`
+- [ ] Suggestions filtered to the sanctioned surface: never the chalk's
+      verbs, never the engine's
+- [ ] Curriculum audit as always
+
 ## Later / undecided
 
 The parking lot, including the **ASCII map**: [future-features.md](future-features.md).
