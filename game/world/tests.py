@@ -1664,3 +1664,95 @@ class TestTheGrind(EvenniaTest):
         self.assertEqual(
             (self.char1.db.influence or {}).get(tuning.UNDERGROUND), 0
         )
+
+
+class TestGrades(EvenniaTest):
+    """v0.12: the citizen grade — one visible ladder over existing merit."""
+
+    def test_fresh_citizen_is_probationary(self):
+        from world import grades
+
+        self.assertEqual(grades.grade_of(self.char1), grades.GRADE_MIN)
+        self.assertEqual(grades.merit(self.char1), 0)
+
+    def test_orientation_credit_reaches_grade_5(self):
+        # Endowed progress: walking the Demonstration Corridor is sized to
+        # land the first grade-up minutes into play.
+        from world import grades, records
+
+        self.room2.db.visibility = 0
+        self.room2.tags.add("orients", category="grid")
+        self.char1.move_to(self.room2)
+        self.assertTrue(self.char1.db.oriented)
+        self.assertEqual(grades.grade_of(self.char1), 5)
+        stamped = [
+            rec.db.content
+            for rec in records.records_for(self.char1, kind="observation")
+        ]
+        self.assertIn("Reclassified: Citizen, Grade 5", stamped)
+        # Walking it again credits nothing twice.
+        self.char1.move_to(self.room1)
+        self.char1.move_to(self.room2)
+        self.assertEqual(grades.merit(self.char1), tuning.GRADE_MERIT_ORIENTATION)
+
+    def test_sanctioned_influence_is_merit_but_underground_is_not(self):
+        from world import grades
+
+        self.char1.gain_influence("Ministry of Records", 10)
+        self.assertEqual(grades.merit(self.char1), 10)
+        self.char1.gain_influence(tuning.UNDERGROUND, 50)
+        # The Grid ranks what the Grid can see.
+        self.assertEqual(grades.merit(self.char1), 10)
+
+    def test_spending_never_demotes(self):
+        from world import grades
+
+        self.char1.gain_influence("Ministry of Records", 20)
+        grade_before = grades.grade_of(self.char1)
+        self.char1.spend_influence("Ministry of Records", 18)
+        self.assertEqual(grades.merit(self.char1), 20)
+        self.assertEqual(grades.grade_of(self.char1), grade_before)
+
+    def test_unsanctioned_errands_earn_no_merit(self):
+        from world import grades
+
+        self.char1.db.errands_done = ["rounds", "legs"]
+        # "rounds" pays the Ministry (counts); "legs" pays the underground.
+        self.assertEqual(
+            grades.merit(self.char1), tuning.GRADE_MERIT_PER_ERRAND
+        )
+
+    def test_function_suspension_demotes(self):
+        from world import functions, grades
+
+        self.char1.gain_influence("Ministry of Records", 12)
+        functions.assign_function(self.char1)
+        self.assertEqual(grades.grade_of(self.char1), 4)  # 12 + 5 = 17
+        functions.suspend_function(self.char1)
+        self.assertEqual(grades.grade_of(self.char1), 5)  # back to 12
+
+    def test_clearance_counts(self):
+        from world import functions, grades
+
+        functions.grant_c1(self.char1)
+        self.assertEqual(
+            grades.merit(self.char1), tuning.GRADE_MERIT_CLEARANCE
+        )
+
+    def test_prompt_and_dossier_show_the_ladder(self):
+        from world import grades
+
+        self.assertIn("G6", self.char1.get_prompt())
+        self.char1.db.oriented = True
+        grades.check_reclassification(self.char1)
+        self.assertIn("G5", self.char1.get_prompt())
+        old_msg = self.char1.msg
+        captured = []
+        self.char1.msg = lambda text="", **kw: captured.append(str(text))
+        try:
+            self.char1.execute_cmd("dossier")
+        finally:
+            self.char1.msg = old_msg
+        text = "\n".join(captured)
+        self.assertIn("Grade:     Citizen, Grade 5", text)
+        self.assertIn("Review threshold for Grade 4", text)

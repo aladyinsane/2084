@@ -56,6 +56,15 @@ class Character(ObjectParent, DefaultCharacter):
         influence = self.db.influence or {}
         influence[faction] = influence.get(faction, 0) + amount
         self.db.influence = influence
+        if amount > 0:
+            # Lifetime earnings feed the citizen grade (v0.12) — tracked
+            # apart from the spendable balance so spending never demotes.
+            earned = self.db.influence_earned or {}
+            earned[faction] = earned.get(faction, 0) + amount
+            self.db.influence_earned = earned
+            from world import grades
+
+            grades.check_reclassification(self)
         return influence[faction]
 
     def spend_influence(self, faction, amount):
@@ -72,8 +81,13 @@ class Character(ObjectParent, DefaultCharacter):
         # how watched here is, and how hot they are. "Exposure" is spelled
         # out because "Exp" reads as experience points to every MUD veteran
         # (first-human-playtest finding #3).
+        from world import grades
+
         vis = getattr(self.location, "visibility", "-")
-        return f"|=m[|nVis:{vis} Exposure:{self.exposure}|=m]|n > "
+        return (
+            f"|=m[|nG{grades.grade_of(self)} "
+            f"Vis:{vis} Exposure:{self.exposure}|=m]|n > "
+        )
 
     def send_prompt(self):
         self.msg(prompt=self.get_prompt())

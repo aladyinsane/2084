@@ -246,6 +246,11 @@ def _complete(char, spec):
             author="Office of Orientation",
             kind="observation",
         )
+    # The completion itself is merit (v0.12) — checked here because the
+    # gain_influence above ran before errands_done was written.
+    from world import grades
+
+    grades.check_reclassification(char)
     nxt = spec.get("next")
     if nxt and nxt in ERRANDS:
         nspec = ERRANDS[nxt]

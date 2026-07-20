@@ -32,7 +32,7 @@ class CmdDossier(Command):
     help_category = "the grid"
 
     def func(self):
-        from world import records, tuning
+        from world import grades, records, tuning
 
         caller = self.caller
         # The file contains what the Ministry observed, and only that: the
@@ -56,10 +56,22 @@ class CmdDossier(Command):
             "|w MINISTRY OF RECORDS — CITIZEN FILE|n",
             "|=k" + "-" * width + "|n",
             f" Subject:   {caller.key}",
+            f" Grade:     Citizen, Grade {grades.grade_of(caller)}",
             f" Function:  {standing.get('function', '|=munassigned|n')}",
             f" Clearance: {standing.get('clearance', 'none on record')}",
             f" Exposure:  {caller.exposure}",
         ]
+        points, nxt, threshold = grades.next_review(caller)
+        if nxt:
+            lines.append(
+                f" Merit on record: {points}. Review threshold for "
+                f"Grade {nxt}: {threshold}."
+            )
+        else:
+            lines.append(
+                f" Merit on record: {points}. |=mNo further elevation is "
+                "contemplated.|n"
+            )
         if skills:
             lines.append(" Recorded aptitudes:")
             lines.extend(

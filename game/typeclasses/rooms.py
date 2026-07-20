@@ -61,6 +61,18 @@ class Room(ObjectParent, DefaultRoom):
         # Watched arrivals: citizens and patrols read whoever walks in.
         # Slightly deferred so reactions (including detainment) land after
         # the movement itself has fully resolved.
+        # Completing the Wing's practical portion is a citizen's first
+        # merit (v0.12, endowed progress): the corridor room carries the
+        # `orients` tag and credits whoever walks it.
+        if (
+            not moved_obj.db.oriented
+            and hasattr(moved_obj, "gain_exposure")
+            and self.tags.get("orients", category="grid")
+        ):
+            moved_obj.db.oriented = True
+            from world import grades
+
+            grades.check_reclassification(moved_obj)
         if moved_obj.has_account and move_type in ("move", "traverse"):
             from evennia.utils import delay
 

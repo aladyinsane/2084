@@ -337,21 +337,32 @@ sparring, the combat-shaped loop) stays parked until tiers 1–2 are measured.
 One visible grade — the legibility of a level without a new progression
 system underneath. Derived entirely from numbers we already track.
 
-- [ ] Grade derived from sanctioned progress only (ministry standing,
+- [x] Grade derived from sanctioned progress only (ministry standing,
       errands completed, function held, clearance) — formula in tuning.py;
-      the underground ledger must never feed it (the Grid ranks what the
-      Grid can see, and the dossier-leak lesson stands)
-- [ ] Civil-service shape: grades descend toward status (Grade 6,
-      probationary → Grade 1), with visible progress toward the next
-      review in `score`/dossier — the goal-gradient bar
-- [ ] Prompt shows the grade; reclassification arrives as a NOTICE with
-      fanfare and a record entry (the file celebrates you, which is also
-      a threat)
-- [ ] Endowed progress: completing orientation credits the first visible
-      progress toward Grade 5
-- [ ] Display-only at first: grades gate nothing yet (Form C-1 and
-      function pay may reference them later — a separate decision)
-- [ ] Curriculum audit: the Wing explains grades in the Ministry's voice
+      the underground ledger never feeds it, and neither do the errands it
+      pays for (the dossier-leak lesson, applied in advance this time).
+      Merit is *lifetime* earnings (`db.influence_earned`), so spending
+      standing at the Annex never demotes — the XP/gold confusion the
+      ladder exists to prevent. Losing your function does demote, on
+      purpose: detention now costs a visible rung
+- [x] Civil-service shape: Grade 6 (probationary) descending to Grade 1;
+      dossier states merit and the next review threshold
+- [x] Prompt leads with the grade (`[G5 Vis:0 Exposure:12]`);
+      reclassification is FORM 9-A with fanfare and a record entry —
+      verified live: G6 → G5 → G4 inside one first-session arc
+      (orientation → report → The Rounds → one shift)
+- [x] Endowed progress: walking the Demonstration Corridor credits merit
+      sized to land Grade 5 exactly — the first grade-up arrives minutes
+      into play
+- [x] Display-only, as planned: grades gate nothing (Form C-1 or pay
+      referencing them would be a new decision)
+- [x] Curriculum audit: the civic placard explains the ladder, the
+      corridor placard announces the credit, `help grade` (aliases
+      level/rank/merit) speaks to thirty years of muscle memory
+- [x] Playtest finding worth its own entry: an idle-but-connected citizen
+      accrues an assembly-absence incident every ~16 minutes (claude
+      logged 35 overnight). Recorded under known risks — MUD players
+      idle, and the current rule farms them
 
 ## v0.13 — The First Hour
 

@@ -84,6 +84,9 @@ def assign_function(char):
     standing["function"] = spec["title"]
     standing["function_key"] = key
     char.db.standing = standing
+    from world import grades
+
+    grades.check_reclassification(char)
     return key, spec
 
 
@@ -98,6 +101,9 @@ def suspend_function(char):
         standing["function"] = "|=msuspended pending review|n"
         standing.pop("function_key", None)
         char.db.standing = standing
+        from world import grades
+
+        grades.check_reclassification(char)
         return True
     return False
 
@@ -141,3 +147,6 @@ def grant_c1(char):
     standing["clearance"] = "C-1"
     char.db.standing = standing
     char.gain_exposure(tuning.CLEARANCE_GRANT_EXPOSURE)
+    from world import grades
+
+    grades.check_reclassification(char)
