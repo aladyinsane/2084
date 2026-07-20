@@ -1822,3 +1822,55 @@ class TestFirstHour(EvenniaTest):
     def test_quests_alias_reaches_errands(self):
         text = self._capture(self.char1, "quests")
         self.assertIn("errand", text.lower())
+
+
+class TestGridHearsYou(EvenniaTest):
+    """v0.14: the no-match handler — directions, instincts, clean hints."""
+
+    def _capture(self, char, cmd):
+        captured = []
+        old_msg = char.msg
+        char.msg = lambda text="", **kw: captured.append(str(text))
+        try:
+            char.execute_cmd(cmd)
+        finally:
+            char.msg = old_msg
+        return "\n".join(captured)
+
+    def test_missing_direction_names_the_real_exits(self):
+        text = self._capture(self.char1, "west")
+        self.assertIn("Nothing leads west", text)
+        self.assertIn(self.exit.key, text)
+        self.assertNotIn("Maybe you meant", text)
+
+    def test_kill_gets_the_thesis_not_boilerplate(self):
+        text = self._capture(self.char1, "kill guard")
+        self.assertIn("paperwork", text)
+        self.assertNotIn("not available", text)
+
+    def test_hide_points_at_the_mechanic_that_exists(self):
+        text = self._capture(self.char1, "hide")
+        self.assertIn("visibility", text)
+
+    def test_talk_points_at_say(self):
+        text = self._capture(self.char1, "talk to the clerk")
+        self.assertIn("say", text)
+
+    def test_suggestions_never_leak_the_chalk_or_the_engine(self):
+        # Near-misses on unsanctioned and engine verbs must not be
+        # corrected toward them.
+        for probe in ("sabotag", "stashh", "charcreat", "setdes"):
+            text = self._capture(self.char1, probe)
+            # A suggestion may be offered (e.g. 'setdes' -> dossier), but
+            # never a chalk or engine verb.
+            for forbidden in ("|csabotage|n", "|cstash|n",
+                              "|ccharcreate|n", "|csetdesc|n"):
+                self.assertNotIn(forbidden, text)
+        # ...while sanctioned near-misses still get help.
+        text = self._capture(self.char1, "dossie")
+        self.assertIn("dossier", text)
+
+    def test_go_walks_a_real_exit(self):
+        self.assertEqual(self.char1.location, self.room1)
+        self._capture(self.char1, f"go {self.exit.key}")
+        self.assertEqual(self.char1.location, self.room2)

@@ -38,6 +38,7 @@ from commands.errands import CmdErrands
 from commands.firsthour import CmdGrade, CmdHelpStaged, CmdNext
 from commands.gear import CmdBuy, CmdList, CmdRemoveGear, CmdWear
 from commands.map import CmdMap
+from commands.nomatch import CmdNoMatch
 from commands.underground import CmdCarry, CmdDeliver, CmdPapers, CmdSabotage
 
 
@@ -85,6 +86,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdHelpStaged())
         self.add(CmdNext())
         self.add(CmdGrade())
+        self.add(CmdNoMatch())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):

@@ -403,15 +403,23 @@ fuzzy-suggester, which leaks the unsanctioned curriculum (`sabotage`,
 `stash`), leaks engine verbs (`charcreate`, `setdesc`), and answers the
 commonest newbie error (a direction with no exit) with nonsense.
 
-- [ ] Custom no-match handler: unknown directions answer in-fiction with
-      what actually leads out
-- [ ] Instinct verbs (kill/attack/flee/cast/hide/sneak/talk/ask/where/
-      read/stats/go) each get a bespoke line in the Ministry's voice,
-      with a mechanical pointer where one exists — the "no combat"
-      thesis finally gets to speak when someone types `kill`
-- [ ] Suggestions filtered to the sanctioned surface: never the chalk's
-      verbs, never the engine's
-- [ ] Curriculum audit as always
+- [x] Custom no-match handler (`commands/nomatch.py`, keyed
+      `__nomatch_command`): unknown directions answer with what actually
+      leads out ("Nothing leads west from here. The Grid built the ways
+      it wanted: |weast|n."); `go <exit>` walks it
+- [x] Instinct verbs, each with a bespoke line and a mechanical pointer
+      where one exists: kill/attack ("nobody here dies of violence —
+      they die of paperwork"), hide/sneak (→ dark rooms, `help
+      visibility`), talk/ask (→ `say`, `look`, `errands`), flee, cast,
+      where, read, stats, steal. The thesis speaks the first time
+      someone types `kill`
+- [x] Suggestions rebuilt on a sanctioned whitelist: a typo may be
+      corrected toward `dossier`, never toward the chalk's verbs or the
+      engine's (`sabotag` now gets silence where it used to get a
+      curriculum leak)
+- [x] Curriculum audit: nothing new to teach — this version *is* the
+      teacher, living entirely in the failure surface. Verified live:
+      all nine instinct paths answered in-voice at the Annex
 
 ## Later / undecided
 
