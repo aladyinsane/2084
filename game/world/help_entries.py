@@ -76,9 +76,9 @@ HELP_ENTRY_DICTS = [
 
             The short version of everything:
 
-            - Your prompt shows |wVis|n (how watched this place is; |chelp
-              visibility|n) and |wExposure|n (how interesting you are;
-              |chelp exposure|n).
+            - Your prompt shows |wVisibility|n (how watched this place is;
+              |chelp visibility|n) and |wExposure|n (how interesting you
+              are; |chelp exposure|n).
             - Your |cdossier|n (or |cscore|n) is what the state says you
               are. It is not necessarily what happened. That distinction
               is most of the game.

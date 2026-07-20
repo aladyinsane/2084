@@ -932,6 +932,41 @@ class TestLegibility(EvenniaTest):
         self.assertIn("Exposure:", prompt)
         self.assertNotIn("Exp:", prompt.replace("Exposure:", ""))
 
+    def test_prompt_spells_out_visibility(self):
+        prompt = self.char1.get_prompt()
+        self.assertIn("Visibility:", prompt)
+        self.assertNotIn("Vis:", prompt)
+
+    def test_prompt_colors_exposure_by_watch_threshold(self):
+        self.char1.db.exposure = 0
+        self.assertIn("|g0|n", self.char1.get_prompt())
+        self.char1.db.exposure = tuning.SWEEP_MIN_EXPOSURE
+        self.assertIn(f"|y{tuning.SWEEP_MIN_EXPOSURE}|n", self.char1.get_prompt())
+        self.char1.db.exposure = tuning.DETAIN_THRESHOLD
+        self.assertIn(f"|r{tuning.DETAIN_THRESHOLD}|n", self.char1.get_prompt())
+
+    def test_prompt_shows_exposure_trend(self):
+        self.char1.db.exposure = 10
+        self.char1.get_prompt()  # establishes the baseline to compare against
+        steady = self.char1.get_prompt()
+        self.assertNotIn("|r^|n", steady)
+        self.assertNotIn("|gv|n", steady)
+        self.char1.db.exposure = 15
+        self.assertIn("|r^|n", self.char1.get_prompt())
+        self.char1.db.exposure = 5
+        self.assertIn("|gv|n", self.char1.get_prompt())
+
+    def test_prompt_flags_live_visibility_above_the_static_digit(self):
+        self.room1.db.visibility = 3
+        quiet = self.char1.get_prompt()
+        self.assertNotIn("(+", quiet)
+        sensor = create.create_object(
+            "typeclasses.objects.Sensor", key="a scanner", location=self.room1
+        )
+        sensor.db.sensitivity = 2
+        loud = self.char1.get_prompt()
+        self.assertIn("|=m(|n+2|=m)|n", loud)
+
     def test_the_prefixed_keys_get_no_article(self):
         chalk = create.create_object(
             "typeclasses.objects.Object", key="the chalk marks",
