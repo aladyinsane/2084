@@ -324,6 +324,54 @@ The cheap immediate fixes for "a bit dull," ahead of the content versions:
   want-ladder, a "nobody" questline so lying low is a campaign)
 - Curriculum audit per version (contributing rule 9), as always
 
+## The learning-curve response (from [the-first-hour.md](../research/the-first-hour.md))
+
+Lauren's concern, 2026-07-19: the world is right but the curve is steep enough
+to chase players away, and familiar combat/leveling might be the answer. The
+research's verdict: the familiar shapes already exist wearing unfamiliar
+clothes; surface and sequence them before adding systems. Tier 3 (composure
+sparring, the combat-shaped loop) stays parked until tiers 1–2 are measured.
+
+## v0.12 — Citizen Grades (the familiar ladder)
+
+One visible grade — the legibility of a level without a new progression
+system underneath. Derived entirely from numbers we already track.
+
+- [ ] Grade derived from sanctioned progress only (ministry standing,
+      errands completed, function held, clearance) — formula in tuning.py;
+      the underground ledger must never feed it (the Grid ranks what the
+      Grid can see, and the dossier-leak lesson stands)
+- [ ] Civil-service shape: grades descend toward status (Grade 6,
+      probationary → Grade 1), with visible progress toward the next
+      review in `score`/dossier — the goal-gradient bar
+- [ ] Prompt shows the grade; reclassification arrives as a NOTICE with
+      fanfare and a record entry (the file celebrates you, which is also
+      a threat)
+- [ ] Endowed progress: completing orientation credits the first visible
+      progress toward Grade 5
+- [ ] Display-only at first: grades gate nothing yet (Form C-1 and
+      function pay may reference them later — a separate decision)
+- [ ] Curriculum audit: the Wing explains grades in the Ministry's voice
+
+## v0.13 — The First Hour
+
+Sequencing the existing surface. Nothing locked, everything staged.
+
+- [ ] Progressive disclosure: the command listing opens with a short
+      "what you know so far" set keyed to orientation progress; the full
+      surface stays one `help all` away (shown, never locked — MUD
+      veterans skip ahead by right)
+- [ ] `next`: a hint verb that reads game state (no function? no errand?
+      hot file? unvisited Wing rooms?) and names one sensible thing to
+      do, in the world's voice
+- [ ] The remaining familiar aliases: `quests` → errands, `level`/`rank` →
+      grade display
+- [ ] First-login funnel: new citizens pointed straight at the Wing, and
+      the Wing's first room offers The Rounds without requiring the
+      player to discover `errands` first
+- [ ] Gate: a timed first-session playtest (fresh account) measuring
+      minutes-to-first-errand and minutes-to-understanding-the-prompt
+
 ## Later / undecided
 
 The parking lot, including the **ASCII map**: [future-features.md](future-features.md).
