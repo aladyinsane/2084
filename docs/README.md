@@ -22,6 +22,11 @@ mechanisms produced. They exist to be used in arguments, and each one has a test
 | [third-millennium-mud.md](research/third-millennium-mud.md) | The 1996 MUD that eliminated race and class; what we take (the principle), what we honestly can't (the details), and its cautionary second lesson |
 | [evennia-capabilities.md](research/evennia-capabilities.md) | What the engine makes cheap and expensive, verified against 6.1.0 locally — including the three ASCII-mapping doors |
 | [mud-design-landscape.md](research/mud-design-landscape.md) | Why MUDs die (empty worlds), the classless-convergence failure mode, progression-as-retention, consent-to-stakes — with confidence labels |
+| [grind-loops-without-killing.md](research/grind-loops-without-killing.md) | What grinding is *for* psychologically, and five ways to keep its shape with the Grid's own materials — the shelf ADR 0008 shopped from |
+| [playtest-2026-07-19-first-human.md](research/playtest-2026-07-19-first-human.md) | The first human playtest: mechanically safe, experientially rough — the confusion taxes and the "a bit dull" verdict that spawned v0.7–v0.11 |
+| [command-surface-audit.md](research/command-surface-audit.md) | The command-overwhelm audit: organization, not amputation — and the standing rule that new features ride existing verb patterns |
+| [fun-and-game-feel.md](research/fun-and-game-feel.md) | Five named dullnesses, each assigned a fix — near-misses, the login digest, ambience, risk stated up front, the want-ladder |
+| [game-theory-of-the-grid.md](research/game-theory-of-the-grid.md) | The trust machine audited against the repeated-PD literature, and the invariant every betrayal mechanic must keep: profitable once, costly as a career |
 | [the-first-hour.md](research/the-first-hour.md) | Onboarding and learning-curve research: the ladder we have but don't show, progressive disclosure, and why familiar combat isn't the fix — the v0.12/v0.13 rationale |
 | [prior-drafts/](research/prior-drafts/README.md) | Pre-workflow design material (codex, mechanics draft, brainstorm), frozen; ADRs beat anything in there |
 | [sources/](research/sources/) | The novel itself |
@@ -46,7 +51,7 @@ Numbered, immutable once accepted, superseded rather than edited. Every one has 
 | Doc | What's in it |
 |---|---|
 | [principles.md](product/principles.md) | Ten principles, each traced to research, each with a test — plus what we're deliberately *not* |
-| [roadmap.md](product/roadmap.md) | v0.1–v0.5, sequenced by what proves the thesis: *a surveillance state beats a bestiary* |
+| [roadmap.md](product/roadmap.md) | v0.1–v0.13, sequenced by what proves the thesis: *a surveillance state beats a bestiary* |
 | [future-features.md](product/future-features.md) | The parking lot — headlined by the ASCII map (three Evennia doors analyzed, one kept open by ADR 0007) — and the known risks we shipped on purpose |
 
 ## Engineering
