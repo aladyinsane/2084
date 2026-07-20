@@ -121,6 +121,10 @@ Grid's own materials. **Options, not decisions** — an ADR happens when one is 
    interrogator and HP is composure: rounds of pressure vs. `deflect`/`stonewall`/
    `misdirect`. Trains a resistance skill that later matters in real detention
    (Section C under duress). Turn-based combat, no blood.
+   *(Update 2026-07-19: promoted to active consideration as tier 3 of the
+   learning-curve response — the combat-shaped answer if v0.12–v0.13 don't
+   flatten the curve enough. Lauren decides after the retiled first hour is
+   measured; see [the-first-hour.md](../research/the-first-hour.md) §4.)*
 4. **Records archaeology.** Grinding the archive itself: `research` at the Annex
    surfaces fragments; assembling a story about an unperson pays influence jackpots.
    The rare-drop table is narrative.
