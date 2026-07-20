@@ -5,34 +5,10 @@ The first human playtest found that the game's two most important numbers
 had no helpfiles at all.
 """
 
+# (The "grade" entry moved into CmdGrade's docstring in v0.13 — a command
+# named `grade` shadows a file entry of the same key, so the explanation
+# lives with the verb now.)
 HELP_ENTRY_DICTS = [
-    {
-        "key": "grade",
-        "aliases": ["grades", "level", "rank", "merit"],
-        "category": "the grid",
-        "text": """
-            The first figure in your prompt: your |wcivic grade|n, the
-            Grid's one-number opinion of your usefulness.
-
-            Grades run from 6 (probationary — everyone starts here) down
-            to 1. If you are used to levels: this is that, upside down,
-            because the civil service was ranking people before games
-            were. The movement is what matters, and the movement shows.
-
-            |wMerit|n drives it, and merit is everything the Grid has
-            watched you earn: standing paid by the ministries, errands
-            seen through, a function held, clearance granted, orientation
-            completed. Your |cdossier|n states your merit and the review
-            threshold for the next grade. Merit is lifetime — spending
-            standing at the Annex does not lower your grade. Losing your
-            function does.
-
-            The Grid does not hide the ladder. The ladder is the point.
-            What the Grid cannot see — and there are ledgers it cannot
-            see — earns no merit at all, which some citizens consider
-            the fairest price in Sector 9.
-        """,
-    },
     {
         "key": "exposure",
         "aliases": ["exp", "heat"],

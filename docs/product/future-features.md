@@ -227,7 +227,10 @@ players idle as a way of life; punishing the open window punishes presence
 itself, and a returning player finds a file full of absences they never
 chose. Candidate fixes when revisited: only roll citizens active within the
 last N minutes, or cap consecutive unexcused absences ("the Office of
-Assemblies assumes hospitalization"). Not changed unilaterally because
+Assemblies assumes hospitalization"). The v0.13 playtest sharpened it: a
+citizen two minutes old (parsons) was fined for missing an assembly
+*announced before the account existed* — the roll should at minimum excuse
+anyone registered after the announcement. Not changed unilaterally because
 absence-as-data is a designed pillar (M8) — the fix needs a decision about
 what idling *means* in-fiction. **What tells us it's urgent:** any real
 player mentioning they got detained after stepping away for dinner.

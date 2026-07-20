@@ -368,20 +368,33 @@ system underneath. Derived entirely from numbers we already track.
 
 Sequencing the existing surface. Nothing locked, everything staged.
 
-- [ ] Progressive disclosure: the command listing opens with a short
-      "what you know so far" set keyed to orientation progress; the full
-      surface stays one `help all` away (shown, never locked — MUD
-      veterans skip ahead by right)
-- [ ] `next`: a hint verb that reads game state (no function? no errand?
-      hot file? unvisited Wing rooms?) and names one sensible thing to
-      do, in the world's voice
-- [ ] The remaining familiar aliases: `quests` → errands, `level`/`rank` →
-      grade display
-- [ ] First-login funnel: new citizens pointed straight at the Wing, and
-      the Wing's first room offers The Rounds without requiring the
-      player to discover `errands` first
-- [ ] Gate: a timed first-session playtest (fresh account) measuring
-      minutes-to-first-errand and minutes-to-understanding-the-prompt
+- [x] Progressive disclosure: bare `help` shows THE PERMITTED FORMS OF
+      ASSISTANCE (ABRIDGED) — nine first-hour verbs — until orientation
+      completes; `help all` is always the full index (shown, never
+      locked — MUD veterans skip ahead by right)
+- [x] `next` (aliases hint/whatnow): CITIZEN ADVISORY, FORM 2-B — one
+      suggestion from actual state, priority-ordered: active errand →
+      orientation → `report` → cooling down when hot → an errand giver
+      (catalog order on purpose, so the clerk's safe chain is suggested
+      before the lamp-mender's — the playtest caught set-ordering
+      offering the underground to a citizen five minutes old) → the
+      standing fallback
+- [x] The remaining aliases: `quests`/`quest` → errands; `grade` is now
+      a command (`level`/`rank`/`merit`) giving the three-line answer to
+      "am I leveling?" — its helpfile moved from the file entry into the
+      command, which shadows same-key file help
+- [x] First-login funnel: NOTICE OF ARRIVAL (FORM 1-A) on first puppet —
+      one card naming orientation, `next`, and `help`, never shown
+      again; the antechamber placard teaches `next`
+- [x] Gate met: fresh-account run (parsons) — welcome → orientation →
+      Grade 5 in ~60 seconds; function, first errand complete, and
+      Grade 4 in under three driven minutes (~25 commands, zero dead
+      ends; a reading human should land G4 inside the first quarter
+      hour). `grade` mid-arc read "1 to go," which is the goal-gradient
+      working as the research drew it
+- [x] Playtest also sharpened the idler risk: parsons was fined for
+      missing an assembly announced before the account existed (entry
+      updated under known risks)
 
 ## Later / undecided
 

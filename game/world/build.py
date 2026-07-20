@@ -167,7 +167,8 @@ ROOMS = {
         "  A citizen is expected to know their sector. Consult your own\n"
         "  recollection at any time: |cmap|w. The Ministry issues no maps\n"
         "  and is confident you will not need one.\n"
-        "  Proceed NORTH when ready. Type |chelp|w at any difficulty.|n",
+        "  Proceed NORTH when ready. Type |chelp|w at any difficulty, "
+        "and |cnext|w whenever you are unsure what the Grid expects.|n",
     ),
     "o_watched": (
         "Orientation: The Watched Life",

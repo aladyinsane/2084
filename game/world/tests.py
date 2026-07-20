@@ -1756,3 +1756,69 @@ class TestGrades(EvenniaTest):
         text = "\n".join(captured)
         self.assertIn("Grade:     Citizen, Grade 5", text)
         self.assertIn("Review threshold for Grade 4", text)
+
+
+class TestFirstHour(EvenniaTest):
+    """v0.13: staged help, the `next` advisor, `grade`, and the aliases."""
+
+    def _capture(self, char, cmd):
+        captured = []
+        old_msg = char.msg
+        char.msg = lambda text="", **kw: captured.append(str(text))
+        try:
+            char.execute_cmd(cmd)
+        finally:
+            char.msg = old_msg
+        return "\n".join(captured)
+
+    def test_bare_help_is_abridged_until_oriented(self):
+        text = self._capture(self.char1, "help")
+        self.assertIn("ABRIDGED", text)
+        self.assertIn("help all", text)
+        self.char1.db.oriented = True
+        text = self._capture(self.char1, "help")
+        self.assertNotIn("ABRIDGED", text)
+
+    def test_help_all_is_always_the_full_index(self):
+        text = self._capture(self.char1, "help all")
+        self.assertNotIn("ABRIDGED", text)
+        # The full index shows commands the abridged card never names.
+        self.assertIn("sabotage", text)
+
+    def test_help_topic_unaffected(self):
+        text = self._capture(self.char1, "help exposure")
+        self.assertIn("down is good", text)
+
+    def test_next_walks_the_priority_ladder(self):
+        # Unoriented: pointed at the Wing.
+        text = self._capture(self.char1, "next")
+        self.assertIn("orientation", text)
+        # Oriented but unassigned: pointed at `report`.
+        self.char1.db.oriented = True
+        text = self._capture(self.char1, "next")
+        self.assertIn("report", text)
+        # Assigned and hot: pointed at cooling down.
+        from world import functions
+
+        functions.assign_function(self.char1)
+        # Assigned, cool, errandless: pointed at a giver — and at the
+        # clerk's safe chain first, never the underground's.
+        text = self._capture(self.char1, "next")
+        self.assertIn("orientation clerk", text)
+        self.char1.db.exposure = tuning.HOT_EXPOSURE
+        text = self._capture(self.char1, "next")
+        self.assertIn("work", text)
+        # An active errand outranks everything.
+        self.char1.db.errand = {"key": "rounds", "progress": []}
+        text = self._capture(self.char1, "next")
+        self.assertIn("The Rounds", text)
+
+    def test_grade_command_and_muscle_memory_aliases(self):
+        for cmd in ("grade", "level", "rank"):
+            text = self._capture(self.char1, cmd)
+            self.assertIn("Citizen, Grade 6", text)
+            self.assertIn("Review threshold", text)
+
+    def test_quests_alias_reaches_errands(self):
+        text = self._capture(self.char1, "quests")
+        self.assertIn("errand", text.lower())

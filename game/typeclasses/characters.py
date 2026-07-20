@@ -147,6 +147,18 @@ class Character(ObjectParent, DefaultCharacter):
 
     def at_post_puppet(self, **kwargs):
         super().at_post_puppet(**kwargs)
+        # The first minute of the first session (v0.13): one card, three
+        # verbs, and a direction. Never shown again.
+        if not self.db.welcomed:
+            self.db.welcomed = True
+            self.msg(
+                "|w  NOTICE OF ARRIVAL (FORM 1-A)|n\n"
+                "|=m  You are registered. You are expected. Orientation "
+                "waits\n  EAST of the Assignment Hall; the Grid credits "
+                "completing it.\n  When unsure, type |cnext|=m. For the "
+                "permitted forms of\n  assistance, |chelp|=m. The Grid "
+                "provides.|n"
+            )
         digest = self.login_digest()
         if digest:
             self.msg(digest)
