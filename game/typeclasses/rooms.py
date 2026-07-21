@@ -7,6 +7,7 @@ Rooms are simple containers that has no location of their own.
 
 from evennia.objects.objects import DefaultRoom
 from evennia.typeclasses.attributes import AttributeProperty
+from evennia.utils.utils import compress_whitespace
 
 from world import tuning
 
@@ -23,6 +24,31 @@ class Room(ObjectParent, DefaultRoom):
     """
 
     visibility = AttributeProperty(0)
+
+    # Same as DefaultObject.appearance_template, but with a marker between
+    # the prose description and the Exits/Characters/You-see block. The
+    # marker becomes a blank line in format_appearance below — a literal
+    # blank line here wouldn't survive Evennia's whitespace compression,
+    # which collapses runs of newlines down to one.
+    appearance_template = """
+{header}
+|c{name}{extra_name_info}|n
+{desc}
+\x00
+{exits}
+{characters}
+{things}
+{footer}
+    """
+
+    def format_appearance(self, appearance, looker, **kwargs):
+        """
+        Give the room description its own paragraph. Exits/Characters/You-see
+        stay tight against each other as a scannable block, separated from
+        the prose above by one blank line.
+        """
+        appearance = compress_whitespace(appearance).strip()
+        return appearance.replace("\x00\n", "\n").strip()
 
     def exposure_gain(self):
         """Base visibility cost plus every active sensor in the room."""
