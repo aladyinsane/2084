@@ -22,8 +22,7 @@ from evennia.contrib.grid.ingame_map_display.ingame_map_display import (
     CmdMap as ContribCmdMap,
 )
 
-# Visibility digit colors: dark places green, watched places hot.
-_VIS_COLORS = {0: "|g", 1: "|w", 2: "|w", 3: "|y", 4: "|y", 5: "|r"}
+from world.colors import VIS_COLORS as _VIS_COLORS
 
 
 class GridMap(Map):

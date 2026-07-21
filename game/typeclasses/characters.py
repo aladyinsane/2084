@@ -78,15 +78,42 @@ class Character(ObjectParent, DefaultCharacter):
 
     def get_prompt(self):
         # The trend-telegraph promised by principle 3: the player always sees
-        # how watched here is, and how hot they are. "Exposure" is spelled
-        # out because "Exp" reads as experience points to every MUD veteran
+        # how watched here is, and how hot they are. "Exposure" and
+        # "Visibility" are spelled out because "Exp"/"Vis" read as
+        # experience points and an ability score to every MUD veteran
         # (first-human-playtest finding #3).
-        from world import grades
+        from typeclasses.gear import room_exposure_delta
+        from world import grades, tuning
+        from world.colors import VIS_COLORS, exposure_color
 
-        vis = getattr(self.location, "visibility", "-")
+        room = self.location
+        vis = getattr(room, "visibility", None)
+        if vis is None:
+            vis_text = "-"
+        else:
+            vis_text = f"{VIS_COLORS.get(vis, '|w')}{vis}|n"
+            # The static digit is what the room is built as; live sensors
+            # and worn gear can pull the actual cost of entering it away
+            # from that (rooms.py's exposure_gain()). Only say so when the
+            # two disagree, so a room with nothing extra going on stays as
+            # quiet on the prompt as it always was.
+            live_gain = max(0, room.exposure_gain() + room_exposure_delta(self, room))
+            base_gain = tuning.VISIBILITY_EXPOSURE.get(vis, 0)
+            delta = live_gain - base_gain
+            if delta:
+                vis_text += f"|=m(|n{delta:+d}|=m)|n"
+
+        exposure = self.exposure
+        last = self.db.last_prompt_exposure
+        trend = ""
+        if last is not None and exposure != last:
+            trend = "|r^|n" if exposure > last else "|gv|n"
+        self.db.last_prompt_exposure = exposure
+
         return (
             f"|=m[|nG{grades.grade_of(self)} "
-            f"Vis:{vis} Exposure:{self.exposure}|=m]|n > "
+            f"Visibility:{vis_text} "
+            f"Exposure:{exposure_color(exposure)}{exposure}|n{trend}|=m]|n > "
         )
 
     def send_prompt(self):
