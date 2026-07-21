@@ -73,6 +73,9 @@ class CmdReport(Command):
                 "|cwork|n. The Grid thanks you in advance, in writing, "
                 "in triplicate."
             )
+        from world.onboarding import acknowledge_first_use
+
+        acknowledge_first_use(caller, "report")
 
 
 class CmdWork(Command):
@@ -164,6 +167,9 @@ class CmdWork(Command):
             from world import errands
 
             errands.check(caller, "shift")
+        from world.onboarding import acknowledge_first_use
+
+        acknowledge_first_use(caller, "work")
 
 
 class CmdObserve(Command):
@@ -234,6 +240,9 @@ class CmdObserve(Command):
             from world import errands
 
             errands.check(caller, "observe", room=room)
+        from world.onboarding import acknowledge_first_use
+
+        acknowledge_first_use(caller, "observe")
 
 
 class CmdListen(Command):

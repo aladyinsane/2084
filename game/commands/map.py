@@ -87,3 +87,6 @@ class CmdMap(ContribCmdMap):
                 {"type": "map"},
             )
         )
+        from world.onboarding import acknowledge_first_use
+
+        acknowledge_first_use(self.caller, "map")

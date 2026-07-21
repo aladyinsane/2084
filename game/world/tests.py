@@ -1011,6 +1011,75 @@ class TestLegibility(EvenniaTest):
             self.assertTrue(entry["text"].strip())
 
 
+class TestOnboarding(EvenniaTest):
+    """v0.15: the Wing teaches by making you do the verb."""
+
+    def setUp(self):
+        super().setUp()
+        self.room1.tags.add("workplace", category="grid")
+
+    def _sent(self, cmd_string):
+        seen = []
+        old = self.char1.msg
+        self.char1.msg = lambda text=None, **kw: seen.append(str(text))
+        try:
+            self.char1.execute_cmd(cmd_string)
+        finally:
+            self.char1.msg = old
+        return "\n".join(seen)
+
+    def test_map_acknowledges_first_use_once(self):
+        first = self._sent("map")
+        self.assertIn("The sector unfolds", first)
+        second = self._sent("map")
+        self.assertNotIn("The sector unfolds", second)
+
+    def test_observe_acknowledges_first_use_once(self):
+        first = self._sent("observe")
+        self.assertIn("noticing you", first)
+        second = self._sent("observe")
+        self.assertNotIn("noticing you", second)
+
+    def test_dossier_acknowledges_first_use_once(self):
+        first = self._sent("dossier")
+        self.assertIn("on request, as promised", first)
+        second = self._sent("dossier")
+        self.assertNotIn("on request, as promised", second)
+
+    def test_grade_acknowledges_first_use_once(self):
+        first = self._sent("grade")
+        self.assertIn("standing in for a citizen", first)
+        second = self._sent("grade")
+        self.assertNotIn("standing in for a citizen", second)
+
+    def test_report_acknowledges_first_use_once(self):
+        first = self._sent("report")
+        self.assertIn("The first stamp", first)
+        second = self._sent("report")
+        self.assertNotIn("The first stamp", second)
+
+    def test_work_acknowledges_first_use(self):
+        first = self._sent("work")
+        self.assertIn("Visible usefulness, logged", first)
+
+    def test_errands_take_acknowledges_first_use(self):
+        create.create_object(
+            "typeclasses.npcs.Citizen", key="the orientation clerk",
+            location=self.room1,
+        ).tags.add("errand_giver", category="grid")
+        first = self._sent("errands take rounds")
+        self.assertIn("Work found you", first)
+
+    def test_next_gives_wing_specific_hint_inside_the_wing(self):
+        self.room1.tags.add("wing_watched", category="grid")
+        advice = self._sent("next")
+        self.assertIn("observe", advice)
+
+    def test_next_falls_back_to_generic_advice_outside_the_wing(self):
+        advice = self._sent("next")
+        self.assertIn("five rooms long", advice)
+
+
 class TestCircleBenefits(EvenniaTest):
     """v0.11: the pay side of trust — the stash and joint work."""
 
