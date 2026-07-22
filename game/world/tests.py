@@ -1011,6 +1011,34 @@ class TestLegibility(EvenniaTest):
             self.assertTrue(entry["text"].strip())
 
 
+class TestRoomSpacing(EvenniaTest):
+    """
+    The room description gets its own paragraph, and each of
+    Exits/Characters/You-see gets its own too -- but only a room missing a
+    block (the holding cell has no exits) shouldn't leave a stray gap.
+    """
+
+    def test_blank_line_separates_desc_from_the_grid_block(self):
+        appearance = self.room1.return_appearance(self.char1)
+        self.assertIn("room_desc\n\n|wExits:", appearance)
+
+    def test_blank_line_separates_exits_characters_and_things(self):
+        appearance = self.room1.return_appearance(self.char1)
+        self.assertIn("out\n\n|wCharacters:", appearance)
+        self.assertIn("Char2\n\n|wYou see:", appearance)
+
+    def test_no_stray_blank_line_when_a_block_is_missing(self):
+        bare = create.create_object(self.room_typeclass, key="Bare Room", nohome=True)
+        bare.db.desc = "bare_desc"
+        self.char1.move_to(bare, quiet=True, move_type="teleport")
+        self.char2.move_to(bare, quiet=True, move_type="teleport")
+
+        appearance = bare.return_appearance(self.char1)
+
+        self.assertNotIn("\n\n\n", appearance)
+        self.assertIn("bare_desc\n\n|wCharacters:", appearance)
+
+
 class TestOnboarding(EvenniaTest):
     """v0.15: the Wing teaches by making you do the verb."""
 
