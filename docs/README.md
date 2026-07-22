@@ -29,6 +29,7 @@ mechanisms produced. They exist to be used in arguments, and each one has a test
 | [game-theory-of-the-grid.md](research/game-theory-of-the-grid.md) | The trust machine audited against the repeated-PD literature, and the invariant every betrayal mechanic must keep: profitable once, costly as a career |
 | [the-first-hour.md](research/the-first-hour.md) | Onboarding and learning-curve research: the ladder we have but don't show, progressive disclosure, and why familiar combat isn't the fix — the v0.12/v0.13 rationale |
 | [playtest-2026-07-20-ten-personas.md](research/playtest-2026-07-20-ten-personas.md) | Ten play styles in one evening: the hostile command suggester, the deaf world, the missing shadow ladder — and what held (the ladder, the circle flow, `next`) |
+| [mobile-web-client.md](research/mobile-web-client.md) | Why the stock GoldenLayout web client can't just get responsive CSS, and the phased plan for a purpose-built mobile client on the same protocol |
 | [prior-drafts/](research/prior-drafts/README.md) | Pre-workflow design material (codex, mechanics draft, brainstorm), frozen; ADRs beat anything in there |
 | [sources/](research/sources/) | The novel itself |
 
