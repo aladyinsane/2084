@@ -5,8 +5,6 @@ Rooms are simple containers that has no location of their own.
 
 """
 
-import re
-
 from evennia.objects.objects import DefaultRoom
 from evennia.typeclasses.attributes import AttributeProperty
 from evennia.utils.utils import compress_whitespace
@@ -45,17 +43,16 @@ class Room(ObjectParent, DefaultRoom):
 
     def format_appearance(self, appearance, looker, **kwargs):
         """
-        Give the room description its own paragraph, and Exits/Characters/
-        You-see each theirs — a blank line between any two blocks that are
-        actually present, so a room missing one (the holding cell has no
-        exits) doesn't leave a stray gap where it would have been.
+        Give the room description its own paragraph, with Exits/Characters/
+        You-see kept tight together as one scannable block. The whole
+        display gets a blank line on both sides, so a room's own look
+        always reads as its own paragraph in the scrolling log — separated
+        from whatever ambient text or movement message lands next to it,
+        without needing to touch those messages themselves.
         """
         appearance = compress_whitespace(appearance).strip()
-        appearance = appearance.replace("\x00\n", "\n")
-        appearance = re.sub(r"\n(?=\|wCharacters:)", "\n\n", appearance)
-        appearance = re.sub(r"\n(?=\|wYou see:)", "\n\n", appearance)
-        appearance = re.sub(r"\n{3,}", "\n\n", appearance)
-        return appearance.strip()
+        appearance = appearance.replace("\x00\n", "\n").strip()
+        return f"\n{appearance}\n"
 
     def exposure_gain(self):
         """Base visibility cost plus every active sensor in the room."""

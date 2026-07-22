@@ -1013,19 +1013,28 @@ class TestLegibility(EvenniaTest):
 
 class TestRoomSpacing(EvenniaTest):
     """
-    The room description gets its own paragraph, and each of
-    Exits/Characters/You-see gets its own too -- but only a room missing a
-    block (the holding cell has no exits) shouldn't leave a stray gap.
+    The room description gets its own paragraph; Exits/Characters/You-see
+    stay tight together as one scannable block. The whole display is
+    wrapped in a blank line on each side, so a room's own look reads as
+    its own paragraph next to whatever ambient text or movement message
+    lands beside it in the scrolling log.
     """
 
     def test_blank_line_separates_desc_from_the_grid_block(self):
         appearance = self.room1.return_appearance(self.char1)
         self.assertIn("room_desc\n\n|wExits:", appearance)
 
-    def test_blank_line_separates_exits_characters_and_things(self):
+    def test_exits_characters_and_things_stay_tight(self):
         appearance = self.room1.return_appearance(self.char1)
-        self.assertIn("out\n\n|wCharacters:", appearance)
-        self.assertIn("Char2\n\n|wYou see:", appearance)
+        self.assertIn("out\n|wCharacters:", appearance)
+        self.assertIn("Char2\n|wYou see:", appearance)
+        self.assertNotIn("out\n\n|wCharacters:", appearance)
+        self.assertNotIn("Char2\n\n|wYou see:", appearance)
+
+    def test_whole_display_wrapped_in_a_single_blank_line(self):
+        appearance = self.room1.return_appearance(self.char1)
+        self.assertTrue(appearance.startswith("\n") and not appearance.startswith("\n\n"))
+        self.assertTrue(appearance.endswith("\n") and not appearance.endswith("\n\n"))
 
     def test_no_stray_blank_line_when_a_block_is_missing(self):
         bare = create.create_object(self.room_typeclass, key="Bare Room", nohome=True)
