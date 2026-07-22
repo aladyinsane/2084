@@ -43,12 +43,16 @@ class Room(ObjectParent, DefaultRoom):
 
     def format_appearance(self, appearance, looker, **kwargs):
         """
-        Give the room description its own paragraph. Exits/Characters/You-see
-        stay tight against each other as a scannable block, separated from
-        the prose above by one blank line.
+        Give the room description its own paragraph, with Exits/Characters/
+        You-see kept tight together as one scannable block. The whole
+        display gets a blank line on both sides, so a room's own look
+        always reads as its own paragraph in the scrolling log — separated
+        from whatever ambient text or movement message lands next to it,
+        without needing to touch those messages themselves.
         """
         appearance = compress_whitespace(appearance).strip()
-        return appearance.replace("\x00\n", "\n").strip()
+        appearance = appearance.replace("\x00\n", "\n").strip()
+        return f"\n{appearance}\n"
 
     def exposure_gain(self):
         """Base visibility cost plus every active sensor in the room."""

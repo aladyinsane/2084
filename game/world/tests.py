@@ -1011,6 +1011,43 @@ class TestLegibility(EvenniaTest):
             self.assertTrue(entry["text"].strip())
 
 
+class TestRoomSpacing(EvenniaTest):
+    """
+    The room description gets its own paragraph; Exits/Characters/You-see
+    stay tight together as one scannable block. The whole display is
+    wrapped in a blank line on each side, so a room's own look reads as
+    its own paragraph next to whatever ambient text or movement message
+    lands beside it in the scrolling log.
+    """
+
+    def test_blank_line_separates_desc_from_the_grid_block(self):
+        appearance = self.room1.return_appearance(self.char1)
+        self.assertIn("room_desc\n\n|wExits:", appearance)
+
+    def test_exits_characters_and_things_stay_tight(self):
+        appearance = self.room1.return_appearance(self.char1)
+        self.assertIn("out\n|wCharacters:", appearance)
+        self.assertIn("Char2\n|wYou see:", appearance)
+        self.assertNotIn("out\n\n|wCharacters:", appearance)
+        self.assertNotIn("Char2\n\n|wYou see:", appearance)
+
+    def test_whole_display_wrapped_in_a_single_blank_line(self):
+        appearance = self.room1.return_appearance(self.char1)
+        self.assertTrue(appearance.startswith("\n") and not appearance.startswith("\n\n"))
+        self.assertTrue(appearance.endswith("\n") and not appearance.endswith("\n\n"))
+
+    def test_no_stray_blank_line_when_a_block_is_missing(self):
+        bare = create.create_object(self.room_typeclass, key="Bare Room", nohome=True)
+        bare.db.desc = "bare_desc"
+        self.char1.move_to(bare, quiet=True, move_type="teleport")
+        self.char2.move_to(bare, quiet=True, move_type="teleport")
+
+        appearance = bare.return_appearance(self.char1)
+
+        self.assertNotIn("\n\n\n", appearance)
+        self.assertIn("bare_desc\n\n|wCharacters:", appearance)
+
+
 class TestOnboarding(EvenniaTest):
     """v0.15: the Wing teaches by making you do the verb."""
 
