@@ -21,6 +21,25 @@
       margin: 0;
       overscroll-behavior: none;
     }
+    /* webclient.css shrinks body text under 480px width — sized for a
+       GoldenLayout pane squeezed on a small screen, not for a client that
+       IS the screen. Override it: this rule comes later in the cascade
+       and matches unconditionally, so it wins regardless of viewport. */
+    body {
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+    /* default_out.js's onText falls back to a bare `cls` variable that's
+       `undefined` (not the string "out") for any message sent with
+       options but no explicit `cls` key — e.g. `map`'s {"type": "map"}.
+       On the desktop client GoldenLayout intercepts those before they
+       reach here; we don't load GoldenLayout, so they land as
+       <div class="undefined">, missing `.out`'s white-space: pre-wrap
+       and collapsing the map's column-aligning spaces. Apply it to every
+       output line regardless of class. */
+    #messagewindow > div {
+      white-space: pre-wrap;
+    }
     #titlebar {
       position: fixed;
       top: 0; left: 0; width: 100%;
@@ -67,6 +86,37 @@
       font-size: .85rem;
     }
     #quickbar button:active { background: #2a2a2a; }
+    /* Compass D-pad: floats over the right edge of the output pane so
+       movement doesn't cost screen real estate the way a full-width bar
+       would. N/S/E/W get the cardinal cross; up/down sit in the corners
+       the cross doesn't use. */
+    #compass {
+      position: fixed;
+      right: .6rem;
+      bottom: 7.8rem;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(3, 2.3rem);
+      grid-template-rows: repeat(3, 2.3rem);
+      gap: .3rem;
+      opacity: .88;
+    }
+    #compass button {
+      background: rgba(26, 26, 26, 0.9);
+      color: #ccc;
+      border: 1px solid #333;
+      border-radius: .3rem;
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 0;
+    }
+    #compass button:active { background: #2a2a2a; }
+    #compass .dir-n { grid-column: 2; grid-row: 1; }
+    #compass .dir-w { grid-column: 1; grid-row: 2; }
+    #compass .dir-e { grid-column: 3; grid-row: 2; }
+    #compass .dir-s { grid-column: 2; grid-row: 3; }
+    #compass .dir-u { grid-column: 1; grid-row: 1; font-size: .8rem; color: #888; }
+    #compass .dir-d { grid-column: 3; grid-row: 3; font-size: .8rem; color: #888; }
     #input {
       height: 4.5rem;
     }
@@ -149,6 +199,15 @@
     </div>
   </div>
 
+  <div id="compass">
+    <button type="button" class="dir-u" data-cmd="up" aria-label="Up">&#9650;</button>
+    <button type="button" class="dir-n" data-cmd="north" aria-label="North">N</button>
+    <button type="button" class="dir-w" data-cmd="west" aria-label="West">W</button>
+    <button type="button" class="dir-e" data-cmd="east" aria-label="East">E</button>
+    <button type="button" class="dir-s" data-cmd="south" aria-label="South">S</button>
+    <button type="button" class="dir-d" data-cmd="down" aria-label="Down">&#9660;</button>
+  </div>
+
   <div id="quickbar">
     <button type="button" data-cmd="look">look</button>
     <button type="button" data-cmd="map">map</button>
@@ -168,7 +227,7 @@
   </div>
 
   <script type="text/javascript">
-    document.querySelectorAll("#quickbar button").forEach(function (btn) {
+    document.querySelectorAll("#quickbar button, #compass button").forEach(function (btn) {
       btn.addEventListener("click", function () {
         plugin_handler.onSend(btn.getAttribute("data-cmd"));
       });
