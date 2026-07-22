@@ -36,7 +36,7 @@ class CmdErrands(Command):
     # nothing and answers the first thing a MUD veteran will type (v0.13).
     aliases = ["errand", "quests", "quest"]
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "sector 9"
 
     def func(self):
         from world import errands

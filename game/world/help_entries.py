@@ -5,6 +5,14 @@ The first human playtest found that the game's two most important numbers
 had no helpfiles at all.
 """
 
+# The category used to be "the grid" — identical to this module's own
+# "the grid" entry key. Evennia's CmdHelp resolves an exact category name
+# before an exact topic key, so `help the grid` (the thing nomatch.py and
+# half the Wing's placards tell citizens to type) silently returned a
+# command-category listing instead of the entry, for everyone, always
+# (round-two playtest finding 1). Renamed so the entry itself is reachable.
+_CATEGORY = "sector 9"
+
 # (The "grade" entry moved into CmdGrade's docstring in v0.13 — a command
 # named `grade` shadows a file entry of the same key, so the explanation
 # lives with the verb now.)
@@ -12,7 +20,7 @@ HELP_ENTRY_DICTS = [
     {
         "key": "exposure",
         "aliases": ["exp", "heat"],
-        "category": "the grid",
+        "category": _CATEGORY,
         "text": """
             The number in your prompt where |wdown is good|n.
 
@@ -41,7 +49,7 @@ HELP_ENTRY_DICTS = [
     {
         "key": "visibility",
         "aliases": ["vis"],
-        "category": "the grid",
+        "category": _CATEGORY,
         "text": """
             The other number in your prompt: how watched |wthis place|n is,
             from 0 to 5.
@@ -66,8 +74,11 @@ HELP_ENTRY_DICTS = [
     },
     {
         "key": "the grid",
-        "aliases": ["2084", "sector 9", "basics"],
-        "category": "the grid",
+        # "sector 9" used to be an alias here too, until it became this
+        # module's shared category name — keeping both would only move
+        # finding 1's bug one alias sideways instead of fixing it.
+        "aliases": ["2084", "basics"],
+        "category": _CATEGORY,
         "text": """
             2084 is not a game about killing things; there is nothing to
             kill and no experience points for killing it. It is a game
@@ -83,12 +94,50 @@ HELP_ENTRY_DICTS = [
               are. It is not necessarily what happened. That distinction
               is most of the game.
             - Sanctioned life: |creport|n for a function, |cwork|n your
-              post, earn standing, |cpetition|n corrections, |capply|n for
-              clearance, attend assemblies when the loudspeakers say so.
+              post, earn |chelp standing|n, |cpetition|n corrections,
+              |capply|n for clearance, attend assemblies when the
+              loudspeakers say so.
             - The rest of life is taught elsewhere. Rooms explain
               themselves; read them. The Orientation Wing (east of the
               Assignment Hall) is the sanctioned classroom. Sector 9 has
               at least one other, for those who look down as well as up.
+        """,
+    },
+    {
+        "key": "standing",
+        "aliases": ["influence"],
+        "category": _CATEGORY,
+        "text": """
+            The other ledger — separate from |wExposure|n (|chelp
+            exposure|n) and separate from your |wgrade|n (|chelp grade|n).
+            Standing is kept per institution: the Ministry of Records, the
+            Ministry of Commerce, whichever office last had a use for you.
+
+            |wHow it's earned:|n |cwork|n your assigned post, complete an
+            institution's errands (|cerrands|n), or |creport|n and take a
+            function in the first place. Each pays standing with the
+            institution that asked.
+
+            |wHow it's spent:|n |cpetition|n (amend your file),
+            |cforge|n's sanctioned cousin; |capply|n for clearance; the
+            Annex's other services. Spending standing never lowers your
+            grade — merit is separate and lifetime (|chelp grade|n).
+
+            |wWhere to see it:|n |cdossier|n lists "Standing with
+            institutions" once you've earned any. Nothing is owed you
+            before then; a citizen with no standing has simply not yet
+            been useful to anyone in particular.
+        """,
+    },
+    {
+        "key": "gridwide",
+        "aliases": ["grid", "pub"],
+        "category": _CATEGORY,
+        "text": """
+            The one public channel: |cgridwide <message>|n, heard sector-
+            wide by anyone listening. Monitored, of course — speaking on
+            it costs exposure, same as speaking into a microphone the
+            state also owns. Cheap for a whisper, not for a habit.
         """,
     },
 ]

@@ -66,7 +66,7 @@ class CmdMap(ContribCmdMap):
 
     key = "map"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "sector 9"
 
     def func(self):
         from django.conf import settings as dj_settings

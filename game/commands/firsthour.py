@@ -105,7 +105,7 @@ class CmdNext(Command):
     key = "next"
     aliases = ["hint", "whatnow"]
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "sector 9"
 
     def func(self):
         from world import errands, tuning
@@ -168,10 +168,20 @@ class CmdNext(Command):
                     f"word is {spec['giver']} has a use for a citizen's "
                     "legs. Find them and ask after |cerrands|n."
                 )
+        # Round-two playtest finding 3: every path through this method
+        # eventually lands here, and until now it never named an
+        # alternative to the sanctioned catalog — a citizen who'd cleared
+        # it had no signal that circles or the underground exist as real
+        # options, not just flavor text. Catalog-first stays the design
+        # (a brand-new citizen still sees the clerk's chain before this);
+        # this only fires once there's nothing sanctioned left to offer.
         return (
-            "|cwork|n your post, |clisten|n where citizens queue, and "
-            "walk your |cmap|n. The Grid rewards the legible; other "
-            "parties reward other things, and chalk is cheap."
+            "you've done what the Grid asks, for now. |cwork|n your post, "
+            "|clisten|n where citizens queue, and walk your |cmap|n if "
+            "you want more of the same. Not everyone in Sector 9 answers "
+            "to the Grid, though: the underground trades in |cpapers|n "
+            "and |ccarry|n runs, and a |ccircle|n of trusted citizens "
+            "plays by its own rules entirely. |chelp the grid|n says more."
         )
 
 
@@ -197,7 +207,7 @@ class CmdGrade(Command):
     key = "grade"
     aliases = ["level", "rank", "merit"]
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "sector 9"
 
     def func(self):
         from world import grades
@@ -220,3 +230,20 @@ class CmdGrade(Command):
         from world.onboarding import acknowledge_first_use
 
         acknowledge_first_use(caller, "grade")
+
+
+class CmdLook(default_cmds.CmdLook):
+    """
+    Look at your location or an object.
+
+    Usage:
+      look
+      look <obj>
+
+    Same muscle-memory reasoning as `score` for `dossier` (v0.7): `x` is
+    the near-universal MUD shorthand for examine, and round-two's playtest
+    found it landing on nomatch's fuzzy-suggester instead of doing
+    anything (harmless, but not useful).
+    """
+
+    aliases = default_cmds.CmdLook.aliases + ["x"]

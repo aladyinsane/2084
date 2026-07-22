@@ -37,7 +37,7 @@ class CmdReport(Command):
 
     key = "report"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "sector 9"
 
     def func(self):
         from world import functions, records
@@ -77,6 +77,14 @@ class CmdReport(Command):
 
         acknowledge_first_use(caller, "report")
 
+        # Round-two playtest finding 4: `db.oriented` was only ever set by
+        # walking the Demonstration Corridor, so a citizen who deliberately
+        # skipped the Wing stayed on the beginner-abridged `help` card
+        # forever, contradicting CmdHelpStaged's own "nothing is ever
+        # locked" promise. Taking a function is the other unambiguous
+        # "I'm playing for real now" milestone, so it earns the same flag.
+        caller.db.oriented = True
+
 
 class CmdWork(Command):
     """
@@ -93,7 +101,7 @@ class CmdWork(Command):
 
     key = "work"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "sector 9"
 
     CASUAL_SHIFTS = [
         "You stamp permits until the stamp needs re-inking. Form 12-C, "
@@ -184,7 +192,7 @@ class CmdObserve(Command):
 
     key = "observe"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "sector 9"
 
     def func(self):
         caller = self.caller
@@ -258,7 +266,7 @@ class CmdListen(Command):
 
     key = "listen"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "sector 9"
 
     def func(self):
         from world import records
@@ -305,7 +313,7 @@ class CmdPetition(Command):
 
     key = "petition"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "sector 9"
 
     def _archivist(self):
         room = self.caller.location
@@ -475,7 +483,7 @@ class CmdApply(Command):
 
     key = "apply"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "sector 9"
 
     def func(self):
         from evennia.utils.evmenu import EvMenu
