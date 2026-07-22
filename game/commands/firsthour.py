@@ -16,6 +16,38 @@ stage what they show:
 
 from evennia import Command, default_cmds
 
+_WING_HINTS = {
+    "wing_ante": (
+        "you're in the Antechamber. Type |cmap|n to see the sector for "
+        "yourself, or ask the clerk beside you after |cerrands|n — they "
+        "have a use for a citizen's legs."
+    ),
+    "wing_watched": (
+        "you're in the Watched Life room. Type |cobserve|n right here — "
+        "see what the room is showing you before you're told."
+    ),
+    "wing_file": (
+        "you're in the File room. Type |cdossier|n to see your file for "
+        "the first time."
+    ),
+    "wing_civic": (
+        "you're in the Civic Life room. Type |cgrade|n to see where you "
+        "stand on the ladder before you continue."
+    ),
+}
+
+
+def _wing_hint(room):
+    """The Wing-specific nudge for the room a citizen is standing in, if
+    any — None outside the Wing, so the generic advice takes over."""
+    if not room:
+        return None
+    for tag, hint in _WING_HINTS.items():
+        if room.tags.get(tag, category="grid"):
+            return hint
+    return None
+
+
 _ABRIDGED = """\
 |w  THE PERMITTED FORMS OF ASSISTANCE (ABRIDGED)|n
 |=m  Issued to citizens not yet through orientation. The full index
@@ -95,6 +127,9 @@ class CmdNext(Command):
                     f"{spec['brief']}"
                 )
         if not caller.db.oriented:
+            hint = _wing_hint(caller.location)
+            if hint:
+                return hint
             return (
                 "complete your orientation. It waits EAST of the "
                 "Assignment Hall, it is five rooms long, and the Grid "
@@ -181,3 +216,7 @@ class CmdGrade(Command):
         else:
             lines.append("No further elevation is contemplated.")
         caller.msg("\n".join(lines))
+
+        from world.onboarding import acknowledge_first_use
+
+        acknowledge_first_use(caller, "grade")

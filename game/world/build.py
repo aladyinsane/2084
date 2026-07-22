@@ -164,11 +164,15 @@ ROOMS = {
         "  itself. The numbers in your prompt are yours: Vis is how\n"
         "  watched a place is (0-5). Exposure is how interesting you have\n"
         "  made yourself. Low numbers are a virtue.\n"
-        "  A citizen is expected to know their sector. Consult your own\n"
-        "  recollection at any time: |cmap|w. The Ministry issues no maps\n"
-        "  and is confident you will not need one.\n"
+        "  A citizen is expected to know their sector. |wTry it now|w: "
+        "type |cmap|w and see Sector 9 the way you will always see it "
+        "from here on. The Ministry issues no maps and is confident you "
+        "will not need one.\n"
         "  Proceed NORTH when ready. Type |chelp|w at any difficulty, "
-        "and |cnext|w whenever you are unsure what the Grid expects.|n",
+        "and |cnext|w whenever you are unsure what the Grid expects.|n\n\n"
+        "The clerk beside you is watching you read this, with the "
+        "particular patience of someone paid to. They have a use for a "
+        "citizen's legs, if you ask after |cerrands|w.",
     ),
     "o_watched": (
         "Orientation: The Watched Life",
@@ -180,10 +184,10 @@ ROOMS = {
         "of interest may be stopped and checked - cooperation clears you, "
         "and clearing is itself a credential. Citizens of |rgreat|w interest "
         "are detained for their protection.\n"
-        "  You may study any room's devices yourself: type |cobserve|w. "
-        "Attention is a skill. The Watch will not mind. The Watch does "
-        "not mind anything.|n\n\n"
-        "Continue NORTH.",
+        "  |wTry it now|w: type |cobserve|w, right here, and see what this "
+        "room is showing you before the placard tells you. Attention is a "
+        "skill. The Watch will not mind. The Watch does not mind anything.|n"
+        "\n\nContinue NORTH.",
     ),
     "o_file": (
         "Orientation: Your File",
@@ -192,12 +196,13 @@ ROOMS = {
         "child's handwriting exercise underneath: THE FILE IS MY FRIEND. "
         "A placard reads:\n\n"
         "|w  Everything of note about you is recorded at the Ministry of "
-        "Records. Type |cdossier|w to review your file at any time. Your "
-        "file is accurate. Incidents, once recorded, are part of you - "
-        "though the Ministry, in its generosity, hears petitions: visit "
-        "the archivist at the Archive Annex to |cpetition|w for corrections, "
-        "priced in standing you have earned. The Ministry forgets nothing "
-        "unless asked politely, in writing, for a consideration.|n\n\n"
+        "Records. |wTry it now|w: type |cdossier|w and meet your file for "
+        "the first time. Your file is accurate. Incidents, once recorded, "
+        "are part of you - though the Ministry, in its generosity, hears "
+        "petitions: visit the archivist at the Archive Annex to "
+        "|cpetition|w for corrections, priced in standing you have earned. "
+        "The Ministry forgets nothing unless asked politely, in writing, "
+        "for a consideration.|n\n\n"
         "Continue EAST.",
     ),
     "o_civic": (
@@ -214,9 +219,9 @@ ROOMS = {
         "queue and |clisten|w - hearing is not yet a crime. Merit accrues "
         "to the visibly useful, and merit is graded: every citizen holds a "
         "CIVIC GRADE, 6 down to 1, revised as the record warrants. Your "
-        "grade rides in your prompt; your |cdossier|w states the review "
-        "threshold. The Grid does not hide the ladder. The ladder is the "
-        "point. The |cgridwide|w "
+        "grade rides in your prompt. |wTry it now|w: type |cgrade|w and see "
+        "exactly where you stand and what moves you up. The Grid does not "
+        "hide the ladder. The ladder is the point. The |cgridwide|w "
         "channel carries the public voice of Sector 9; it is public in "
         "every direction. Citizens seeking direction may ask after "
         "|cerrands|w - your orientation clerk keeps a short list of "
@@ -469,6 +474,13 @@ def build():
     rooms["hall"].tags.add("workplace", category="grid")
     rooms["queue"].tags.add("gossip_spot", category="grid")
     rooms["plaza"].tags.add("assembly_point", category="grid")
+
+    # Hands-on orientation (v0.15): each Wing room short of the demonstration
+    # corridor is tagged for `next`'s Wing-specific hint (commands/firsthour.py).
+    rooms["o_ante"].tags.add("wing_ante", category="grid")
+    rooms["o_watched"].tags.add("wing_watched", category="grid")
+    rooms["o_file"].tags.add("wing_file", category="grid")
+    rooms["o_civic"].tags.add("wing_civic", category="grid")
 
     # The surveillance apparatus, in the world where it can be seen.
     for room_tag, key, desc, sensitivity, active in SENSORS:

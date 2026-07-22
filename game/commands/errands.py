@@ -129,3 +129,6 @@ class CmdErrands(Command):
             f"|w[Errand accepted: {spec['title']}]|n\n{spec['brief']}\n"
             f"|=mRisk: {spec['risk']}|n"
         )
+        from world.onboarding import acknowledge_first_use
+
+        acknowledge_first_use(caller, "errands")

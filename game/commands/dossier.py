@@ -112,3 +112,7 @@ class CmdDossier(Command):
         lines.append("|=m This file is accurate. This file has always been accurate.|n")
         lines.append("|=k" + "=" * width + "|n")
         caller.msg("\n".join(lines))
+
+        from world.onboarding import acknowledge_first_use
+
+        acknowledge_first_use(caller, "dossier")
