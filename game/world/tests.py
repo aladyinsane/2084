@@ -772,6 +772,49 @@ class TestTrust(EvenniaTest):
             any("Section C" in c for c in self._file_contents(self.char1))
         )
 
+    # --- reputation (ADR 0010) ------------------------------------------------
+
+    def test_judge_reads_a_citizens_completed_section_c_at_skill(self):
+        from world import tuning, watch
+
+        self._holding_cell()
+        self._circle_of_two()
+        self.char1.db.exposure = 60
+        watch.detain(self.char1)
+        self.char1.execute_cmd("confess names")
+
+        self.char2.db.skills = {"observation": tuning.OBSERVE_TIER_REPUTATION - 1}
+        blob = self._captured(self.char2, "judge Char")
+        self.assertIn("learned nothing", blob)
+
+        self.char2.db.skills = {"observation": tuning.OBSERVE_TIER_REPUTATION}
+        blob = self._captured(self.char2, "judge Char")
+        self.assertIn("Section C, completed", blob)
+
+    def test_judge_reads_a_citizens_clean_section_c(self):
+        from world import tuning, watch
+
+        self._holding_cell()
+        self._circle_of_two()
+        self.char1.db.exposure = 60
+        watch.detain(self.char1)
+        self.char1.execute_cmd("confess alone")
+
+        self.char2.db.skills = {"observation": tuning.OBSERVE_TIER_REPUTATION}
+        blob = self._captured(self.char2, "judge Char")
+        self.assertIn("kept faith", blob)
+
+    def test_judge_cannot_distinguish_no_record_from_a_redacted_one(self):
+        from world import tuning
+
+        # Never confessed: unreadable, same as an unreadable informant --
+        # the underground can't prove a negative any better than the
+        # Ministry can.
+        self.char1.db.skills = {"observation": tuning.OBSERVE_TIER_REPUTATION}
+        blob = self._captured(self.char1, "judge Char2")
+        self.assertIn("isn't in", blob)
+        self.assertNotIn("Section C", blob)
+
     # --- informants ---------------------------------------------------------
 
     def _informant(self, loyalty):

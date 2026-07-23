@@ -30,6 +30,16 @@ def _informant_here(caller, name):
     return target
 
 
+def _citizen_here(caller, name):
+    from typeclasses.characters import Character
+
+    target = caller.search(name, quiet=True)
+    target = target[0] if target else None
+    if not target or target is caller or not isinstance(target, Character):
+        return None
+    return target
+
+
 class CmdCircle(Command):
     """
     Your circle: the people who know your name and shouldn't.
@@ -305,15 +315,18 @@ class CmdRecruit(Command):
 
 class CmdJudge(Command):
     """
-    Take the measure of an informant.
+    Take the measure of an informant — or a fellow citizen.
 
     Usage:
       judge <someone>
 
     Loyalty is not written on a face, but faces leak. What you get depends
-    entirely on how well you have learned to look (the |cobserve|n skill):
-    most citizens get nothing; a practiced eye reads demeanor; a trained
-    one reads the truth.
+    entirely on how well you have learned to look (the |cobserve|n skill).
+    Against an informant: most citizens get nothing; a practiced eye reads
+    demeanor; a trained one reads the truth. Against a fellow citizen the
+    bar is higher — you are not reading a demeanor, you are reading whether
+    their file remembers a Section C, and files remember for a long time
+    (ADR 0010).
     """
 
     key = "judge"
@@ -324,9 +337,17 @@ class CmdJudge(Command):
     def func(self):
         caller = self.caller
         target = _informant_here(caller, self.args)
+        if target:
+            self._judge_informant(caller, target)
+            return
+        target = _citizen_here(caller, self.args)
         if not target:
             caller.msg("They are exactly what they appear to be, or you can't tell.")
             return
+        self._judge_citizen(caller, target)
+
+    @staticmethod
+    def _judge_informant(caller, target):
         skill = caller.skill("observation")
         if skill < tuning.OBSERVE_TIER_STATUS:
             caller.msg(
@@ -356,6 +377,51 @@ class CmdJudge(Command):
                     "|gThey are what they seem: the street's, and "
                     "nobody's else.|n"
                 )
+        caller.improve_skill("observation")
+
+    @staticmethod
+    def _judge_citizen(caller, target):
+        # ADR 0010: reading a citizen's actual file is a bigger claim than
+        # reading an informant's demeanor, so the bar sits above the
+        # informant tiers entirely rather than reusing OBSERVE_TIER_STATUS.
+        if caller.skill("observation") < tuning.OBSERVE_TIER_REPUTATION:
+            caller.msg(
+                f"You watch {target.key} for as long as you dare. They are "
+                "a person, standing there. You have learned nothing, "
+                "including how much there was to learn."
+            )
+            caller.improve_skill("observation")
+            return
+        from world import records
+
+        incidents = records.records_for(target, kind="incident", include_redacted=False)
+        verdict = None
+        for rec in reversed(incidents):  # most recent first
+            if rec.tags.get("section_c_complete", category=records.BETRAYAL_TAG_CATEGORY):
+                verdict = "complete"
+                break
+            if rec.tags.get("section_c_clean", category=records.BETRAYAL_TAG_CATEGORY):
+                verdict = "clean"
+                break
+        if verdict == "complete":
+            caller.msg(
+                f"You assemble {target.key} slowly, and the pieces don't "
+                "agree with each other.\n"
+                "|rSection C, completed. Whatever they signed, someone "
+                "else walked free on it.|n"
+            )
+        elif verdict == "clean":
+            caller.msg(
+                f"You assemble {target.key} slowly, and the pieces agree "
+                "with each other.\n"
+                "|gThey've been asked before, and kept faith.|n"
+            )
+        else:
+            caller.msg(
+                f"You watch {target.key} the way you have learned to "
+                "watch people. Whatever their file holds, it isn't in "
+                "their face."
+            )
         caller.improve_skill("observation")
 
 
