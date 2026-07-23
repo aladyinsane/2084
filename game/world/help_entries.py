@@ -47,6 +47,29 @@ HELP_ENTRY_DICTS = [
         """,
     },
     {
+        "key": "sweep",
+        "aliases": ["watch", "the watch"],
+        "category": _CATEGORY,
+        "text": """
+            The Watch does not see everyone at once. It samples.
+
+            On an interval, the Grid rolls each connected citizen above a
+            floor of Exposure (|chelp exposure|n) for its attention. The
+            chance of being picked rises with how interesting you currently
+            are — nobody, at the bottom, is never sampled at all; the
+            hottest citizens are caught most tries, not every try. A sweep
+            that selects you means a papers check if you are middling,
+            detainment if you are hot enough. Patrols work the same
+            arithmetic in the street, in real time, on sight.
+
+            It is never certain and never omniscient — the Grid is
+            probability, not a scripted trap. What *is* certain: the trend.
+            Exposure that keeps climbing keeps the odds climbing with it,
+            and the prompt tells you which way it is moving before
+            anything does.
+        """,
+    },
+    {
         "key": "visibility",
         "aliases": ["vis"],
         "category": _CATEGORY,
@@ -87,14 +110,15 @@ HELP_ENTRY_DICTS = [
 
             The short version of everything:
 
-            - Your prompt shows |wVisibility|n (how watched this place is;
-              |chelp visibility|n) and |wExposure|n (how interesting you
-              are; |chelp exposure|n).
+            - Your prompt shows |wGrade|n (the Grid's one-number opinion of
+              you; |chelp grade|n), |wVisibility|n (how watched this place
+              is; |chelp visibility|n), and |wExposure|n (how interesting
+              you are; |chelp exposure|n).
             - Your |cdossier|n (or |cscore|n) is what the state says you
               are. It is not necessarily what happened. That distinction
               is most of the game.
             - Sanctioned life: |creport|n for a function, |cwork|n your
-              post, earn |chelp standing|n, |cpetition|n corrections,
+              post, earn |cstanding|n, |cpetition|n corrections,
               |capply|n for clearance, attend assemblies when the
               loudspeakers say so.
             - The rest of life is taught elsewhere. Rooms explain

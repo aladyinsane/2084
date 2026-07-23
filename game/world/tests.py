@@ -70,6 +70,25 @@ class TestDossier(EvenniaCommandTest):
         self.assertIn("Standing with institutions:", output)
         self.assertIn("none recorded yet", output)
 
+    def test_consecutive_repeats_collapse_with_a_count(self):
+        """Round-two playtest finding 7: 35 duplicate absence incidents in
+        a row. Consecutive repeats should roll up; non-consecutive ones
+        (interrupted by a different incident) should not."""
+        from world import records
+
+        records.add_record(self.char1, "Absent from mandatory civic assembly")
+        records.add_record(self.char1, "Absent from mandatory civic assembly")
+        records.add_record(self.char1, "Absent from mandatory civic assembly")
+        records.add_record(self.char1, "Papers checked in the street; cleared.")
+        records.add_record(self.char1, "Absent from mandatory civic assembly")
+        output = self.call(CmdDossier(), "")
+        self.assertIn(
+            "1-3. Absent from mandatory civic assembly (3)", output
+        )
+        self.assertIn("4. Papers checked in the street; cleared.", output)
+        self.assertIn("5. Absent from mandatory civic assembly", output)
+        self.assertNotIn("5. Absent from mandatory civic assembly (", output)
+
 
 class TestWatch(EvenniaTest):
     """v0.2: sensors, sweep, detainment, release."""
@@ -2023,10 +2042,10 @@ class TestGrades(EvenniaTest):
     def test_prompt_and_dossier_show_the_ladder(self):
         from world import grades
 
-        self.assertIn("G6", self.char1.get_prompt())
+        self.assertIn("Grade:6", self.char1.get_prompt())
         self.char1.db.oriented = True
         grades.check_reclassification(self.char1)
-        self.assertIn("G5", self.char1.get_prompt())
+        self.assertIn("Grade:5", self.char1.get_prompt())
         old_msg = self.char1.msg
         captured = []
         self.char1.msg = lambda text="", **kw: captured.append(str(text))
