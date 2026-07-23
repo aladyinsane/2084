@@ -63,6 +63,13 @@ class TestDossier(EvenniaCommandTest):
         self.assertIn("CITIZEN FILE", output)
         self.assertIn("Exposure", output)
 
+    def test_standing_shown_as_none_recorded_at_zero(self):
+        """Round-two playtest finding 2: the line vanished entirely at
+        zero, so a new citizen had no way to learn "standing" existed."""
+        output = self.call(CmdDossier(), "")
+        self.assertIn("Standing with institutions:", output)
+        self.assertIn("none recorded yet", output)
+
 
 class TestWatch(EvenniaTest):
     """v0.2: sensors, sweep, detainment, release."""
@@ -2096,6 +2103,42 @@ class TestFirstHour(EvenniaTest):
     def test_quests_alias_reaches_errands(self):
         text = self._capture(self.char1, "quests")
         self.assertIn("errand", text.lower())
+
+    def test_next_names_alternatives_once_catalog_exhausted(self):
+        """Round-two playtest finding 3: the fallback used to be vague."""
+        from world import errands, functions
+
+        self.char1.db.oriented = True
+        functions.assign_function(self.char1)
+        self.char1.db.errands_done = list(errands.ERRANDS.keys())
+        text = self._capture(self.char1, "next")
+        self.assertIn("underground", text)
+        self.assertIn("circle", text)
+
+    def test_report_sets_oriented(self):
+        """Round-two playtest finding 4: skippers were locked out of `help`
+        forever. Taking a function is the other real milestone."""
+        self.room1.tags.add("workplace", category="grid")
+        self.assertFalse(self.char1.db.oriented)
+        self.char1.execute_cmd("report")
+        self.assertTrue(self.char1.db.oriented)
+
+    def test_x_is_an_alias_for_look(self):
+        text = self._capture(self.char1, "x")
+        self.assertIn(self.room1.key, text)
+
+    def test_help_the_grid_reaches_the_entry_not_a_category_listing(self):
+        """Round-two playtest finding 1: key/category collision. "sector 9"
+        dropped as an alias here since it's now the shared category name
+        for this whole file — see help_entries.py's comment."""
+        for cmd in ("help the grid", "help 2084", "help basics"):
+            text = self._capture(self.char1, cmd)
+            self.assertIn("not a game about killing things", text)
+
+    def test_help_standing_exists(self):
+        """Round-two playtest finding 2: no help coverage at all."""
+        text = self._capture(self.char1, "help standing")
+        self.assertIn("institution", text.lower())
 
 
 class TestGridHearsYou(EvenniaTest):

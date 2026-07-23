@@ -29,7 +29,7 @@ class CmdDossier(Command):
     # "show me my character" — it should land somewhere useful (v0.7).
     aliases = ["file", "record", "score"]
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "sector 9"
 
     def func(self):
         from world import grades, records, tuning
@@ -84,6 +84,12 @@ class CmdDossier(Command):
             lines.extend(
                 f"   {faction}: {value}" for faction, value in sorted(influence.items())
             )
+        else:
+            # Round-two playtest finding 2: a new citizen had no way to
+            # even learn "standing" is a concept until they'd already
+            # earned some. Naming it here, at zero, is the fix; `help
+            # standing` explains what it is and how it moves.
+            lines.append(" Standing with institutions: |=mnone recorded yet|n")
 
         incidents = records.records_for(caller, kind="incident")
         visible = [

@@ -87,7 +87,7 @@ class CmdList(Command):
     key = "list"
     aliases = ["wares", "browse"]
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "sector 9"
 
     def func(self):
         caller = self.caller
@@ -129,7 +129,7 @@ class CmdBuy(Command):
 
     key = "buy"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "sector 9"
 
     def func(self):
         from evennia import create_object
@@ -199,7 +199,7 @@ class CmdWear(Command):
 
     key = "wear"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "sector 9"
 
     def func(self):
         from typeclasses.gear import Gear, worn_gear
@@ -240,7 +240,7 @@ class CmdRemoveGear(Command):
 
     key = "remove"
     locks = "cmd:all()"
-    help_category = "the grid"
+    help_category = "sector 9"
 
     def func(self):
         from typeclasses.gear import worn_gear

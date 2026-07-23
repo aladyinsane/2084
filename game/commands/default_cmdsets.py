@@ -35,7 +35,7 @@ from commands.civic import (
 )
 from commands.dossier import CmdDossier
 from commands.errands import CmdErrands
-from commands.firsthour import CmdGrade, CmdHelpStaged, CmdNext
+from commands.firsthour import CmdGrade, CmdHelpStaged, CmdLook, CmdNext
 from commands.gear import CmdBuy, CmdList, CmdRemoveGear, CmdWear
 from commands.map import CmdMap
 from commands.nomatch import CmdNoMatch
@@ -92,6 +92,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdRemoveGear())
         self.add(CmdHelpStaged())
         self.add(CmdNext())
+        self.add(CmdLook())
         self.add(CmdGrade())
         self.add(CmdNoMatch())
 
