@@ -5,6 +5,7 @@ docs/research/sources/
 # Local credentials / scratch notes / Claude instructions
 dev-notes.md
 CLAUDE.md
+*.key*
 
 # Python / Evennia
 .venv/
@@ -16,3 +17,6 @@ game/server/*.db3
 game/server/logs/
 game/server/.media/
 game/server/conf/secret_settings.py
+
+# Files related to cloud hosting setup/admin, public deployment, etc.
+deploy/
