@@ -156,6 +156,20 @@ ASSEMBLY_REST_TICKS = 8  # ~16 min between assemblies
 ASSEMBLY_ATTEND_RELIEF = 5
 ASSEMBLY_ABSENT_EXPOSURE = 10
 
+# The idler-farming fix (known risk since v0.12, closed by the round-two
+# playtest's evidence — a citizen left connected overnight accrued 35
+# duplicate incidents). Three combined, per Lauren's call:
+# 1. A citizen whose session has been silent longer than this is skipped
+#    entirely (present or absent) — the roll can't fault someone away
+#    from the keyboard for missing a call it never really reached.
+ASSEMBLY_ACTIVE_WINDOW = 600  # seconds
+# 2. Consecutive unexcused absences stop generating incidents past this
+#    many in a row — the Office of Assemblies assumes hospitalization
+#    rather than filing forever. Resets to zero on the next attendance.
+ASSEMBLY_ABSENCE_CAP = 5
+# 3. A citizen registered after an assembly was announced never heard the
+#    announcement and is excused from that roll — see AssemblyScript.
+
 # --- v0.6: the grind (ADR 0008) --------------------------------------------
 
 # Sabotage: chance ramps with the skill; failure is an incident and heat.

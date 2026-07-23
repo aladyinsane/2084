@@ -265,6 +265,13 @@ class AssemblyScript(Script):
 
     State machine on a fixed tick: rest for ASSEMBLY_REST_TICKS, announce,
     then take attendance one tick later.
+
+    The idler-farming fix (known risk since v0.12; round-two playtest
+    found it still compounding — 35 duplicate incidents in one dossier):
+    a citizen silent longer than ASSEMBLY_ACTIVE_WINDOW is skipped
+    entirely, a citizen registered after the announcement is excused, and
+    consecutive unexcused absences stop generating incidents past
+    ASSEMBLY_ABSENCE_CAP in a row.
     """
 
     def at_script_creation(self):
@@ -276,6 +283,7 @@ class AssemblyScript(Script):
         self.persistent = True
         self.db.rest = tuning.ASSEMBLY_REST_TICKS
         self.db.announced = False
+        self.db.announced_at = None
 
     @staticmethod
     def _assembly_point():
@@ -294,6 +302,18 @@ class AssemblyScript(Script):
             if char.has_account and char.sessions.count()
         ]
 
+    @staticmethod
+    def _is_active(char):
+        import time
+
+        from world import tuning
+
+        now = time.time()
+        return any(
+            now - getattr(session, "cmd_last", now) <= tuning.ASSEMBLY_ACTIVE_WINDOW
+            for session in char.sessions.all()
+        )
+
     def at_repeat(self):
         from evennia.utils import logger
 
@@ -309,6 +329,9 @@ class AssemblyScript(Script):
             if rest > 0:
                 return
             self.db.announced = True
+            import time
+
+            self.db.announced_at = time.time()
             minutes = max(1, tuning.ASSEMBLY_TICK // 60)
             for char in self._citizens():
                 char.msg(
@@ -324,12 +347,17 @@ class AssemblyScript(Script):
         # Roll call.
         self.db.announced = False
         self.db.rest = tuning.ASSEMBLY_REST_TICKS
+        announced_at = self.db.announced_at
         from world import records
 
         present, absent = [], []
         for char in self._citizens():
             if watch.is_detained(char):
                 continue  # the Ministry knows exactly where you are
+            if announced_at and char.date_created.timestamp() > announced_at:
+                continue  # registered after the announcement: never heard it
+            if not self._is_active(char):
+                continue  # away from the keyboard too long to fault
             (present if char.location == point else absent).append(char)
 
         point.msg_contents(
@@ -338,6 +366,7 @@ class AssemblyScript(Script):
             "a roll completes itself."
         )
         for char in present:
+            char.db.consecutive_absences = 0
             records.add_record(
                 char,
                 "Attended civic assembly",
@@ -355,6 +384,12 @@ class AssemblyScript(Script):
 
                 errands.check(char, "attend")
         for char in absent:
+            streak = (char.db.consecutive_absences or 0) + 1
+            char.db.consecutive_absences = streak
+            if streak > tuning.ASSEMBLY_ABSENCE_CAP:
+                # Already assumed hospitalized; the Grid stops counting
+                # until the next attendance resets the streak.
+                continue
             records.add_record(
                 char,
                 "Absent from mandatory civic assembly",
@@ -362,11 +397,19 @@ class AssemblyScript(Script):
                 kind="incident",
             )
             char.gain_exposure(tuning.ASSEMBLY_ABSENT_EXPOSURE)
-            char.msg(
-                "|yFar away, a roll is read, and a silence occurs where "
-                "your name is.|n Absence is the one thing the Grid can "
-                "see anywhere."
-            )
+            if streak == tuning.ASSEMBLY_ABSENCE_CAP:
+                char.msg(
+                    "|yFar away, a roll is read, and a silence occurs where "
+                    "your name is.|n Absence is the one thing the Grid can "
+                    "see anywhere. |=mThe Office of Assemblies will assume "
+                    "hospitalization from here; it stops asking.|n"
+                )
+            else:
+                char.msg(
+                    "|yFar away, a roll is read, and a silence occurs where "
+                    "your name is.|n Absence is the one thing the Grid can "
+                    "see anywhere."
+                )
             char.send_prompt()
         logger.log_info(
             f"watchlog: assembly roll — {len(present)} present, "

@@ -863,6 +863,60 @@ class TestTrust(EvenniaTest):
         script.stop()
         watch.release(self.char1)
 
+    def test_absence_cap_stops_the_incident_flood(self):
+        """The idler-farming fix (known risk since v0.12; round-two
+        playtest found it still compounding — 35 duplicate incidents in
+        one dossier). Consecutive unexcused absences stop generating
+        incidents past the cap."""
+        script = self._assembly()
+        self.char1.db.exposure = 0
+        for _ in range(tuning.ASSEMBLY_ABSENCE_CAP + 3):
+            script.db.announced = True
+            script.at_repeat()
+        incidents = [
+            c
+            for c in self._file_contents(self.char1)
+            if "Absent from mandatory civic assembly" in c
+        ]
+        self.assertEqual(len(incidents), tuning.ASSEMBLY_ABSENCE_CAP)
+        script.stop()
+
+    def test_inactive_session_is_excused_not_absent(self):
+        """A citizen whose session has gone quiet longer than the active
+        window can't be faulted for missing a roll it never really
+        reached."""
+        import time
+
+        script = self._assembly()
+        session = self.char1.sessions.all()[0]
+        session.cmd_last = time.time() - tuning.ASSEMBLY_ACTIVE_WINDOW - 10
+        script.db.announced = True
+        script.at_repeat()
+        self.assertFalse(
+            any(
+                "Absent from mandatory civic assembly" in c
+                for c in self._file_contents(self.char1)
+            )
+        )
+        script.stop()
+
+    def test_registered_after_announcement_is_excused(self):
+        """A citizen who signed up after the loudspeakers spoke never
+        heard them."""
+        import time
+
+        script = self._assembly()
+        script.db.announced = True
+        script.db.announced_at = time.time() - 1000  # long before setUp
+        script.at_repeat()
+        self.assertFalse(
+            any(
+                "Absent from mandatory civic assembly" in c
+                for c in self._file_contents(self.char1)
+            )
+        )
+        script.stop()
+
     # --- the honeypot -------------------------------------------------------
 
     def _honeypot(self):
