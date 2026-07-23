@@ -274,6 +274,37 @@ class TestRecords(EvenniaTest):
         )
         self.assertTrue(records.incident_by_number(self.char1, 2).db.redacted)
 
+    def test_number_is_assigned_at_creation_not_derived_from_position(self):
+        """ADR 0011 prerequisite: the number lives on the record itself
+        (`db.number`), assigned from the subject's own counter, rather than
+        being computed live from list position — the latter is only stable
+        as long as nothing is ever deleted, which compaction will do."""
+        from world import records
+
+        first = self._incident("First")
+        second = self._incident("Second")
+        self.assertEqual(first.db.number, 1)
+        self.assertEqual(second.db.number, 2)
+        # Deleting the object a naive positional scheme would call "#1"
+        # doesn't renumber what's left — #2 stays #2.
+        first.delete()
+        self.assertEqual(
+            records.incident_by_number(self.char1, 2).db.content, "Second"
+        )
+
+    def test_numbering_is_per_subject(self):
+        from world import records
+
+        self._incident("char1's only incident")
+        other = records.add_record(self.char2, "char2's first incident")
+        self.assertEqual(other.db.number, 1)
+
+    def test_only_incidents_are_numbered(self):
+        from world import records
+
+        rec = records.add_record(self.char1, "A movement log", kind="observation")
+        self.assertIsNone(rec.db.number)
+
 
 class TestCivic(EvenniaTest):
     """v0.3: work, observe, listen, petition, forge."""

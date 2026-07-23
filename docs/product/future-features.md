@@ -73,6 +73,25 @@ Losing your name, your record, your access; rebuilding from nothing. The setting
 darkest promise, and mechanically adjacent to ADR 0005's audit trail.
 **Why not now:** it's the *end* of the record-vs-truth tech tree, not the start.
 
+### Doublethink: seeing the Ministry's edits *(from ADR 0011, 2026-07-23)*
+Lauren's framing: a citizen with high enough Underground standing should eventually be
+able to *see* the gap between what their file says and what actually happened — the
+Ministry's redactions and edits made visible, in the spirit of 1984's doublethink
+(holding the official record and the acknowledged truth at once). [ADR
+0011](../decisions/0011-old-incidents-compact-the-file-forgets-faster-than-the-truth-does.md)
+(record compaction) was deliberately built with this in mind: a compacted incident
+summary keeps a `true_count` that no game action ever lowers, alongside the
+`visible_count` that `petition`/`forge` can, specifically so this feature has real
+per-citizen, per-incident-type data to read from once it exists — not because it's
+being built now.
+**Undesigned:** what the reveal actually looks like (a command? gated behind `word`/the
+shadow ladder tiers, or its own threshold? passive or something you have to ask for?),
+what stops it from just handing a high-standing citizen the whole game's secrets
+cheaply, and whether it should apply to your own file only or to others' too — the
+latter would make it a second, sharper edge on ADR 0010's reputation-travels idiom.
+**Why not now:** ADR 0011 needs to ship and settle first; this is real design work in
+its own right once it does, likely its own ADR.
+
 ### Deprogramming as re-education *(from 3M field research)*
 3rd Millennium sells voluntary skill deletion (wired chairs, 150k credits — steep on
 purpose). Invert the consent and it's ours: detainment outcomes that *remove recorded
