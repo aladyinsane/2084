@@ -13,6 +13,32 @@ nobody's business.
 from evennia import Command
 
 
+def _incident_lines(visible):
+    """
+    One line per incident, except runs of *consecutive* identical entries
+    collapse into one line with a number range and a count (the assembly-
+    absence farm is the case this exists for: 35 duplicate lines in a row,
+    round-two playtest finding 7). Non-consecutive repeats stay separate —
+    collapsing across the whole file, not just a run, would erase exactly
+    the numbering the redaction gap depends on to be visible.
+    """
+    lines = []
+    i = 0
+    while i < len(visible):
+        number, rec = visible[i]
+        content = rec.db.content
+        j = i + 1
+        while j < len(visible) and visible[j][1].db.content == content:
+            j += 1
+        run = visible[i:j]
+        if len(run) == 1:
+            lines.append(f"   {number}. {content}")
+        else:
+            lines.append(f"   {number}-{run[-1][0]}. {content} ({len(run)})")
+        i = j
+    return lines
+
+
 class CmdDossier(Command):
     """
     Request your own citizen file from the Ministry of Records.
@@ -99,9 +125,7 @@ class CmdDossier(Command):
         ]
         if visible:
             lines.append(" Incidents on record:")
-            lines.extend(
-                f"   {number}. {rec.db.content}" for number, rec in visible
-            )
+            lines.extend(_incident_lines(visible))
         elif incidents:
             # Everything redacted: the file is clean in the way a scrubbed
             # floor is clean.

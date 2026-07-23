@@ -81,7 +81,8 @@ class Character(ObjectParent, DefaultCharacter):
         # how watched here is, and how hot they are. "Exposure" and
         # "Visibility" are spelled out because "Exp"/"Vis" read as
         # experience points and an ability score to every MUD veteran
-        # (first-human-playtest finding #3).
+        # (first-human-playtest finding #3). "Grade" is spelled out too,
+        # same reasoning — "G5" reads as a stat abbreviation, not a name.
         from typeclasses.gear import room_exposure_delta
         from world import grades, tuning
         from world.colors import VIS_COLORS, exposure_color
@@ -111,7 +112,7 @@ class Character(ObjectParent, DefaultCharacter):
         self.db.last_prompt_exposure = exposure
 
         return (
-            f"|=m[|nG{grades.grade_of(self)} "
+            f"|=m[|nGrade:{grades.grade_of(self)} "
             f"Visibility:{vis_text} "
             f"Exposure:{exposure_color(exposure)}{exposure}|n{trend}|=m]|n > "
         )
