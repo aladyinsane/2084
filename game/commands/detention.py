@@ -85,6 +85,7 @@ class CmdConfess(Command):
                     "Processing is immediate. Both stamps land together. "
                     "Someone has already brought your coat."
                 ),
+                tag="section_c_complete",
             )
         else:
             watch.add_record_note(
@@ -106,6 +107,7 @@ class CmdConfess(Command):
                     "purpose. Eventually: a stamp, your bootlaces, the door."
                 ),
                 exposure=tuning.RELEASE_EXPOSURE_UNCOOPERATIVE,
+                tag="section_c_clean",
             )
 
 

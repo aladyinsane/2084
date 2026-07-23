@@ -125,6 +125,13 @@ Grid's own materials. **Options, not decisions** — an ADR happens when one is 
    learning-curve response — the combat-shaped answer if v0.12–v0.13 don't
    flatten the curve enough. Lauren decides after the retiled first hour is
    measured; see [the-first-hour.md](../research/the-first-hour.md) §4.)*
+   *(Update 2026-07-23: Lauren's call — **stays parked**. The gate was met
+   without it: v0.13's own measurement (parsons, Grade 4 in ~3 driven minutes,
+   zero dead ends) and the round-two playtest's twelve live sessions across ten
+   personas plus two fresh accounts surfaced zero "wants combat" or "feels
+   dull" findings — every remaining round-two finding was legibility polish,
+   not a missing system. Revisit only if a real playtest explicitly names
+   wanting a combat-shaped loop.)*
 4. **Records archaeology.** Grinding the archive itself: `research` at the Annex
    surfaces fragments; assembling a story about an unperson pays influence jackpots.
    The rare-drop table is narrative.
@@ -145,9 +152,12 @@ doubt.
 betrayal mechanics against the repeated-prisoner's-dilemma literature and named four
 gaps, in leverage order:
 
-1. **Reputation must travel.** A Section C signer can currently walk into a new circle
-   whose members never read his file. Fix: `judge` works on citizens too, reading
-   betrayal-shaped file entries at sufficient observation skill — earned, diegetic.
+1. ~~**Reputation must travel.**~~ **Shipped 2026-07-23** —
+   [ADR 0010](../decisions/0010-reputation-travels-judge-reads-citizens.md). `judge`
+   now works on citizens too, reading a Section C tag at `tuning.OBSERVE_TIER_REPUTATION`
+   observation — earned, diegetic, same idiom as the informant version. Revisit
+   triggers named in the ADR: nobody thinking to check before inviting, or the
+   permanent-stain read discouraging `confess names` even when it's the right call.
 2. **Escalating circle projects.** Joint errand chains with growing pots, so continued
    membership is worth more than one defection pays. The stash starts this; projects
    finish it.
@@ -217,23 +227,20 @@ fails. Principle 3 stakes our answer on trend-legibility (prompt, patrols, NPC c
 **What tells us it's happening:** playtesters describing a detainment as "out of
 nowhere." Any single such report outweighs our intuition.
 
-### Idlers are farmed for incidents
-*Found in the v0.12 playtest.*
+### ~~Idlers are farmed for incidents~~ — FIXED (2026-07-22, `fix/assembly-idler-policy`)
 
-The assembly roll penalizes every connected, undetained citizen who isn't at
-the plaza — including someone who left the client open overnight (claude
-accrued 35 absence incidents and their exposure ticked up all night). MUD
-players idle as a way of life; punishing the open window punishes presence
-itself, and a returning player finds a file full of absences they never
-chose. Candidate fixes when revisited: only roll citizens active within the
-last N minutes, or cap consecutive unexcused absences ("the Office of
-Assemblies assumes hospitalization"). The v0.13 playtest sharpened it: a
-citizen two minutes old (parsons) was fined for missing an assembly
-*announced before the account existed* — the roll should at minimum excuse
-anyone registered after the announcement. Not changed unilaterally because
-absence-as-data is a designed pillar (M8) — the fix needs a decision about
-what idling *means* in-fiction. **What tells us it's urgent:** any real
-player mentioning they got detained after stepping away for dinner.
+*Found in the v0.12 playtest; fixed after round-two evidence (claude's dossier hit 35
+consecutive duplicate absence incidents, still compounding live).* All three
+previously-parked candidate fixes shipped together, per Lauren's call: (1) a citizen
+whose session has gone quiet longer than `tuning.ASSEMBLY_ACTIVE_WINDOW` (10 min) is
+skipped from the roll entirely; (2) consecutive unexcused absences stop generating new
+incidents past `tuning.ASSEMBLY_ABSENCE_CAP` (5) in a row, resetting on next
+attendance; (3) a citizen who registered after an assembly was announced (tracked via
+`announced_at`) is excused from that roll. Absence-as-data (M8) stays intact for
+present, active players — this only stops penalizing the away-from-keyboard case.
+Not yet re-verified against a live roll call end-to-end (a real player was connected
+during the fix and forcing a roll would have paged them mid-session) — worth a
+targeted live check next time an assembly fires with an idle test account nearby.
 
 ### Classless convergence
 *From [ADR 0002](../decisions/0002-no-race-no-class.md).*

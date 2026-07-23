@@ -40,12 +40,14 @@ def set_alert(value):
     return value
 
 
-def add_record_note(char, note):
+def add_record_note(char, note, tag=None):
     """Open an incident in the citizen's file (the real ADR 0005 record layer
     replaced the v0.2 string-list stub here)."""
     from world import records
 
-    records.add_record(char, note, author="Ministry of Order", kind="incident")
+    records.add_record(
+        char, note, author="Ministry of Order", kind="incident", tag=tag
+    )
 
 
 def is_detained(char):
@@ -94,7 +96,7 @@ def detain(char, reason="routine sweep"):
     return True
 
 
-def release(char, note="Released.", farewell=None, exposure=None):
+def release(char, note="Released.", farewell=None, exposure=None, tag=None):
     """Return a citizen to the street, changed."""
     from world import functions
 
@@ -102,7 +104,7 @@ def release(char, note="Released.", farewell=None, exposure=None):
     char.tags.remove("detained", category="status")
     char.db.detained_wait = 0
     char.db.exposure = tuning.RELEASE_EXPOSURE if exposure is None else exposure
-    add_record_note(char, note)
+    add_record_note(char, note, tag=tag)
     # A detained citizen's function is suspended on release — your "class"
     # is the regime's to give and the regime's to shelve (ADR 0002).
     if functions.suspend_function(char):

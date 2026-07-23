@@ -19,8 +19,13 @@ from evennia.utils.search import search_object_by_tag
 
 SUBJECT_TAG_CATEGORY = "record_subject"
 
+# ADR 0010: a marker on the record object itself, set once at creation,
+# untouched by amend()/redact() — so `judge` reads what actually happened
+# instead of pattern-matching prose that's free to be rewritten later.
+BETRAYAL_TAG_CATEGORY = "betrayal"
 
-def add_record(subject, content, author="Ministry of Order", kind="incident"):
+
+def add_record(subject, content, author="Ministry of Order", kind="incident", tag=None):
     """Open a new entry in a citizen's file."""
     record = create_object(
         "typeclasses.records.Record",
@@ -31,6 +36,8 @@ def add_record(subject, content, author="Ministry of Order", kind="incident"):
     record.db.kind = kind
     record.db.content = content
     record.tags.add(str(subject.id), category=SUBJECT_TAG_CATEGORY)
+    if tag:
+        record.tags.add(tag, category=BETRAYAL_TAG_CATEGORY)
     record.db.audit.append(
         {"at": time.time(), "actor": author, "action": "created", "content": content}
     )

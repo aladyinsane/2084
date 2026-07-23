@@ -279,3 +279,9 @@ GRADE_MERIT_ORIENTATION = 4  # walking the Demonstration Corridor — sized to
 # was the same leak, shipped unnoticed since v0.3).
 UNSANCTIONED_SKILLS = ("forgery", "sabotage", "couriering")
 UNSANCTIONED_FACTIONS = (UNDERGROUND,)
+
+# --- ADR 0010: reputation travels -------------------------------------------
+
+# `judge` reading a fellow citizen's Section C history is a bigger claim than
+# reading an NPC's demeanor, so the bar sits above OBSERVE_TIER_DETAIL.
+OBSERVE_TIER_REPUTATION = 40
