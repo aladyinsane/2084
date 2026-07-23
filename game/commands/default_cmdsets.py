@@ -39,7 +39,13 @@ from commands.firsthour import CmdGrade, CmdHelpStaged, CmdNext
 from commands.gear import CmdBuy, CmdList, CmdRemoveGear, CmdWear
 from commands.map import CmdMap
 from commands.nomatch import CmdNoMatch
-from commands.underground import CmdCarry, CmdDeliver, CmdPapers, CmdSabotage
+from commands.underground import (
+    CmdCarry,
+    CmdDeliver,
+    CmdPapers,
+    CmdSabotage,
+    CmdWord,
+)
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
@@ -77,6 +83,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdCarry())
         self.add(CmdDeliver())
         self.add(CmdPapers())
+        self.add(CmdWord())
         self.add(CmdMap())
         self.add(CmdErrands())
         self.add(CmdList())

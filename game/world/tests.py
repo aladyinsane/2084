@@ -1806,6 +1806,49 @@ class TestTheGrind(EvenniaTest):
             (self.char1.db.influence or {}).get(tuning.UNDERGROUND), 0
         )
 
+    # --- the shadow ladder (ADR 0009) ----------------------------------------
+
+    def _capture(self, char, cmd):
+        captured = []
+        old_msg = char.msg
+        char.msg = lambda text="", **kw: captured.append(str(text))
+        try:
+            char.execute_cmd(cmd)
+        finally:
+            char.msg = old_msg
+        return "\n".join(captured)
+
+    def test_shadow_standing_names_tiers_and_the_gap(self):
+        from world import tuning, underground
+
+        self.char1.db.influence = {tuning.UNDERGROUND: 0}
+        standing, tier, next_tier, threshold = underground.shadow_standing(self.char1)
+        self.assertEqual(tier, "a face nobody's placed yet")
+        self.assertEqual(next_tier, "a runner")
+        self.assertEqual(threshold, 5)
+
+        self.char1.db.influence = {tuning.UNDERGROUND: 45}
+        standing, tier, next_tier, threshold = underground.shadow_standing(self.char1)
+        self.assertEqual(tier, "one of the old hands")
+        self.assertIsNone(next_tier)
+        self.assertIsNone(threshold)
+
+    def test_word_deflects_in_a_watched_room(self):
+        from world import tuning
+
+        self.room1.db.visibility = tuning.SHADOW_LADDER_MAX_VISIBILITY + 1
+        text = self._capture(self.char1, "word")
+        self.assertIn("Not here", text)
+
+    def test_word_names_the_tier_somewhere_dark(self):
+        from world import tuning
+
+        self.room1.db.visibility = 0
+        self.char1.db.influence = {tuning.UNDERGROUND: 7}
+        text = self._capture(self.char1, "word")
+        self.assertIn("a runner", text)
+        self.assertIn("reliable", text)
+
 
 class TestGrades(EvenniaTest):
     """v0.12: the citizen grade — one visible ladder over existing merit."""
