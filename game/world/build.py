@@ -512,6 +512,14 @@ def build():
         "{npc} finds urgent business in the back room the moment {name} "
         "approaches."
     )
+    # NPC deflection lines (round-two playtest finding 6, from round one's
+    # finding 2): `talk`/`ask` used to land on nomatch's generic instinct
+    # line for every NPC alike. A personality-true brush-off, read by
+    # nomatch.py.
+    clerk.db.deflection = (
+        "\"Window's for rations, not conversation.\" The clerk doesn't "
+        "look up from the count."
+    )
 
     # The orientation clerk: the first face a citizen meets, if they take
     # the arrow's advice.
@@ -538,6 +546,11 @@ def build():
     orienter.db.react_hot = (
         "{npc} recalls, aloud and to no one, that orientation materials are "
         "also available in printed form, elsewhere, far away."
+    )
+    orienter.db.deflection = (
+        "\"It's all in the rooms, citizen!\" A regulation smile. \"Read "
+        "them in order, and |cnext|n if you get stuck. That's the whole "
+        "orientation, really. That's me, mostly.\""
     )
 
     # The unsanctioned curriculum: what the Ministry doesn't teach, the
@@ -620,6 +633,70 @@ def build():
     # caught the seam standing in the open under "You see:".
     seam.locks.add("view:false()")
 
+    # The room's described tells, made examinable (round-two playtest
+    # finding 5, from round one's finding 3): the blankets are the
+    # honeypot's fair-warning layer, and a describes-but-doesn't-exist
+    # object is worse than not describing it at all — the explorer who
+    # reads closely is exactly the player the warning is for.
+    blankets = create_object(
+        "typeclasses.objects.Object",
+        key="the folded blankets",
+        aliases=["blankets", "blanket"],
+        location=rooms["bolthole"],
+    )
+    blankets.db.desc = (
+        "Two blankets, folded to a precision no one folds anything under "
+        "actual use — corners squared, creases sharp enough to still be "
+        "showroom creases. Nobody sleeps under a blanket this neat. "
+        "Somebody wants you to believe somebody does."
+    )
+    blankets.locks.add("get:false()")
+    blankets.db.get_err_msg = "They're arranged, not offered."
+
+    cots = create_object(
+        "typeclasses.objects.Object",
+        key="the two cots",
+        aliases=["cots", "cot"],
+        location=rooms["bolthole"],
+    )
+    cots.db.desc = (
+        "Two narrow cots, frames dull with real age, canvas unmarked by "
+        "real use. The dust on the floor doesn't continue underneath them "
+        "the way dust does under furniture that's actually been sat on."
+    )
+    cots.locks.add("get:false()")
+    cots.db.get_err_msg = "They're bolted to the floor, near enough as makes no difference."
+
+    rations = create_object(
+        "typeclasses.objects.Object",
+        key="the tinned rations",
+        aliases=["rations", "tins", "tinned rations"],
+        location=rooms["bolthole"],
+    )
+    rations.db.desc = (
+        "A shelf of tins, labels forward, rows perfectly even — a display "
+        "of provisions rather than a stock of them. The tin at the front "
+        "of each row is the same tin as the one behind it. Sector 9 does "
+        "not have this many of anything to spare."
+    )
+    rations.locks.add("get:false()")
+    rations.db.get_err_msg = "The shelf's tins decline to become your tins."
+
+    kettle = create_object(
+        "typeclasses.objects.Object",
+        key="the kettle",
+        aliases=["kettle"],
+        location=rooms["bolthole"],
+    )
+    kettle.db.desc = (
+        "Recently cleaned, the room's description insists — and it is: no "
+        "scale inside, no scorch on the base, the spout bright the way "
+        "spouts are bright before they've boiled anything at all. A kettle "
+        "kept, not used."
+    )
+    kettle.locks.add("get:false()")
+    kettle.db.get_err_msg = "It stays on its ring."
+
     # The listening trade (v0.5): two informants on the same crooked street.
     # One of them is what they seem. Their loyalties are set here, in code,
     # which is the only registry that will ever hold them.
@@ -651,6 +728,10 @@ def build():
         "{npc} begins packing the satchel, without hurry and without "
         "missing anything."
     )
+    mender.db.deflection = (
+        "\"Lamp's dead,\" the lamp-mender says, to the lamp, not to you. "
+        "It is the only answer you get, and it is not really an answer."
+    )
 
     vendor = create_object(
         "typeclasses.npcs.Informant",
@@ -677,6 +758,10 @@ def build():
     vendor.db.react_hot = (
         "{npc} polishes an already-clean glass, angled slightly toward "
         "{name}."
+    )
+    vendor.db.deflection = (
+        "\"Tea's free, talk isn't,\" the tea vendor says warmly, and pours "
+        "you a glass anyway, and somehow that is the entire conversation."
     )
 
     # The broker (v0.6, ADR 0008): the courier trade's one visible node.
@@ -706,6 +791,12 @@ def build():
     broker.db.react_hot = (
         "{npc} becomes, with no visible transition, a tired woman holding "
         "turnips who has never met anyone in her life."
+    )
+    broker.db.deflection = (
+        "\"I'm just holding a place in line,\" the broker says, to no one "
+        "in particular, in the tone of someone who has said it before and "
+        "will say it again. If you have legs worth trusting, try |ccarry|n "
+        "instead of talk."
     )
     # The broker's second shelf (v0.10): black-market gear, shown only to
     # citizens the underground already knows.
@@ -738,6 +829,11 @@ def build():
     requisitions.db.react_hot = (
         "{npc} slides the ledger two centimeters further from the window."
     )
+    requisitions.db.deflection = (
+        "\"Everything I have to say is on the shelf,\" the requisitions "
+        "clerk says. \"|clist|n it, if you're buying. If you're not, I'm "
+        "still working.\""
+    )
 
     # The archivist: the sanctioned route to a different past (ADR 0005).
     archivist = create_object(
@@ -761,6 +857,11 @@ def build():
     )
     archivist.db.react_hot = (
         "{npc} slides a drawer shut as {name} enters, unhurried, precise."
+    )
+    archivist.db.deflection = (
+        "\"I don't discuss files I'm not holding,\" the archivist says, "
+        "without looking up. \"|cpetition|n one, and we'll have plenty to "
+        "discuss.\""
     )
 
     logger.log_info(f"2084: built Sector 9 ({len(rooms)} rooms).")

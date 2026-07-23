@@ -46,6 +46,12 @@ _SUGGESTABLE = (
     "get", "drop", "give", "quit",
 )
 
+# Talked-at NPCs answer in their own voice if they have one (round-two
+# playtest finding 6, from round one's finding 2) — checked before the
+# generic instinct line below, which stays as the fallback for empty
+# rooms and NPCs nobody's written a brush-off for yet.
+_TALK_TRIGGERS = ("talk", "ask", "greet", "hello", "chat")
+
 # (trigger words) -> the world's answer. First match wins; {exits} and
 # {room} are filled in. Checked against the first word of the input.
 _INSTINCTS = (
@@ -75,7 +81,7 @@ _INSTINCTS = (
         "visibility|=m. The map knows which is which: |cmap|=m.)|n"
     ),
     (
-        ("talk", "ask", "greet", "hello", "chat"),
+        _TALK_TRIGGERS,
         "Citizens speak with |csay|n; most of Sector 9 has learned not to "
         "answer. |=m(Those with uses for you show them when you |clook|=m "
         "at them, or through |cerrands|=m.)|n"
@@ -120,6 +126,36 @@ class CmdNoMatch(Command):
             return []
         return [ex.key for ex in location.exits]
 
+    def _npc_deflection(self, words):
+        """
+        A talked-at NPC's own brush-off, if the room has one with a line
+        written for it. `words` is the input minus the trigger verb; a
+        named target ("ask clerk", "talk to the archivist") is matched
+        first, falling back to the room's only deflecting NPC if there's
+        exactly one and nothing else narrows it down.
+        """
+        location = self.caller.location
+        if not location:
+            return None
+        speakers = [
+            obj for obj in location.contents
+            if obj is not self.caller and obj.attributes.has("deflection")
+        ]
+        if not speakers:
+            return None
+        target_words = [w for w in words if w not in ("to", "at", "about", "the")]
+        if target_words:
+            target = target_words[0]
+            for npc in speakers:
+                names = [npc.key.lower()] + [
+                    alias.lower() for alias in npc.aliases.all()
+                ]
+                if any(target in name for name in names):
+                    return npc.db.deflection
+        if len(speakers) == 1:
+            return speakers[0].db.deflection
+        return None
+
     def _fill(self, template):
         location = self.caller.location
         exits = self._exits()
@@ -157,6 +193,12 @@ class CmdNoMatch(Command):
                 )
             )
             return
+
+        if first in _TALK_TRIGGERS:
+            deflection = self._npc_deflection(words[1:])
+            if deflection:
+                caller.msg(deflection)
+                return
 
         for triggers, answer in _INSTINCTS:
             if first in triggers:

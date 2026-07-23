@@ -424,6 +424,42 @@ class TestWorldBuild(EvenniaTest):
         # The holding cell is off-plan: no exits in, none out.
         self.assertFalse([e for e in rooms["cell"].contents if e.destination])
 
+    def test_bolt_hole_props_are_examinable(self):
+        """Round-two playtest finding 5, from round one's finding 3: the
+        room describes blankets/cots/rations/kettle; the described tells
+        must actually be lookable, or the honeypot's warning is a lie."""
+        from world import build
+
+        rooms = build.build()
+        bolthole = rooms["bolthole"]
+        for alias in ("blankets", "cots", "rations", "kettle"):
+            found = [
+                obj
+                for obj in bolthole.contents
+                if alias in [a.lower() for a in obj.aliases.all()] + [obj.key.lower()]
+            ]
+            self.assertTrue(found, f"the Bolt-Hole describes {alias} but none exist")
+            self.assertTrue(found[0].db.desc, f"{alias} has no desc to look at")
+
+    def test_built_npcs_have_a_deflection_line(self):
+        """Extends the described-devices lint (principle 9) to cover being
+        talked at: every citizen the build creates should have a brush-off
+        written for it, not just nomatch's generic line (round-two
+        playtest finding 6, from round one's finding 2)."""
+        from typeclasses.npcs import Citizen
+        from world import build
+
+        rooms = build.build()
+        npcs = [
+            obj
+            for room in rooms.values()
+            for obj in room.contents
+            if isinstance(obj, Citizen)
+        ]
+        self.assertTrue(npcs)
+        for npc in npcs:
+            self.assertTrue(npc.db.deflection, f"{npc.key} has no deflection line")
+
     def test_described_devices_exist(self):
         # Principle 9's in-world corollary, learned in v0.3 verification:
         # if a room description mentions a watchscreen/scanner/lens, a
@@ -2093,6 +2129,27 @@ class TestGridHearsYou(EvenniaTest):
     def test_talk_points_at_say(self):
         text = self._capture(self.char1, "talk to the clerk")
         self.assertIn("say", text)
+
+    def test_npc_deflection_line_used_when_present(self):
+        npc = create.create_object(
+            "typeclasses.npcs.Citizen", key="the test clerk", location=self.room1
+        )
+        npc.db.deflection = "The clerk has nothing to say to you."
+        text = self._capture(self.char1, "ask clerk about badges")
+        self.assertIn("nothing to say", text)
+
+    def test_npc_deflection_matches_the_named_target(self):
+        clerk = create.create_object(
+            "typeclasses.npcs.Citizen", key="the ration clerk", location=self.room1
+        )
+        clerk.db.deflection = "The clerk says nothing useful."
+        broker = create.create_object(
+            "typeclasses.npcs.Citizen", key="the broker", location=self.room1
+        )
+        broker.db.deflection = "The broker recites her line about turnips."
+        text = self._capture(self.char1, "ask broker about turnips")
+        self.assertIn("turnips", text)
+        self.assertNotIn("nothing useful", text)
 
     def test_suggestions_never_leak_the_chalk_or_the_engine(self):
         # Near-misses on unsanctioned and engine verbs must not be
