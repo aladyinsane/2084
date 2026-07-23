@@ -215,3 +215,24 @@ def oldest_sabotaged_sensor():
     ]
     broken.sort(key=lambda s: s.db.sabotaged_at)
     return broken[0] if broken else None
+
+
+# --- the shadow ladder (ADR 0009) --------------------------------------------
+
+
+def shadow_standing(char):
+    """
+    (standing, current tier, next tier, standing needed for it) — or
+    (standing, tier, None, None) at the top tier. Pure function of
+    `db.influence`, same shape as `grades.next_review`; nothing here is
+    stored or cached, and none of it touches the sanctioned ledger.
+    """
+    standing = (char.db.influence or {}).get(tuning.UNDERGROUND, 0)
+    thresholds = sorted(tuning.SHADOW_TIERS)
+    current = thresholds[0]
+    for threshold in thresholds:
+        if standing >= threshold:
+            current = threshold
+        else:
+            return standing, tuning.SHADOW_TIERS[current], tuning.SHADOW_TIERS[threshold], threshold
+    return standing, tuning.SHADOW_TIERS[current], None, None
