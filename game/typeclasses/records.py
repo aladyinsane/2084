@@ -35,4 +35,9 @@ class Record(DefaultObject):
         self.db.created = time.time()
         self.db.redacted = False
         self.db.audit = []           # append-only truth layer
+        # ADR 0011: incidents (kind="incident" only) get a stable number
+        # assigned once at creation, from the subject's own counter — see
+        # world/records.py:add_record. None for kinds that are never
+        # individually numbered (observation, evaluation).
+        self.db.number = None
         self.locks.add("get:false();view:perm(Builder)")

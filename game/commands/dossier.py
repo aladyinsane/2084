@@ -119,9 +119,7 @@ class CmdDossier(Command):
 
         incidents = records.records_for(caller, kind="incident")
         visible = [
-            (number, rec)
-            for number, rec in enumerate(incidents, 1)
-            if not rec.db.redacted
+            (rec.db.number, rec) for rec in incidents if not rec.db.redacted
         ]
         if visible:
             lines.append(" Incidents on record:")

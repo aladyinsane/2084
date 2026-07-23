@@ -38,6 +38,14 @@ def add_record(subject, content, author="Ministry of Order", kind="incident", ta
     record.tags.add(str(subject.id), category=SUBJECT_TAG_CATEGORY)
     if tag:
         record.tags.add(tag, category=BETRAYAL_TAG_CATEGORY)
+    if kind == "incident":
+        # ADR 0011 prerequisite: assigned once, here, rather than derived
+        # later from list position (`enumerate` over a freshly-queried
+        # list). Positional numbering was only ever stable because nothing
+        # was ever deleted; assigning it at creation keeps it stable once
+        # compaction starts removing individual records.
+        subject.db.next_incident_number = (subject.db.next_incident_number or 0) + 1
+        record.db.number = subject.db.next_incident_number
     record.db.audit.append(
         {"at": time.time(), "actor": author, "action": "created", "content": content}
     )
@@ -58,13 +66,14 @@ def records_for(subject, kind=None, include_redacted=True):
 
 def incident_by_number(subject, number):
     """
-    Incident entry `number` (1-based, numbered across the *full* incident
-    list including redacted entries — which is why redaction leaves a
-    visible gap in the file's numbering).
+    Incident entry `number` (1-based, assigned once at creation and stored
+    on the record — see ADR 0011 — so it survives redaction (which is why
+    redaction leaves a visible gap) and, later, compaction (which nothing
+    but a summary bucket's own range will ever remove).
     """
-    incidents = records_for(subject, kind="incident")
-    if 1 <= number <= len(incidents):
-        return incidents[number - 1]
+    for rec in records_for(subject, kind="incident"):
+        if rec.db.number == number:
+            return rec
     return None
 
 
