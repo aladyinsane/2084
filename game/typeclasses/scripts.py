@@ -229,6 +229,8 @@ class WatchSweepScript(Script):
 
     @staticmethod
     def papers_check(char):
+        import time
+
         from world import tuning, underground, watch
 
         # A pat-down finds what a wrist scan wouldn't (v0.6): carrying
@@ -250,7 +252,17 @@ class WatchSweepScript(Script):
                 exclude=(char,),
             )
         char.gain_exposure(-tuning.PAPERS_CHECK_RELIEF)
-        watch.add_record_note(char, "Papers checked in the street; cleared.")
+        # The relief is the point of this interaction and applies every
+        # time; the file entry is throttled so a citizen parked in the
+        # sweep's middle band doesn't accumulate an identical incident
+        # every 90 seconds indefinitely (same class of bug as the
+        # assembly-absence farm, just never noticed in a live session).
+        now = time.time()
+        if now - (char.db.last_papers_check_record or 0) >= (
+            tuning.PAPERS_CHECK_RECORD_COOLDOWN
+        ):
+            char.db.last_papers_check_record = now
+            watch.add_record_note(char, "Papers checked in the street; cleared.")
         char.send_prompt()
 
 

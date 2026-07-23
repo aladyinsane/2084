@@ -1921,6 +1921,57 @@ class TestTheGrind(EvenniaTest):
         # And no cleared-is-an-alibi relief when you're caught holding.
         self.assertEqual(self.char1.db.exposure, 30)
 
+    def test_papers_check_record_is_throttled_but_relief_is_not(self):
+        """Same class of bug as the assembly-absence farm: nothing capped
+        how often an identical 'Papers checked' incident could be filed.
+        The relief (the point of the interaction) should still apply every
+        time; only the file entry should be throttled."""
+        from typeclasses.scripts import WatchSweepScript
+        from world import tuning
+
+        self.char1.db.exposure = 30
+        WatchSweepScript.papers_check(self.char1)
+        self.assertEqual(self.char1.db.exposure, 30 - tuning.PAPERS_CHECK_RELIEF)
+        self.assertEqual(
+            len(
+                [
+                    c
+                    for c in self._file_contents(self.char1)
+                    if "Papers checked in the street; cleared." in c
+                ]
+            ),
+            1,
+        )
+        # Immediately checked again (a back-to-back sweep tick): relief
+        # applies again, but no duplicate incident within the cooldown.
+        WatchSweepScript.papers_check(self.char1)
+        self.assertEqual(
+            self.char1.db.exposure, 30 - 2 * tuning.PAPERS_CHECK_RELIEF
+        )
+        self.assertEqual(
+            len(
+                [
+                    c
+                    for c in self._file_contents(self.char1)
+                    if "Papers checked in the street; cleared." in c
+                ]
+            ),
+            1,
+        )
+        # Past the cooldown, a new one is logged.
+        self.char1.db.last_papers_check_record -= tuning.PAPERS_CHECK_RECORD_COOLDOWN
+        WatchSweepScript.papers_check(self.char1)
+        self.assertEqual(
+            len(
+                [
+                    c
+                    for c in self._file_contents(self.char1)
+                    if "Papers checked in the street; cleared." in c
+                ]
+            ),
+            2,
+        )
+
     def test_scanner_gate_rolls_for_contraband(self):
         from unittest.mock import patch
 

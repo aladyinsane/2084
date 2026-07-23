@@ -261,6 +261,20 @@ Not yet re-verified against a live roll call end-to-end (a real player was conne
 during the fix and forcing a roll would have paged them mid-session) — worth a
 targeted live check next time an assembly fires with an idle test account nearby.
 
+### ~~The papers-check sweep had the same farming shape~~ — FIXED (2026-07-23)
+
+*Found while investigating dossier scaling (Lauren's ask, 2026-07-23), same bug class
+as the idler-farming entry above.* `WatchSweepScript.papers_check` filed a new
+identical "Papers checked in the street; cleared." incident every time the sweep
+(`WATCH_SWEEP_INTERVAL`, 90 seconds) selected a citizen sitting in the 20-50 exposure
+band — no cooldown, no cap, unlike the assembly roll after its fix. A citizen parked
+in that band for a long session could accumulate the same incident many times over,
+same shape as the 35-entry assembly farm, just never surfaced in a playtest because
+nobody stayed in that exact exposure band long enough to notice. Fixed by throttling
+the *file entry* only (`tuning.PAPERS_CHECK_RECORD_COOLDOWN`, 30 minutes) — the
+exposure relief, the actual point of the interaction, still applies every time it
+fires.
+
 ### Classless convergence
 *From [ADR 0002](../decisions/0002-no-race-no-class.md).*
 
