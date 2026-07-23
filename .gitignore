@@ -2,8 +2,9 @@
 # (See docs/research/orwell-1984-source-material.md, "loosely based" section.)
 docs/research/sources/
 
-# Local credentials / scratch notes
+# Local credentials / scratch notes / Claude instructions
 dev-notes.md
+CLAUDE.md
 
 # Python / Evennia
 .venv/
