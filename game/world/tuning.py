@@ -191,6 +191,21 @@ PAPERS_RELIEF = 15
 
 UNDERGROUND = "the underground"      # the faction ledger both loops pay
 
+# The shadow ladder (ADR 0009): underground standing, named. Never fed into
+# GRADE_THRESHOLDS or shown in dossier — it's a tier name spoken by `word`,
+# not a file. Thresholds are the standing amount that reaches the tier.
+SHADOW_TIERS = {
+    0: "a face nobody's placed yet",
+    5: "a runner",
+    12: "reliable",
+    25: "trusted",
+    45: "one of the old hands",
+}
+# `word` only answers somewhere the asking can't be overheard — same
+# reasoning as RECRUIT_MAX_VISIBILITY, kept as its own number so the two
+# can be tuned apart later.
+SHADOW_LADDER_MAX_VISIBILITY = 2
+
 # --- v0.9: errands ---------------------------------------------------------
 
 # Errand payouts by catalog size (the catalog's prose lives in

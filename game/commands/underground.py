@@ -204,6 +204,46 @@ class CmdDeliver(Command):
         )
 
 
+class CmdWord(Command):
+    """
+    Ask around about your own reputation.
+
+    Usage:
+      word
+
+    No ledger holds this — the underground doesn't write things down. Ask
+    somewhere it's safe to ask, and word finds its way to you the same
+    way it finds its way anywhere: mouth to ear, corner to corner.
+    """
+
+    key = "word"
+    aliases = ["rumor", "reputation"]
+    locks = "cmd:all()"
+    help_category = "the underground"
+
+    def func(self):
+        from world import underground
+
+        caller = self.caller
+        vis = getattr(caller.location, "visibility", 0)
+        if vis > tuning.SHADOW_LADDER_MAX_VISIBILITY:
+            caller.msg(
+                "Not here. Not where anyone's watching you ask."
+            )
+            return
+        standing, tier, next_tier, threshold = underground.shadow_standing(caller)
+        if next_tier:
+            caller.msg(
+                f"Word on the street: you're {tier}. "
+                f"A little more, and you're {next_tier}."
+            )
+        else:
+            caller.msg(
+                f"Word on the street: you're {tier}. Nobody says what "
+                "comes after that, out loud."
+            )
+
+
 class CmdPapers(Command):
     """
     Buy clean papers.
