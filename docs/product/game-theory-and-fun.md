@@ -1,5 +1,20 @@
 # Game Theory & Gamification Audit: Making 2084 Thrilling
 
+> **Status, 2026-07-24:** this is informal brainstorm input, not accepted work. It
+> didn't go through `contributing.md` rule 4's research → principles → ADR chain, and
+> its diagnosis overlaps existing research
+> ([game-theory-of-the-grid.md](../research/game-theory-of-the-grid.md),
+> [grind-loops-without-killing.md](../research/grind-loops-without-killing.md),
+> [mud-design-landscape.md](../research/mud-design-landscape.md)) without citing it.
+> The five proposals below have been triaged into
+> [future-features.md](future-features.md): two duplicate existing trust-machine
+> backlog items (cross-referenced there), and the other three are recorded as
+> candidates with the accepted decisions they conflict with named as the reasoning.
+> This document's own "Implementation Sequencing Roadmap" (formerly section 3) has
+> been removed — it claimed v0.15–v0.18 as target versions for these proposals, but
+> those versions already shipped unrelated work; see
+> [roadmap.md](roadmap.md).
+
 This document performs a comprehensive game-theoretic audit of *2084*, addressing two core player retention risks:
 1. **The "Fun / Pull" Risk**: Will players find surviving in a surveillance state engaging, or will the optimal strategy ("be nobody / lie low") feel tedious?
 2. **The Cognitive Load Risk**: Will new players feel overwhelmed by novel commands, administrative forms, and text-MUD abstractions?
@@ -79,11 +94,7 @@ To make *2084* deeply addictive while preserving its atmospheric, dystopian iden
 
 ---
 
-## 3. Implementation Sequencing Roadmap
+## 3. Disposition
 
-| Phase | Target Version | Focus | Core Deliverable |
-|---|---|---|---|
-| **Phase 1** | **v0.15** | Contextual Action Surface | Dynamic prompt action hints + `interact` menu verb to eliminate syntax friction |
-| **Phase 2** | **v0.16** | Push-Your-Luck Economy | Streak Multipliers for consecutive watched-space actions |
-| **Phase 3** | **v0.17** | Paranoia Clue System | Diegetic leak signals and enhanced citizen `judge` audit trails |
-| **Phase 4** | **v0.18** | Circle Heists / Projects | Multi-stage joint operations with massive subterranean payouts |
+See the status note at the top of this document — these proposals were triaged into
+[future-features.md](future-features.md) rather than sequenced into the real roadmap.

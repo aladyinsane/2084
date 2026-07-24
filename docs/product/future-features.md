@@ -193,16 +193,58 @@ gaps, in leverage order:
    permanent-stain read discouraging `confess names` even when it's the right call.
 2. **Escalating circle projects.** Joint errand chains with growing pots, so continued
    membership is worth more than one defection pays. The stash starts this; projects
-   finish it.
+   finish it. *(The [gamification audit](game-theory-and-fun.md)'s "Escalating Circle
+   Heists" sketches a concrete three-stage version — sabotage two screens, intercept a
+   patrol while a comrade hits the Annex, then the payoff — additional design material
+   for whenever this gets picked up, not yet checked against the invariant below.)*
 3. **Suspected, not proven.** Every future leak mechanic must preserve deniability
    (plant reports have no fingerprints; interceptions don't name the room). Provable
-   betrayal generates kick-lists; suspectable betrayal generates the game.
+   betrayal generates kick-lists; suspectable betrayal generates the game. *(The
+   [gamification audit](game-theory-and-fun.md)'s "Paranoia Engine" sketches diegetic
+   clue-planting for this — same caveat as above: unvetted design material, not a plan.)*
 4. **Vouching.** Staking a little standing on another citizen — small, capped,
    recoverable — as trust-game participation below circle stakes.
 
 Design invariant across all of it: **betrayal profitable once, costly as a career.**
 A risk-free betrayal loop or unbeatable informant build kills cooperation
 population-wide, and the multiplayer thesis with it.
+
+### From the gamification audit *([game-theory-and-fun.md](game-theory-and-fun.md), 2026-07-24)*
+
+An unreviewed proposals doc landed with five gamification mechanics and its own
+implementation-sequencing table. Two of the five (escalating circle heists, the
+paranoia engine) duplicate trust-machine backlog items 2 and 3 above and are
+cross-referenced there instead of listed twice. The remaining three are recorded here
+as candidates, each with a real conflict against an accepted decision — the audit
+itself didn't go through contributing.md's research → principles → ADR chain, so none
+of this is vetted the way the rest of the parking lot is.
+
+**Push-your-luck streak multipliers.** Consecutive actions in watched space (Vis 3–5)
+build a multiplier on standing/credits/underground reputation, at the cost of doubling
+exposure accrual and sweep odds per tier.
+**Why not now:** runs directly against [ADR 0003](../decisions/0003-exposure-influence-not-xp.md)'s
+thesis — exposure is "the rare inversion: the number you watch most is best when it
+goes *down*." Making climbing exposure *pay* risks the "exposure could read as
+punishment roulette" risk named below. Would need its own case for why this exception
+to the exposure-is-dread rule earns its place.
+
+**Contextual action prompts / a universal `interact` verb.** Dynamic per-room lists of
+valid actions in the prompt, plus a catch-all verb routing to menus.
+**Why not now:** conflicts with two settled choices, not just untested territory.
+[ADR 0009](../decisions/0009-shadow-ladder-is-a-checkable-whisper.md) chose "purely
+opt-in discovery, no hinting" as an accepted cost, and ADR 0010 followed the same
+idiom — both deliberately never prompt a player to check. Principle 9's "no
+magic-missile moments" is exactly what v0.14's whitelist-only nomatch overhaul was
+built to enforce; a generic `interact` opening engine-style menus risks the same genre
+bleed that overhaul stopped.
+
+**Skill-based timing/sequence minigames.** Replace flat skill-check RNG (`sabotage`,
+`forge`) with a timing or sequence mini-mechanic.
+**Why not now:** the "Psychological state" entry above already named the stat-soup
+risk of mechanical surface for its own sake; a reflex-timing layer adds a different
+*kind* of skill (dexterity, not knowledge/observation) than anything else in the game,
+on top of that same risk. Needs evidence flat skill checks are actually the dull part
+before assuming a minigame fixes it.
 
 ## Deliberately deferred (with reasons)
 
