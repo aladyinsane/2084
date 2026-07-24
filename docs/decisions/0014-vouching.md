@@ -1,6 +1,6 @@
 # ADR 0014 — Vouching: a small, sanctioned stake on someone else's name
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-24
 
 ## Context
