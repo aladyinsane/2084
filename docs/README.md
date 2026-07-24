@@ -52,9 +52,21 @@ Numbered, immutable once accepted, superseded rather than edited. Every one has 
 
 | Doc | What's in it |
 |---|---|
+| [overview.md](product/overview.md) | High-level summary of what 2084 is, creative position, and how players interact with the world |
 | [principles.md](product/principles.md) | Ten principles, each traced to research, each with a test — plus what we're deliberately *not* |
 | [roadmap.md](product/roadmap.md) | v0.1–v0.13, sequenced by what proves the thesis: *a surveillance state beats a bestiary* |
-| [future-features.md](product/future-features.md) | The parking lot — headlined by the ASCII map (three Evennia doors analyzed, one kept open by ADR 0007) — and the known risks we shipped on purpose |
+| [future-features.md](product/future-features.md) | The parking lot — headlined by the ASCII map — and the known risks we shipped on purpose |
+| [worldbuilding-ideas.md](product/worldbuilding-ideas.md) | Worldbuilding concepts and narrative backlog feeding future gameplay features into lore |
+
+## Lore
+
+| Doc | What's in it |
+|---|---|
+| [lore/README.md](lore/README.md) | Lore directory index, Lore Maintenance Protocol, and In-Universe Artifact Registry |
+| [lore/historical-background.md](lore/historical-background.md) | The narrative history of Sector 9, the Three Ministries, the Spire, the Civic Machine, and the Underground |
+| [lore/artifacts/forms-and-notices.md](lore/artifacts/forms-and-notices.md) | In-universe documentation of state forms (Form 1-A, Form 2-B, Form 9-A, Form 12-D, Form C-1, Form 77, Section C) |
+| [lore/artifacts/the-chalk-marks.md](lore/artifacts/the-chalk-marks.md) | Complete transcript and textual analysis of the subterranean Tunnel B chalk curriculum |
+| [lore/artifacts/apparatus-and-requisitions.md](lore/artifacts/apparatus-and-requisitions.md) | In-universe catalogue of state surveillance equipment and state issue vs. black-market gear |
 
 ## Engineering
 
