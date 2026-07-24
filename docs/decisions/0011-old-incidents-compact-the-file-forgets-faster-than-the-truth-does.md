@@ -1,6 +1,6 @@
 # ADR 0011 — Old incidents compact; the file forgets faster than the truth does
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-23
 
 ## Context
@@ -133,20 +133,32 @@ un-redactable) gets the same simple treatment.
 "Incidents on record" keeps showing individually-numbered entries exactly as
 today (milestones, plus anything routine that hasn't aged into a summary
 yet — the round-3 consecutive-rollup still applies there). A new section,
-below it, lists each summarized type by its *visible* count only, no
-numbers: e.g. `Papers checked in the street; cleared. — 44 times on file.`
-`true_count` is never shown; it's the hook the future doublethink feature
-reads (`future-features.md`).
+below it, lists each summarized type by its *visible* count and its keyword
+(§5): `Papers checked in the street; cleared. — 44 on file (papers-checks)`.
+A type with `visible == 0` doesn't appear at all, same as the numbered
+section's "none" case. `true_count` is never shown; it's the hook the future
+doublethink feature reads (`future-features.md`).
 
-### 5. `petition`/`forge` on a summarized type — open question
+### 5. `petition`/`forge` on a summarized type — implemented
 
-Numbered targeting (`petition redact <N>`) doesn't apply to something with no
-number. Working assumption, **not fully settled**: a stable keyword per
-compactable type (shown alongside the summary line, e.g. `papers-checks`)
-lets `petition redact papers-checks` / `forge papers-checks = ...` decrement
-`visible` by one at the existing `REDACT_COST`/`AMEND_COST`/`FORGE_BASE_CHANCE`
-— no new pricing, but a new command shape worth confirming before it's built,
-not assumed from this ADR alone.
+Numbered targeting (`petition redact <N>`) doesn't apply to something with
+no number, so each compactable type carries a stable keyword (its `label` in
+`tuning.COMPACTABLE_INCIDENT_TYPES`, e.g. `papers-checks`), shown next to it
+in the dossier. Built as:
+
+- `petition redact <keyword>` — decrements `visible` by one at
+  `REDACT_COST`, same message shape as a numbered redaction.
+- `petition amend <keyword> = ...` — refused outright ("there is no single
+  entry there to correct"), since there's no one sentence to rewrite. Amend
+  stays numeric-only.
+- `forge <keyword>` — no `= new text` needed, since there's nothing to
+  write; same success-chance formula as numeric forge. Success decrements
+  `visible`; failure files the same "Suspected document tampering" incident
+  and exposure hit as today.
+
+`amend` and `forge`'s numeric paths are completely unchanged; the keyword
+path is a second, parallel branch in each command, not a rewrite of the
+first.
 
 ### 6. Noted, not decided here: date-range batch petitions
 
@@ -215,10 +227,9 @@ functions of existing data rather than ticked state.
 - **A compacted number is retired, not reassignable.** `petition 14` on a
   number since folded into a summary returns "no such entry" — small, and
   only affects the two lowest-stakes types by design, but real.
-- **§5's petition/forge targeting syntax is not settled** — this ADR names a
-  working assumption (a stable per-type keyword) but that's a UI decision
-  worth confirming on its own before it's built, not something to infer
-  from silence here.
+- **Amend genuinely can't apply to a summarized type**, and the command says
+  so rather than pretending — a small asymmetry between the numbered and
+  summarized paths worth knowing about if a player ever asks why.
 
 ## Revisit when
 

@@ -25,7 +25,14 @@ SUBJECT_TAG_CATEGORY = "record_subject"
 BETRAYAL_TAG_CATEGORY = "betrayal"
 
 
-def add_record(subject, content, author="Ministry of Order", kind="incident", tag=None):
+def add_record(
+    subject,
+    content,
+    author="Ministry of Order",
+    kind="incident",
+    tag=None,
+    type_key=None,
+):
     """Open a new entry in a citizen's file."""
     record = create_object(
         "typeclasses.records.Record",
@@ -35,6 +42,7 @@ def add_record(subject, content, author="Ministry of Order", kind="incident", ta
     record.db.author = author
     record.db.kind = kind
     record.db.content = content
+    record.db.type_key = type_key
     record.tags.add(str(subject.id), category=SUBJECT_TAG_CATEGORY)
     if tag:
         record.tags.add(tag, category=BETRAYAL_TAG_CATEGORY)
@@ -68,8 +76,10 @@ def incident_by_number(subject, number):
     """
     Incident entry `number` (1-based, assigned once at creation and stored
     on the record — see ADR 0011 — so it survives redaction (which is why
-    redaction leaves a visible gap) and, later, compaction (which nothing
-    but a summary bucket's own range will ever remove).
+    redaction leaves a visible gap). A number belonging to a since-compacted
+    incident (ADR 0011 §2) resolves to None, same as any other unassigned
+    number — compaction only ever touches routine types nobody references
+    by number in practice.
     """
     for rec in records_for(subject, kind="incident"):
         if rec.db.number == number:
@@ -127,3 +137,81 @@ def recent_incidents(exclude_subject=None, window=None, limit=3):
     ]
     found.sort(key=lambda rec: rec.db.created or 0, reverse=True)
     return found[:limit]
+
+
+def compact_incidents(char):
+    """
+    ADR 0011: fold eligible old, routine, untouched incidents into the
+    citizen's lifetime per-type summary (`char.db.incident_summaries`),
+    then delete them. Eligible means: `type_key` is one of
+    `tuning.COMPACTABLE_INCIDENT_TYPES` (milestone incidents default to
+    `type_key=None` and are excluded automatically — no separate
+    do-not-compact list needed); older than `tuning.RECORD_COMPACTION_AGE`;
+    and untouched, meaning nothing but its own creation is in `db.audit`
+    (`len(audit) == 1`) — the moment a player amends or redacts a specific
+    entry, it's pinned as an individual object forever, same as a milestone.
+    A pinned-but-redacted record therefore never contributes to a summary;
+    its redaction work simply isn't lost, because the record itself isn't
+    either.
+    """
+    from world import tuning
+
+    cutoff = time.time() - tuning.RECORD_COMPACTION_AGE
+    summaries = char.db.incident_summaries or {}
+    changed = False
+    for rec in records_for(char, kind="incident"):
+        type_key = rec.db.type_key
+        if type_key not in tuning.COMPACTABLE_INCIDENT_TYPES:
+            continue
+        if (rec.db.created or 0) >= cutoff:
+            continue
+        if len(rec.db.audit or []) > 1:
+            continue
+        bucket = summaries.setdefault(type_key, {"true": 0, "visible": 0})
+        bucket["true"] += 1
+        bucket["visible"] += 1
+        rec.delete()
+        changed = True
+    if changed:
+        char.db.incident_summaries = summaries
+
+
+def prune_observations(char):
+    """
+    ADR 0011 §3: movement logs and assembly attendance have no
+    petition/forge surface at all today (`incident_by_number` only ever
+    queries `kind="incident"`), so past a retention cap the oldest are
+    deleted outright — no summary needed, nothing was ever forgeable about
+    them to begin with.
+    """
+    from world import tuning
+
+    for type_key in tuning.PRUNABLE_OBSERVATION_TYPES:
+        matches = [
+            rec
+            for rec in records_for(char, kind="observation")
+            if rec.db.type_key == type_key
+        ]
+        excess = len(matches) - tuning.MOVEMENT_LOG_RETENTION
+        for rec in matches[:excess]:  # oldest-first (records_for's sort)
+            rec.delete()
+
+
+def summary_for(char, type_key):
+    """Current (true, visible) counts for a summarized incident type —
+    (0, 0) if nothing of that type has folded in yet."""
+    bucket = (char.db.incident_summaries or {}).get(type_key)
+    return (bucket["true"], bucket["visible"]) if bucket else (0, 0)
+
+
+def redact_summary(char, type_key):
+    """Lower a summarized type's visible count by one. The true count, and
+    the audit trail already folded into it, never changes. Returns False
+    if there's nothing left to redact."""
+    summaries = char.db.incident_summaries or {}
+    bucket = summaries.get(type_key)
+    if not bucket or bucket["visible"] <= 0:
+        return False
+    bucket["visible"] -= 1
+    char.db.incident_summaries = summaries
+    return True

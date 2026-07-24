@@ -31,6 +31,7 @@ def at_initial_setup():
         create_script("typeclasses.scripts.AssemblyScript")
         create_script("typeclasses.scripts.MaintenanceScript")
         create_script("typeclasses.scripts.AmbienceScript")
+        create_script("typeclasses.scripts.RecordCompactionScript")
 
         # (The gridwide channel is defined in settings.DEFAULT_CHANNELS, so
         # citizens are auto-subscribed at registration.)

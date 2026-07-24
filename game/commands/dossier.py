@@ -131,6 +131,25 @@ class CmdDossier(Command):
         else:
             lines.append(" Incidents on record: |=mnone|n")
 
+        # ADR 0011: routine, high-volume types (papers checks, assembly
+        # absences) eventually stop being individual numbered entries and
+        # become a lifetime count instead — no number, since there's no
+        # longer one specific entry to point at. The true count behind
+        # each (never lowered by petition/forge) isn't shown here; that's
+        # the future doublethink feature's hook, not this one's.
+        summaries = caller.db.incident_summaries or {}
+        summary_lines = []
+        for type_key, spec in tuning.COMPACTABLE_INCIDENT_TYPES.items():
+            visible_count = summaries.get(type_key, {}).get("visible", 0)
+            if visible_count:
+                summary_lines.append(
+                    f"   {spec['display']} — {visible_count} on file "
+                    f"(|c{spec['label']}|n)"
+                )
+        if summary_lines:
+            lines.append(" Routine incidents on file:")
+            lines.extend(summary_lines)
+
         movements = records.records_for(caller, kind="observation")
         if movements:
             lines.append(" Movements on file (most recent):")

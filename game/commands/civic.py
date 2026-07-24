@@ -21,6 +21,16 @@ def _room_tagged(room, tag):
     return bool(room and room.tags.get(tag, category="grid"))
 
 
+def _compactable_type_by_label(token):
+    """ADR 0011 §5: the keyword a player types to target a summarized
+    routine-incident type in petition/forge, since it has no number."""
+    token = token.strip().lower()
+    for type_key, spec in tuning.COMPACTABLE_INCIDENT_TYPES.items():
+        if spec["label"] == token:
+            return type_key
+    return None
+
+
 class CmdReport(Command):
     """
     Report to the Assignment Hall counter for your function.
@@ -304,11 +314,15 @@ class CmdPetition(Command):
     Usage:
       petition amend <entry> = <corrected text>
       petition redact <entry>
+      petition redact <routine-incident keyword>
 
-    Entry numbers are as shown in your dossier. Amendments and redactions are
-    services of the Ministry of Records, payable in standing with the
-    Ministry of Records, which is the sort of arrangement the Ministry finds
-    elegant. The request itself is, of course, noted.
+    Entry numbers are as shown in your dossier. Routine incidents old enough
+    to have folded into a lifetime count (ADR 0011) have no number anymore —
+    redact those by the keyword shown next to them instead, one off the
+    count per petition. Amendments and redactions are services of the
+    Ministry of Records, payable in standing with the Ministry of Records,
+    which is the sort of arrangement the Ministry finds elegant. The request
+    itself is, of course, noted.
     """
 
     key = "petition"
@@ -351,10 +365,52 @@ class CmdPetition(Command):
                 return
         else:
             num_part = rest
+
+        type_key = _compactable_type_by_label(num_part)
+        if type_key:
+            if action == "amend":
+                caller.msg(
+                    f"{archivist.key} looks at you as if you'd asked to "
+                    "rewrite a tally mark. \"There is no single entry there "
+                    'to correct — you may petition it redacted, one at a '
+                    'time, or not at all."'
+                )
+                return
+            spec = tuning.COMPACTABLE_INCIDENT_TYPES[type_key]
+            if not caller.spend_influence("Ministry of Records", tuning.REDACT_COST):
+                caller.msg(
+                    f'{archivist.key} names the consideration: '
+                    f"{tuning.REDACT_COST} standing with the Ministry of "
+                    "Records. You do not have it. The file closes with a "
+                    "sound like a small door."
+                )
+                return
+            if not records.redact_summary(caller, type_key):
+                caller.msg(
+                    f'{archivist.key} checks the tally. "There is nothing '
+                    f'left to strike from {spec["label"]}."'
+                )
+                return
+            caller.msg(
+                f"{archivist.key} produces a stamp, and the tally for "
+                f'"{spec["display"]}" reads one lower. The old total, the '
+                "archivist remarks, is nobody's business."
+            )
+            caller.gain_exposure(tuning.SERVICE_EXPOSURE)
+            caller.msg(
+                "|=mRequests of this kind are themselves noted. You feel "
+                "the note being made.|n"
+            )
+            caller.send_prompt()
+            return
+
         try:
             number = int(num_part.strip())
         except ValueError:
-            caller.msg("Which entry? Use the number from your dossier.")
+            caller.msg(
+                "Which entry? Use the number from your dossier, or a "
+                "routine-incident keyword shown there."
+            )
             return
 
         record = records.incident_by_number(caller, number)
@@ -403,9 +459,13 @@ class CmdForge(Command):
 
     Usage:
       forge <entry> = <new text>
+      forge <routine-incident keyword>
 
     Possible only somewhere nothing watches at all. Done well, the file
-    simply says something else now. Done badly, the file gains a page.
+    simply says something else now. Done badly, the file gains a page. A
+    routine incident old enough to have folded into a lifetime count (ADR
+    0011) has no text left to rewrite — forging it just tries to strike one
+    off the tally instead, same success chance, same risk of getting caught.
     """
 
     key = "forge"
@@ -427,8 +487,43 @@ class CmdForge(Command):
             )
             return
 
-        num_part, sep, new_text = (self.args or "").partition("=")
+        args = (self.args or "").strip()
+        num_part, sep, new_text = args.partition("=")
         new_text = new_text.strip()
+
+        type_key = _compactable_type_by_label(num_part)
+        if type_key:
+            spec = tuning.COMPACTABLE_INCIDENT_TYPES[type_key]
+            skill = caller.skill("forgery")
+            chance = tuning.FORGE_BASE_CHANCE + skill * tuning.FORGE_SKILL_BONUS
+            caller.improve_skill("forgery")
+            if random.random() < chance:
+                if records.redact_summary(caller, type_key):
+                    caller.msg(
+                        "Chalk, patience, and a borrowed terminal jacked "
+                        "into a dead junction box. The tally for "
+                        f'"{spec["display"]}" reads one lower now, and '
+                        "nothing else changed."
+                    )
+                else:
+                    caller.msg(
+                        f'There is nothing left on the {spec["label"]} '
+                        "tally to strike."
+                    )
+            else:
+                watch.add_record_note(
+                    caller,
+                    "Suspected document tampering; forensic review pending",
+                )
+                caller.gain_exposure(tuning.FORGE_FAIL_EXPOSURE)
+                caller.msg(
+                    "|rSomething upstream notices the edit and un-happens "
+                    "it.|n The terminal goes politely dead in your hands. "
+                    "Somewhere, a form about you begins to fill itself in."
+                )
+                caller.send_prompt()
+            return
+
         try:
             number = int(num_part.strip())
         except ValueError:

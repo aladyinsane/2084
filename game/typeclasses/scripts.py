@@ -262,7 +262,11 @@ class WatchSweepScript(Script):
             tuning.PAPERS_CHECK_RECORD_COOLDOWN
         ):
             char.db.last_papers_check_record = now
-            watch.add_record_note(char, "Papers checked in the street; cleared.")
+            watch.add_record_note(
+                char,
+                "Papers checked in the street; cleared.",
+                type_key="papers_check",
+            )
         char.send_prompt()
 
 
@@ -384,6 +388,7 @@ class AssemblyScript(Script):
                 "Attended civic assembly",
                 author="Office of Assemblies",
                 kind="observation",
+                type_key="assembly_attendance",
             )
             char.gain_exposure(-tuning.ASSEMBLY_ATTEND_RELIEF)
             char.msg(
@@ -407,6 +412,7 @@ class AssemblyScript(Script):
                 "Absent from mandatory civic assembly",
                 author="Office of Assemblies",
                 kind="incident",
+                type_key="assembly_absence",
             )
             char.gain_exposure(tuning.ASSEMBLY_ABSENT_EXPOSURE)
             if streak == tuning.ASSEMBLY_ABSENCE_CAP:
@@ -575,3 +581,31 @@ class PatrolManagerScript(Script):
 
         for patrol in patrols:
             patrol.patrol_step()
+
+
+class RecordCompactionScript(Script):
+    """
+    ADR 0011: keeps a long-lived citizen's file from growing forever.
+    Periodically folds old, routine, untouched incidents (papers checks,
+    assembly absences) into a per-citizen lifetime count and prunes
+    movement logs / assembly attendance past a retention cap. Milestone
+    incidents (detainment, Section C, sabotage, reclassification, ...) are
+    never touched — see world/records.py:compact_incidents.
+    """
+
+    def at_script_creation(self):
+        from world import tuning
+
+        self.key = "record_compaction"
+        self.desc = "Folds old routine incidents into per-type summaries."
+        self.interval = tuning.RECORD_COMPACTION_INTERVAL
+        self.persistent = True
+
+    def at_repeat(self):
+        from world import records
+
+        from .characters import Character
+
+        for char in Character.objects.all():
+            records.compact_incidents(char)
+            records.prune_observations(char)
