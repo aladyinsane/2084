@@ -40,4 +40,9 @@ class Record(DefaultObject):
         # world/records.py:add_record. None for kinds that are never
         # individually numbered (observation, evaluation).
         self.db.number = None
+        # ADR 0011: which routine, repeatable thing this is (e.g.
+        # "papers_check"), independent of the display prose — None for
+        # anything one-off/milestone, which is exactly what keeps it out of
+        # compaction/pruning without a separate exclusion list.
+        self.db.type_key = None
         self.locks.add("get:false();view:perm(Builder)")

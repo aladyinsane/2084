@@ -40,13 +40,18 @@ def set_alert(value):
     return value
 
 
-def add_record_note(char, note, tag=None):
+def add_record_note(char, note, tag=None, type_key=None):
     """Open an incident in the citizen's file (the real ADR 0005 record layer
     replaced the v0.2 string-list stub here)."""
     from world import records
 
     records.add_record(
-        char, note, author="Ministry of Order", kind="incident", tag=tag
+        char,
+        note,
+        author="Ministry of Order",
+        kind="incident",
+        tag=tag,
+        type_key=type_key,
     )
 
 

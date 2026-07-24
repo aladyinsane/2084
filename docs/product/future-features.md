@@ -92,6 +92,20 @@ latter would make it a second, sharper edge on ADR 0010's reputation-travels idi
 **Why not now:** ADR 0011 needs to ship and settle first; this is real design work in
 its own right once it does, likely its own ADR.
 
+### Date-range batch petitions *(from ADR 0011 follow-up, 2026-07-23)*
+Lauren's follow-up while reviewing ADR 0011: once routine incidents compact into a
+flat per-type lifetime count (`{"true": T, "visible": V}`), let a citizen redact/amend
+a *chunk* of a type at once — "everything from around Day 200" — rather than only
+"one fewer, whichever." Needs sub-bucketing a compacted type by rough time window
+(weekly? monthly?) instead of one flat count, which is real added complexity over the
+ADR 0011 baseline. The natural building block, if it happens: a **derived in-fiction
+day number** (`(time.time() - EPOCH) // tuning.SECONDS_PER_DAY`, computed on demand,
+no new script or stored tick counter) rather than a ticking calendar system — matches
+how Grade and the shadow ladder are already pure functions of existing data, never
+incremented state.
+**Why not now:** ADR 0011's flat-count version needs to ship and prove the shape
+works before adding a second axis (time) to the bucketing.
+
 ### Deprogramming as re-education *(from 3M field research)*
 3rd Millennium sells voluntary skill deletion (wired chairs, 150k credits — steep on
 purpose). Invert the consent and it's ours: detainment outcomes that *remove recorded

@@ -1,6 +1,6 @@
 # ADR 0011 — Old incidents compact; the file forgets faster than the truth does
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-23
 
 ## Context
@@ -83,30 +83,38 @@ pinned as an individual object forever. This is a simplifying rule, not a
 loophole to close: routine entries are rarely worth the standing cost to
 touch individually in the first place.
 
-### 2. The summary record
+### 2. The summary: a dict attribute, not a Record
+
+Revised from the first draft, based on Lauren's follow-up: grouping by *type*
+rather than only the oldest *contiguous run* removes the reason the summary
+needed to be a positioned object at all. Once position in the numbered
+sequence doesn't matter, the summary doesn't need to be a `Record` — it's a
+plain attribute on the character:
+
+```
+char.db.incident_summaries = {
+    "papers_check": {"true": 47, "visible": 44},
+    "assembly_absence": {"true": 12, "visible": 12},
+}
+```
 
 A compaction pass (new script, `RecordCompactionScript`, interval
 `tuning.RECORD_COMPACTION_INTERVAL`) finds, per citizen and per compactable
-`type_key`, the **oldest contiguous run** of eligible records older than
-`tuning.RECORD_COMPACTION_AGE` and folds them into one `kind="incident_summary"`
-Record:
+`type_key`, every eligible record older than `tuning.RECORD_COMPACTION_AGE`
+— regardless of what other types sit between them chronologically — and
+folds them in: `true` grows by the count folded, `visible` grows by however
+many of those were still unredacted (a record already individually redacted
+before compaction contributes to `true` only, so that redaction work isn't
+lost). The individual `Record` objects are then deleted. No range, no sort
+position, no second bucket ever created for the same type — the dict entry
+just grows over time.
 
-- `db.type_key` — which bucket this is
-- `db.true_count` — how many really happened; only ever grows (each future
-  routine incident of a compacted type, once it ages past the cutoff, adds to
-  this instead of becoming a new individual object)
-- `db.visible_count` — starts equal to `true_count` at fold time, *minus*
-  however many of the folded originals were already individually redacted
-  before compaction swept them up (their redaction work isn't lost)
-- `db.range_start` / `db.range_end` — the incident numbers it now speaks for,
-  frozen at fold time, so every number ever assigned stays meaningful forever
-- `db.oldest_created` — for sort ordering, so it slots into `records_for()`
-  where the oldest folded entry used to sit
-
-Folding only ever eats from the *oldest* end and only ever grows forward
-(this pass's own new arrivals extend the same bucket rather than minting a
-second one), so a citizen ends up with at most one summary bucket per
-compactable type, ever — not an accumulating pile of summaries.
+**The cost this drops on the floor:** a folded record's `db.number` (assigned
+per the prerequisite already shipped) is retired. `incident_by_number` for a
+since-compacted number returns nothing, identical to today's behavior for any
+out-of-range number. Only routine, low-stakes types compact (see §1), so a
+player referencing "incident #14" in conversation was already an edge case
+this only slightly sharpens.
 
 ### 3. Movement logs: simpler, because nothing reads them individually
 
@@ -120,19 +128,51 @@ audit-trail promise implicated (nothing was ever forgeable about them to
 begin with). Assembly *attendance* (also `kind="observation"`, also currently
 un-redactable) gets the same simple treatment.
 
-### 4. `petition`/`forge` on a compacted bucket
+### 4. Dossier rendering: two sections instead of one
 
-`petition redact <N>` / `petition amend <N> = ...` / `forge <N> = ...`,
-where `N` falls inside a bucket's `range_start`-`range_end`, decrement
-`visible_count` by one at the existing `REDACT_COST`/`AMEND_COST`/
-`FORGE_BASE_CHANCE` — no new pricing, no new player-facing syntax. `amend`
-doesn't get to rewrite bespoke prose for a bucket (there's no single sentence
-to rewrite); it's effectively identical to redact for a summary — one fewer
-counted. Dossier rendering shows a bucket as `N-M. <type's display text> (V)`
-using the *visible* count — the same shape the round-3 legibility rollup
-already renders for consecutive live duplicates, just backed by real deletion
-now instead of a display-only grouping. `true_count` is never shown anywhere
-today; it's the hook the future doublethink feature reads.
+"Incidents on record" keeps showing individually-numbered entries exactly as
+today (milestones, plus anything routine that hasn't aged into a summary
+yet — the round-3 consecutive-rollup still applies there). A new section,
+below it, lists each summarized type by its *visible* count and its keyword
+(§5): `Papers checked in the street; cleared. — 44 on file (papers-checks)`.
+A type with `visible == 0` doesn't appear at all, same as the numbered
+section's "none" case. `true_count` is never shown; it's the hook the future
+doublethink feature reads (`future-features.md`).
+
+### 5. `petition`/`forge` on a summarized type — implemented
+
+Numbered targeting (`petition redact <N>`) doesn't apply to something with
+no number, so each compactable type carries a stable keyword (its `label` in
+`tuning.COMPACTABLE_INCIDENT_TYPES`, e.g. `papers-checks`), shown next to it
+in the dossier. Built as:
+
+- `petition redact <keyword>` — decrements `visible` by one at
+  `REDACT_COST`, same message shape as a numbered redaction.
+- `petition amend <keyword> = ...` — refused outright ("there is no single
+  entry there to correct"), since there's no one sentence to rewrite. Amend
+  stays numeric-only.
+- `forge <keyword>` — no `= new text` needed, since there's nothing to
+  write; same success-chance formula as numeric forge. Success decrements
+  `visible`; failure files the same "Suspected document tampering" incident
+  and exposure hit as today.
+
+`amend` and `forge`'s numeric paths are completely unchanged; the keyword
+path is a second, parallel branch in each command, not a rewrite of the
+first.
+
+### 6. Noted, not decided here: date-range batch petitions
+
+Lauren's follow-up also raised letting a citizen redact/amend a *range* of a
+summarized type at once ("everything from around Day 200"), which would need
+sub-bucketing a type by rough time window rather than one flat lifetime
+count. Parked in `future-features.md` rather than folded into this ADR,
+since it's a real enough increment in complexity (multiple buckets per type
+instead of one) to deserve its own pass once the flat version above has
+shipped and proven the shape works. If it happens, the natural building
+block is a **derived in-fiction day number** — `(time.time() - EPOCH) //
+tuning.SECONDS_PER_DAY`, computed on demand, no new script or stored
+counter — consistent with how Grade and the shadow ladder are already pure
+functions of existing data rather than ticked state.
 
 ## Consequences
 
@@ -153,6 +193,10 @@ today; it's the hook the future doublethink feature reads.
   incidents age out of the live-object universe entirely.
 - The allowlist and retention windows are tuning data — widening scope later
   never requires touching this ADR.
+- **Simpler than the first draft, not just different.** Dropping the
+  contiguous-run constraint means the summary needs no position, no range,
+  no sort key — a plain dict beats a positioned `Record` object on every
+  axis that matters here (cheaper, less code, nothing new to keep in sync).
 
 **Bad**
 
@@ -180,6 +224,12 @@ today; it's the hook the future doublethink feature reads.
   cleared." would need to keep the same `type_key` to keep folding into the
   same bucket — another instance of the "don't match prose" lesson, this
   time self-inflicted if forgotten.
+- **A compacted number is retired, not reassignable.** `petition 14` on a
+  number since folded into a summary returns "no such entry" — small, and
+  only affects the two lowest-stakes types by design, but real.
+- **Amend genuinely can't apply to a summarized type**, and the command says
+  so rather than pretending — a small asymmetry between the numbered and
+  summarized paths worth knowing about if a player ever asks why.
 
 ## Revisit when
 

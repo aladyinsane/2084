@@ -154,4 +154,5 @@ class Room(ObjectParent, DefaultRoom):
             f"Logged at {self.key}",
             author=live[0].key,
             kind="observation",
+            type_key="sensor_movement",
         )

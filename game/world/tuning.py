@@ -294,3 +294,38 @@ UNSANCTIONED_FACTIONS = (UNDERGROUND,)
 # `judge` reading a fellow citizen's Section C history is a bigger claim than
 # reading an NPC's demeanor, so the bar sits above OBSERVE_TIER_DETAIL.
 OBSERVE_TIER_REPUTATION = 40
+
+# --- ADR 0011: record compaction ---------------------------------------------
+
+# Routine, high-volume, narratively-weightless incident types eligible to
+# fold into a per-citizen lifetime count instead of staying individual
+# objects forever. Milestone incidents (detainment, Section C, sabotage,
+# reclassification, etc.) are never in this dict on purpose — a record's
+# type_key defaults to None, which excludes it automatically, no separate
+# "don't compact this" list needed.
+#   label:   the word a player types to target it in petition/forge (§5)
+#   display: the sentence shown in the dossier's summarized section
+COMPACTABLE_INCIDENT_TYPES = {
+    "papers_check": {
+        "label": "papers-checks",
+        "display": "Papers checked in the street; cleared.",
+    },
+    "assembly_absence": {
+        "label": "assembly-absences",
+        "display": "Absent from mandatory civic assembly",
+    },
+}
+
+# Observation-kind records with no petition/forge surface at all today
+# (incident_by_number only ever queried kind="incident") — past this many
+# per citizen per type, the oldest are pruned outright. No summary kept;
+# there was nothing forgeable about them to begin with (ADR 0011 §3).
+PRUNABLE_OBSERVATION_TYPES = ("sensor_movement", "assembly_attendance")
+MOVEMENT_LOG_RETENTION = 20
+
+# How old (seconds) an eligible, untouched incident must be before it folds
+# into its type's lifetime summary count.
+RECORD_COMPACTION_AGE = 30 * 24 * 3600  # 30 days
+
+# How often the compaction/pruning pass runs.
+RECORD_COMPACTION_INTERVAL = 24 * 3600  # once a day

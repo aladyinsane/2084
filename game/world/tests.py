@@ -2356,3 +2356,143 @@ class TestGridHearsYou(EvenniaTest):
         self.assertEqual(self.char1.location, self.room1)
         self._capture(self.char1, f"go {self.exit.key}")
         self.assertEqual(self.char1.location, self.room2)
+
+
+class TestRecordCompaction(EvenniaTest):
+    """ADR 0011: old routine incidents fold into a lifetime count."""
+
+    def _old_incident(self, char, content, type_key, age=None):
+        import time
+
+        from world import records, tuning
+
+        rec = records.add_record(char, content, kind="incident", type_key=type_key)
+        rec.db.created = time.time() - (age or tuning.RECORD_COMPACTION_AGE + 1)
+        return rec
+
+    def _archivist(self):
+        archivist = create.create_object(
+            "typeclasses.npcs.Citizen", key="the archivist", location=self.room1
+        )
+        archivist.tags.add("records_service", category="grid")
+        return archivist
+
+    def _captured(self, char, command):
+        old = char.msg
+        seen = []
+        char.msg = lambda text=None, **kw: seen.append(str(text))
+        try:
+            char.execute_cmd(command)
+        finally:
+            char.msg = old
+        return "\n".join(seen)
+
+    def test_compaction_folds_old_untouched_routine_incidents(self):
+        from world import records
+
+        self._old_incident(self.char1, "Papers checked in the street; cleared.", "papers_check")
+        self._old_incident(self.char1, "Papers checked in the street; cleared.", "papers_check")
+        records.compact_incidents(self.char1)
+        self.assertEqual(records.summary_for(self.char1, "papers_check"), (2, 2))
+        self.assertEqual(len(records.records_for(self.char1, kind="incident")), 0)
+
+    def test_compaction_skips_recent_and_milestone_and_touched(self):
+        from world import records
+
+        # Too recent: not eligible yet.
+        self._old_incident(
+            self.char1, "Papers checked in the street; cleared.", "papers_check", age=60
+        )
+        # Milestone (no type_key): never eligible.
+        self._old_incident(self.char1, "DETAINED: routine sweep.", None)
+        # Touched (redacted before compaction runs): pinned forever.
+        touched = self._old_incident(
+            self.char1, "Papers checked in the street; cleared.", "papers_check"
+        )
+        records.redact(touched, actor=self.char1)
+
+        records.compact_incidents(self.char1)
+        self.assertEqual(records.summary_for(self.char1, "papers_check"), (0, 0))
+        self.assertEqual(len(records.records_for(self.char1, kind="incident")), 3)
+
+    def test_compaction_grows_the_same_bucket_over_multiple_passes(self):
+        from world import records
+
+        self._old_incident(self.char1, "Papers checked in the street; cleared.", "papers_check")
+        records.compact_incidents(self.char1)
+        self._old_incident(self.char1, "Papers checked in the street; cleared.", "papers_check")
+        records.compact_incidents(self.char1)
+        self.assertEqual(records.summary_for(self.char1, "papers_check"), (2, 2))
+
+    def test_prune_observations_keeps_only_the_retention_window(self):
+        from world import records, tuning
+
+        for i in range(tuning.MOVEMENT_LOG_RETENTION + 5):
+            records.add_record(
+                self.char1,
+                f"Logged at Room {i}",
+                kind="observation",
+                type_key="sensor_movement",
+            )
+        records.prune_observations(self.char1)
+        remaining = records.records_for(self.char1, kind="observation")
+        self.assertEqual(len(remaining), tuning.MOVEMENT_LOG_RETENTION)
+        # The oldest were the ones pruned; the newest survive.
+        self.assertEqual(remaining[-1].db.content, "Logged at Room 24")
+
+    def test_dossier_shows_the_summarized_section(self):
+        from world import records
+
+        self._old_incident(self.char1, "Papers checked in the street; cleared.", "papers_check")
+        self._old_incident(self.char1, "Papers checked in the street; cleared.", "papers_check")
+        records.compact_incidents(self.char1)
+        blob = self._captured(self.char1, "dossier")
+        self.assertIn("Routine incidents on file:", blob)
+        self.assertIn("Papers checked in the street; cleared. — 2 on file", blob)
+        self.assertIn("papers-checks", blob)
+
+    def test_petition_redact_by_keyword(self):
+        from world import records, tuning
+
+        self._archivist()
+        self._old_incident(self.char1, "Papers checked in the street; cleared.", "papers_check")
+        self._old_incident(self.char1, "Papers checked in the street; cleared.", "papers_check")
+        records.compact_incidents(self.char1)
+        self.char1.db.influence = {"Ministry of Records": tuning.REDACT_COST}
+        self.char1.execute_cmd("petition redact papers-checks")
+        self.assertEqual(records.summary_for(self.char1, "papers_check"), (2, 1))
+        self.assertEqual(
+            (self.char1.db.influence or {}).get("Ministry of Records"), 0
+        )
+
+    def test_petition_amend_refuses_a_keyword_target(self):
+        from world import records
+
+        self._archivist()
+        self._old_incident(self.char1, "Papers checked in the street; cleared.", "papers_check")
+        records.compact_incidents(self.char1)
+        blob = self._captured(
+            self.char1, "petition amend papers-checks = something else"
+        )
+        self.assertIn("no single entry", blob)
+        self.assertEqual(records.summary_for(self.char1, "papers_check"), (1, 1))
+
+    def test_forge_by_keyword_success_and_failure(self):
+        from unittest.mock import patch
+
+        from world import records
+
+        self.room1.db.visibility = 0
+        self._old_incident(self.char1, "Papers checked in the street; cleared.", "papers_check")
+        self._old_incident(self.char1, "Papers checked in the street; cleared.", "papers_check")
+        records.compact_incidents(self.char1)
+
+        with patch("commands.civic.random.random", return_value=0.99):
+            self._captured(self.char1, "forge papers-checks")
+        self.assertEqual(records.summary_for(self.char1, "papers_check"), (2, 2))
+        contents = [r.db.content for r in records.records_for(self.char1, kind="incident")]
+        self.assertTrue(any("tampering" in c for c in contents))
+
+        with patch("commands.civic.random.random", return_value=0.0):
+            self._captured(self.char1, "forge papers-checks")
+        self.assertEqual(records.summary_for(self.char1, "papers_check"), (2, 1))
