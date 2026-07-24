@@ -1543,6 +1543,119 @@ class TestCircleProjects(EvenniaTest):
         self.assertIsNotNone(circle_projects.project_of(slug))
 
 
+class TestVouching(EvenniaTest):
+    """ADR 0014: a small, sanctioned stake on someone else's name."""
+
+    def _fund(self, char, amount):
+        char.gain_influence("Ministry of Records", amount)
+
+    def test_vouch_costs_the_stake_and_is_one_at_a_time(self):
+        from world import tuning, vouching
+
+        self._fund(self.char1, tuning.VOUCH_STAKE)
+        self.char1.execute_cmd("vouch Char2")
+        self.assertEqual(
+            (self.char1.db.influence or {}).get("Ministry of Records"), 0
+        )
+        self.assertEqual(vouching.current(self.char1)["target"], self.char2)
+        self.assertIn(self.char1, vouching.backers_of(self.char2))
+        # Already vouching for someone: refused, no second stake taken.
+        self._fund(self.char1, tuning.VOUCH_STAKE)
+        self.char1.execute_cmd("vouch Char2")
+        self.assertEqual(
+            (self.char1.db.influence or {}).get("Ministry of Records"),
+            tuning.VOUCH_STAKE,
+        )
+
+    def test_vouch_refuses_without_the_standing(self):
+        from world import vouching
+
+        self.char1.execute_cmd("vouch Char2")
+        self.assertIsNone(vouching.current(self.char1))
+
+    def test_cannot_vouch_for_yourself(self):
+        from world import tuning, vouching
+
+        self._fund(self.char1, tuning.VOUCH_STAKE)
+        err = vouching.vouch(self.char1, self.char1)
+        self.assertIsNotNone(err)
+        self.assertIsNone(vouching.current(self.char1))
+
+    def test_unvouch_returns_the_stake_in_full(self):
+        from world import tuning, vouching
+
+        self._fund(self.char1, tuning.VOUCH_STAKE)
+        self.char1.execute_cmd("vouch Char2")
+        self.char1.execute_cmd("unvouch")
+        self.assertIsNone(vouching.current(self.char1))
+        self.assertNotIn(self.char1, vouching.backers_of(self.char2))
+        self.assertEqual(
+            (self.char1.db.influence or {}).get("Ministry of Records"),
+            tuning.VOUCH_STAKE,
+        )
+
+    def test_confess_alone_does_not_forfeit_backers(self):
+        from world import circles, tuning, vouching, watch
+
+        # confess names/alone only exist as real choices for a confessor
+        # who has a circle at all (CmdConfess's "no associates" branch
+        # short-circuits straight to release otherwise), and detain() only
+        # works on a citizen with a live session -- EvenniaTest only logs
+        # in char1's account, so char1 has to be the confessor here, with
+        # char2 as the backer.
+        cell = create.create_object(
+            "typeclasses.rooms.Room", key="Holding Cell (test)"
+        )
+        cell.tags.add("holding_cell", category="grid")
+        self.room1.tags.add("release_point", category="grid")
+        slug, err = circles.form(self.char1, "redbird")
+        self.assertIsNone(err)
+        self._fund(self.char2, tuning.VOUCH_STAKE)
+        self.char2.execute_cmd("vouch Char")
+        self.assertIsNotNone(vouching.current(self.char2))
+        self.char1.db.exposure = 60
+        watch.detain(self.char1)
+        self.char1.execute_cmd("confess alone")
+        self.assertFalse(watch.is_detained(self.char1))  # confirms it ran
+        self.assertIsNotNone(vouching.current(self.char2))
+
+    def test_confess_names_forfeits_backers(self):
+        from world import circles, tuning, vouching, watch
+
+        cell = create.create_object(
+            "typeclasses.rooms.Room", key="Holding Cell (test)"
+        )
+        cell.tags.add("holding_cell", category="grid")
+        self.room1.tags.add("release_point", category="grid")
+        slug, err = circles.form(self.char1, "redbird")
+        self.assertIsNone(err)
+        self._fund(self.char2, tuning.VOUCH_STAKE)
+        self.char2.execute_cmd("vouch Char")
+        self.char1.db.exposure = 60
+        watch.detain(self.char1)
+        self.char1.execute_cmd("confess names")
+        self.assertFalse(watch.is_detained(self.char1))  # confirms it ran
+        self.assertIsNone(vouching.current(self.char2))
+        self.assertEqual(vouching.backers_of(self.char1), [])
+
+    def test_backer_offsets_one_incident_at_form_c1(self):
+        from world import functions, vouching, watch
+
+        functions.assign_function(self.char1)
+        watch.add_record_note(self.char1, "DETAINED: test")
+        watch.add_record_note(self.char1, "Was unruly in detention.")
+        # Two visible incidents: rejected with no backer.
+        approved, reason = functions.adjudicate_c1(self.char1)
+        self.assertFalse(approved)
+        self.assertIn("references", reason)
+        # The same file, backed: tolerated.
+        self.char2.db.vouch = {"target": self.char1, "amount": 1, "started": 0}
+        self.char1.db.vouched_by = [self.char2]
+        self.assertTrue(vouching.has_backers(self.char1))
+        approved, _ = functions.adjudicate_c1(self.char1)
+        self.assertTrue(approved)
+
+
 class TestGear(EvenniaTest):
     """v0.10: the implant catalog, worn — every item a trade."""
 

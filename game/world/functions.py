@@ -137,7 +137,16 @@ def adjudicate_c1(char):
         for rec in records.records_for(char, kind="incident")
         if not rec.db.redacted
     ]
-    if len(visible_incidents) > tuning.CLEARANCE_MAX_INCIDENTS:
+    # ADR 0014: a character reference on file (someone currently vouching
+    # for this citizen) tolerates one extra incident -- flat, regardless of
+    # how many citizens are backing them, so stacking vouches for a bigger
+    # offset is deliberately not a thing.
+    from world import vouching
+
+    threshold = tuning.CLEARANCE_MAX_INCIDENTS
+    if vouching.has_backers(char):
+        threshold += 1
+    if len(visible_incidents) > threshold:
         return False, "character references insufficient at this time"
     return True, "application conforms to schedule"
 

@@ -232,15 +232,18 @@ gaps, in leverage order:
    betrayal generates kick-lists; suspectable betrayal generates the game. *(The
    [gamification audit](game-theory-and-fun.md)'s "Paranoia Engine" sketches diegetic
    clue-planting for this — same caveat as above: unvetted design material, not a plan.)*
-4. ~~**Vouching.**~~ **DECIDED, not yet built**
-   ([ADR 0014](../decisions/0014-vouching.md)). `vouch <citizen>` stakes a small,
-   sanctioned Ministry of Records stake on someone — reachable from a new player's
-   first few minutes, unlike underground standing. Forfeits whole on that citizen's
-   own Section C confession (same forfeiture idiom as the stash and circle projects);
-   offsets one incident in Form C-1's adjudication while active, giving the existing
-   "character references insufficient" rejection text a real mechanism behind it.
-   Chose the hybrid shape over a literal C-1-only reading, since C-1 alone wouldn't
-   reach the new/risk-averse audience the mechanic was named for.
+4. ~~**Vouching.**~~ **Shipped 2026-07-24** ([ADR 0014](../decisions/0014-vouching.md),
+   `feat/vouching`). `vouch <citizen>` stakes a small, sanctioned Ministry of Records
+   stake on someone — reachable from a new player's first few minutes, unlike
+   underground standing. Forfeits whole on that citizen's own Section C confession
+   (same forfeiture idiom as the stash and circle projects); offsets one incident in
+   Form C-1's adjudication while active, giving the existing "character references
+   insufficient" rejection text a real mechanism behind it. Chose the hybrid shape
+   over a literal C-1-only reading, since C-1 alone wouldn't reach the new/risk-averse
+   audience the mechanic was named for. Revisit triggers named in the ADR: vouching
+   used reflexively with no real information about the target, or the C-1 payoff's
+   invisibility (no message distinguishes "you'd have passed anyway" from "the vouch
+   saved you") drawing a real complaint.
 
 Design invariant across all of it: **betrayal profitable once, costly as a career.**
 A risk-free betrayal loop or unbeatable informant build kills cooperation

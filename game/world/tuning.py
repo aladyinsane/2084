@@ -345,3 +345,11 @@ PROJECT_RUN_THRESHOLD = 2      # combined courier deliveries
 # most of a tier for a typical 2-3 person circle, so finishing reads as a
 # real jump rather than a rounding error on the solo grind.
 PROJECT_PAYOUT = 30
+
+# --- ADR 0014: vouching ------------------------------------------------------
+
+# Ministry of Records standing staked on another citizen -- small on purpose
+# (roughly half of CLEARANCE_FEE), and sanctioned rather than underground so
+# it's reachable from a new player's first few `work` shifts, not gated
+# behind having already taken underground risks.
+VOUCH_STAKE = 3

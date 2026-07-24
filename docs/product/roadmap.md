@@ -601,6 +601,26 @@ folded in below since neither shipped as its own version.
       a completed Section C confession — trust-machine backlog item 2's fix, chosen
       over a fully-synchronous heist to keep principle 8's solo-viability test honest
 
+## v0.22 — Vouching ([ADR 0014](../decisions/0014-vouching.md))
+
+Trust-machine backlog item 4: the gap items 1-2 don't fill — a citizen not ready for
+circle stakes had no trust-game participation below them at all.
+
+- [x] `vouch <citizen>` / `unvouch`: a small, sanctioned Ministry of Records stake
+      (not underground standing — reachable in a new player's first few `work`
+      shifts), one active vouch per voucher, fully recoverable until it isn't
+- [x] Forfeiture wired into `circles.betray()`, same site as ADR 0011's stash and
+      ADR 0013's circle project — a citizen's own completed Section C costs their
+      backers too, whether or not they're in a circle at all; being merely *named* in
+      someone else's confession does not trigger it
+- [x] `functions.adjudicate_c1` tolerates one extra visible incident for an applicant
+      with at least one active backer — flat, not stacked — giving the previously
+      decorative "character references insufficient at this time" rejection text a
+      real mechanism for the first time
+- [x] Orientation Wing's Civic Life placard and `docs/lore/` updated per the Lore
+      Maintenance Protocol (Form C-1's entry in `forms-and-notices.md`, the Ministry
+      of Records section of `historical-background.md`)
+
 ## Later / undecided
 
 The parking lot, including the **ASCII map**: [future-features.md](future-features.md).

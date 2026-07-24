@@ -31,6 +31,8 @@ from commands.civic import (
     CmdObserve,
     CmdPetition,
     CmdReport,
+    CmdUnvouch,
+    CmdVouch,
     CmdWork,
 )
 from commands.dossier import CmdDossier
@@ -73,6 +75,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdForge())
         self.add(CmdReport())
         self.add(CmdApply())
+        self.add(CmdVouch())
+        self.add(CmdUnvouch())
         self.add(CmdCircle())
         self.add(CmdSignal())
         self.add(CmdRecruit())
