@@ -71,7 +71,7 @@ def deliver(char):
     dest_key, pay, drop_desc = tuning.COURIER_JOBS[tier]
     if not char.location or char.location.key != dest_key:
         return (
-            f"Not here. The drop is at {dest_key} — {drop_desc}. "
+            f"Not here. The drop is at {dest_key}: {drop_desc}. "
             "Parcels do not deliver themselves to more convenient rooms."
         )
     parcels = carried_parcels(char)
@@ -120,7 +120,7 @@ def seize_contraband(char, found_by="an officer of the Watch"):
     if pocket:
         pocket.delete()
         char.msg(
-            "|gGloved hands find the pocket — and the pocket, with one "
+            "|gGloved hands find the pocket, and the pocket, with one "
             "soft click of its seam, gives them its emptiness.|n The "
             "search moves on. Your cargo settles back against your ribs. "
             "The seam hangs slack now, spent."

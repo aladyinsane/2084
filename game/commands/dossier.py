@@ -79,7 +79,7 @@ class CmdDossier(Command):
         width = 52
         lines = [
             "|=k" + "=" * width + "|n",
-            "|w MINISTRY OF RECORDS — CITIZEN FILE|n",
+            "|w MINISTRY OF RECORDS - CITIZEN FILE|n",
             "|=k" + "-" * width + "|n",
             f" Subject:   {caller.key}",
             f" Grade:     Citizen, Grade {grades.grade_of(caller)}",
@@ -143,7 +143,7 @@ class CmdDossier(Command):
             visible_count = summaries.get(type_key, {}).get("visible", 0)
             if visible_count:
                 summary_lines.append(
-                    f"   {spec['display']} — {visible_count} on file "
+                    f"   {spec['display']}: {visible_count} on file "
                     f"(|c{spec['label']}|n)"
                 )
         if summary_lines:

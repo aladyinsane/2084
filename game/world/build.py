@@ -80,11 +80,11 @@ ROOMS = {
     "checkpoint": (
         "Central Spire Checkpoint",
         5,
-        "Steel gates, white light, no shadows anywhere — the architecture of "
+        "Steel gates, white light, no shadows anywhere: the architecture of "
         "being seen. Officers of the Watch stand behind glass, faces lit from "
         "below by scanner readouts. A sign in Ministry typeface reads: "
         "TRANSPARENCY IS SAFETY. YOURS. The queue is silent, and everyone in "
-        "it is rehearsing. North, past the gates, the Spire lobby glows — "
+        "it is rehearsing. North, past the gates, the Spire lobby glows, "
         "clearance grade C-1 and above.",
     ),
     "spire_lobby": (
@@ -127,7 +127,7 @@ ROOMS = {
     "tenement": (
         "Tenement Row",
         1,
-        "Housing block K-fifty-something — the stencilled number has flaked "
+        "Housing block K-fifty-something: the stencilled number has flaked "
         "past reading. Laundry lines web the airshaft, a radio plays a song "
         "older than the regime, and someone is arguing about a kettle. The "
         "Grid barely watches here. Nobody worth watching, says the Grid. The "
@@ -290,7 +290,7 @@ SENSORS = [
     (
         "checkpoint",
         "a scanner array",
-        "Black glass domes track in smooth, silent arcs — plural, overlapping, "
+        "Black glass domes track in smooth, silent arcs, plural, overlapping, "
         "leaving no angle unaccounted for. A status row of green diodes "
         "confirms that everything is working, which you already knew.",
         2,
@@ -442,8 +442,8 @@ def build():
     rooms["queue"].db.ambience = [
         "The line advances one place. Nobody saw the front of it move. "
         "Nobody has ever seen the front of it move.",
-        "Somewhere behind you: '—and I said, you can't redact what I '"
-        "'never said, and he wrote that down—'",
+        "Somewhere behind you: '...and I said, you can't redact what I '"
+        "'never said, and he wrote that down...'",
         "The distribution window opens, dispenses one (1) of something, "
         "and closes with the finality of a stamp.",
     ]
@@ -626,7 +626,7 @@ def build():
     )
     seam.db.desc = (
         "Where the old valve conduit meets the ceiling, the cement has been "
-        "re-pointed — neatly, recently, and only there. Behind the seam, "
+        "re-pointed: neatly, recently, and only there. Behind the seam, "
         "something very small is very patient."
     )
     seam.db.sensitivity = 1
@@ -653,7 +653,7 @@ def build():
     )
     blankets.db.desc = (
         "Two blankets, folded to a precision no one folds anything under "
-        "actual use — corners squared, creases sharp enough to still be "
+        "actual use: corners squared, creases sharp enough to still be "
         "showroom creases. Nobody sleeps under a blanket this neat. "
         "Somebody wants you to believe somebody does."
     )
@@ -681,7 +681,7 @@ def build():
         location=rooms["bolthole"],
     )
     rations.db.desc = (
-        "A shelf of tins, labels forward, rows perfectly even — a display "
+        "A shelf of tins, labels forward, rows perfectly even: a display "
         "of provisions rather than a stock of them. The tin at the front "
         "of each row is the same tin as the one behind it. Sector 9 does "
         "not have this many of anything to spare."
@@ -696,7 +696,7 @@ def build():
         location=rooms["bolthole"],
     )
     kettle.db.desc = (
-        "Recently cleaned, the room's description insists — and it is: no "
+        "Recently cleaned, the room's description insists, and it is: no "
         "scale inside, no scorch on the base, the spout bright the way "
         "spouts are bright before they've boiled anything at all. A kettle "
         "kept, not used."
@@ -852,7 +852,7 @@ def build():
     archivist.db.desc = (
         "Dust-colored cardigan, cotton gloves, and the serenity of someone "
         "who decides what happened. The archivist amends and redacts citizen "
-        "files for a consideration in standing — petition them, and the past "
+        "files for a consideration in standing: petition them, and the past "
         "improves. The service is real, the ledger is balanced, and the "
         "request goes in a file of its own."
     )

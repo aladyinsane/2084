@@ -38,7 +38,7 @@ HELP_ENTRY_DICTS = [
             cleared, and through attending assemblies when convened.
 
             |wWhat it costs you:|n above 20 or so, the Watch's sweeps may
-            select you — a papers check if you are middling, detainment at
+            select you: a papers check if you are middling, detainment at
             50 and up. Patrols detain the hot on sight. Citizens read your
             heat off your face and act accordingly.
 
@@ -56,13 +56,13 @@ HELP_ENTRY_DICTS = [
             On an interval, the Grid rolls each connected citizen above a
             floor of Exposure (|chelp exposure|n) for its attention. The
             chance of being picked rises with how interesting you currently
-            are — nobody, at the bottom, is never sampled at all; the
+            are: nobody, at the bottom, is never sampled at all; the
             hottest citizens are caught most tries, not every try. A sweep
             that selects you means a papers check if you are middling,
             detainment if you are hot enough. Patrols work the same
             arithmetic in the street, in real time, on sight.
 
-            It is never certain and never omniscient — the Grid is
+            It is never certain and never omniscient: the Grid is
             probability, not a scripted trap. What *is* certain: the trend.
             Exposure that keeps climbing keeps the odds climbing with it,
             and the prompt tells you which way it is moving before
@@ -77,15 +77,15 @@ HELP_ENTRY_DICTS = [
             The other number in your prompt: how watched |wthis place|n is,
             from 0 to 5.
 
-            0 means nothing watches here at all — no fixtures, no ambient
+            0 means nothing watches here at all: no fixtures, no ambient
             coverage. 5 is the checkpoint: white light, no shadows,
             architecture designed to be seen in. Entering a place accrues
             Exposure in proportion to its visibility, plus whatever live
-            devices hang there (|cobserve|n counts them — attention is a
+            devices hang there (|cobserve|n counts them; attention is a
             skill).
 
             Visibility belongs to the room, not to you, and it does not
-            change on its own — though devices can break, and broken
+            change on its own, though devices can break, and broken
             devices watch nothing.
 
             A place showing Vis 0 with nothing live in it is a |wdead
@@ -132,7 +132,7 @@ HELP_ENTRY_DICTS = [
         "aliases": ["influence"],
         "category": _CATEGORY,
         "text": """
-            The other ledger — separate from |wExposure|n (|chelp
+            The other ledger, separate from |wExposure|n (|chelp
             exposure|n) and separate from your |wgrade|n (|chelp grade|n).
             Standing is kept per institution: the Ministry of Records, the
             Ministry of Commerce, whichever office last had a use for you.
@@ -145,7 +145,7 @@ HELP_ENTRY_DICTS = [
             |wHow it's spent:|n |cpetition|n (amend your file),
             |cforge|n's sanctioned cousin; |capply|n for clearance; the
             Annex's other services. Spending standing never lowers your
-            grade — merit is separate and lifetime (|chelp grade|n).
+            grade: merit is separate and lifetime (|chelp grade|n).
 
             |wWhere to see it:|n |cdossier|n lists "Standing with
             institutions" once you've earned any. Nothing is owed you
@@ -159,7 +159,7 @@ HELP_ENTRY_DICTS = [
         "category": _CATEGORY,
         "text": """
             The one public channel: |cgridwide <message>|n, heard sector-
-            wide by anyone listening. Monitored, of course — speaking on
+            wide by anyone listening. Monitored, of course: speaking on
             it costs exposure, same as speaking into a microphone the
             state also owns. Cheap for a whisper, not for a habit.
         """,

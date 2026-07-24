@@ -19,11 +19,11 @@ from evennia import Command, default_cmds
 _WING_HINTS = {
     "wing_ante": (
         "you're in the Antechamber. Type |cmap|n to see the sector for "
-        "yourself, or ask the clerk beside you after |cerrands|n — they "
+        "yourself, or ask the clerk beside you after |cerrands|n, they "
         "have a use for a citizen's legs."
     ),
     "wing_watched": (
-        "you're in the Watched Life room. Type |cobserve|n right here — "
+        "you're in the Watched Life room. Type |cobserve|n right here: "
         "see what the room is showing you before you're told."
     ),
     "wing_file": (
@@ -53,15 +53,15 @@ _ABRIDGED = """\
 |=m  Issued to citizens not yet through orientation. The full index
   is available with |chelp all|=m; nothing is withheld, only sequenced.|n
 
-  |cnext|n      — the Grid's one suggestion for what to do now
-  |clook|n      — read where you are (rooms are how the Grid explains itself)
-  |cmap|n       — your own recollection of the sector
-  |cdossier|n   — your file, as the Ministry keeps it
-  |cgrade|n     — your civic grade and the next review
-  |cerrands|n   — constructive uses for a citizen's legs, offered in person
-  |creport|n    — be assigned your function (Assignment Hall counter)
-  |cwork|n      — visible usefulness; it pays, and it cools
-  |chelp <topic>|n — e.g. |chelp exposure|n, |chelp visibility|n
+  |cnext|n      : the Grid's one suggestion for what to do now
+  |clook|n      : read where you are (rooms are how the Grid explains itself)
+  |cmap|n       : your own recollection of the sector
+  |cdossier|n   : your file, as the Ministry keeps it
+  |cgrade|n     : your civic grade and the next review
+  |cerrands|n   : constructive uses for a citizen's legs, offered in person
+  |creport|n    : be assigned your function (Assignment Hall counter)
+  |cwork|n      : visible usefulness; it pays, and it cools
+  |chelp <topic>|n : e.g. |chelp exposure|n, |chelp visibility|n
 
 |=m  Orientation waits EAST of the Assignment Hall. Completing it is
   the fastest thing the Grid will ever credit you for.|n"""
@@ -128,7 +128,7 @@ class CmdNext(Command):
             spec = errands.ERRANDS.get(state["key"])
             if spec:
                 return (
-                    f"you hold an errand — |c{spec['title']}|n. "
+                    f"you hold an errand: |c{spec['title']}|n. "
                     f"{spec['brief']}"
                 )
         if not caller.db.oriented:
@@ -197,11 +197,11 @@ class CmdGrade(Command):
     Usage:
       grade
 
-    Grades run from 6 (probationary — everyone starts here) down to 1.
+    Grades run from 6 (probationary, everyone starts here) down to 1.
     If you are used to levels: this is that, upside down, because the
     civil service was ranking people before games were.
 
-    Merit drives it — everything the Grid has watched you earn: standing
+    Merit drives it, everything the Grid has watched you earn: standing
     paid by the ministries, errands seen through, a function held,
     clearance granted, orientation completed. Merit is lifetime; spending
     standing at the Annex does not lower your grade. Losing your function

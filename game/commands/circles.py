@@ -52,7 +52,7 @@ class CmdCircle(Command):
       circle leave             - walk away (what you already share stays shared)
 
     A circle is not a guild. There is no roster the Grid can read, no hall,
-    no banner. There are only people who trusted each other somewhere dark —
+    no banner. There are only people who trusted each other somewhere dark,
     and everything the Ministry ever learns about a circle, it learns from
     one of them.
     """
@@ -111,7 +111,7 @@ class CmdCircle(Command):
         for member in sorted(members, key=lambda m: m.key):
             here = "|gon the Grid|n" if member.sessions.count() else "|=melsewhere|n"
             you = " (you)" if member is self.caller else ""
-            lines.append(f" - {member.key}{you} — {here}")
+            lines.append(f" - {member.key}{you}: {here}")
         lines.append(
             "|=mEach name on this list can end every other name on it. "
             "That is what a circle is.|n"
@@ -136,7 +136,7 @@ class CmdCircle(Command):
             f"In the dark, with no witnesses worth the word, "
             f"|w{circles.circle_name(slug)}|n begins to exist. It has one "
             "member and no evidence. Keep it that way as long as you can.\n"
-            "|=mInvite others here with |ccircle invite <citizen>|n|=m — "
+            "|=mInvite others here with |ccircle invite <citizen>|n|=m, "
             "they must be standing where you are standing: nowhere.|n"
         )
 
@@ -198,7 +198,7 @@ class CmdCircle(Command):
         caller.msg(
             f"You are now part of |w{circles.circle_name(slug)}|n, alongside "
             f"{', '.join(sorted(others)) if others else 'no one, anymore'}. "
-            "\n|=mPass word with |csignal <message>|n|=m — safe from quiet "
+            "\n|=mPass word with |csignal <message>|n|=m, safe from quiet "
             "places, less so from watched ones. And understand the "
             "arithmetic: everything the circle does, every member can "
             "eventually be made to sign for.|n"
@@ -215,7 +215,7 @@ class CmdCircle(Command):
         caller.msg(
             f"You stop being part of {circles.circle_name(slug)}. The others "
             "will notice the way one notices weather. What you already "
-            "know, you still know — and so does anyone who ever signs a "
+            "know, you still know, and so does anyone who ever signs a "
             "form about it."
         )
 
@@ -260,7 +260,7 @@ class CmdRecruit(Command):
       recruit <someone>
 
     Some citizens hear things: menders, vendors, people whose work keeps
-    them on corners. Recruited, they pass word to your circle — who was
+    them on corners. Recruited, they pass word to your circle: who was
     taken, when the street goes quiet. It is done in quiet places, and it
     is a bet: you are trusting that the person who listens for you does
     not also listen for someone else. |cjudge|n them first, if you can
@@ -308,14 +308,14 @@ class CmdRecruit(Command):
             f"{target.key} listens, looks at the middle distance for a "
             "while, and names no price, which is either loyalty or the "
             "first installment of something.\n"
-            "|=mThey will pass word to your circle — if word is what they "
+            "|=mThey will pass word to your circle, if word is what they "
             "actually deal in.|n"
         )
 
 
 class CmdJudge(Command):
     """
-    Take the measure of an informant — or a fellow citizen.
+    Take the measure of an informant, or a fellow citizen.
 
     Usage:
       judge <someone>
@@ -324,7 +324,7 @@ class CmdJudge(Command):
     entirely on how well you have learned to look (the |cobserve|n skill).
     Against an informant: most citizens get nothing; a practiced eye reads
     demeanor; a trained one reads the truth. Against a fellow citizen the
-    bar is higher — you are not reading a demeanor, you are reading whether
+    bar is higher: you are not reading a demeanor, you are reading whether
     their file remembers a Section C, and files remember for a long time
     (ADR 0010).
     """
@@ -432,7 +432,7 @@ class CmdFlip(Command):
     Usage:
       flip <someone>
 
-    A plant can be turned — everyone in the listening trade has a price,
+    A plant can be turned: everyone in the listening trade has a price,
     and the Ministry's stipend is famously late. It costs standing with the
     Ministry of Commerce (ration chits are the only currency that never
     asks questions), and it requires knowing *for certain* what you are
@@ -475,7 +475,7 @@ class CmdFlip(Command):
             f"Chits change hands in a doorway. {target.key} weighs them, "
             "weighs something less countable, and nods once.\n"
             "|gWhat they hear is yours now. What they already reported "
-            "stays reported — files do not un-happen.|n"
+            "stays reported: files do not un-happen.|n"
         )
 
 
@@ -486,12 +486,12 @@ class CmdStash(Command):
     Usage:
       stash                - where the cache is, and what's in it
       stash <item>         - put something in (establishes the cache if
-                             the circle has none — only in a dead zone)
+                             the circle has none, only in a dead zone)
       stash take <item>    - take something out (at the cache)
 
     A loose brick, a hollow pipe: one hiding place per circle, invisible
     to anyone who doesn't already know, which is the only lock that has
-    ever worked. Knowing where it is *is* the membership — and Section C
+    ever worked. Knowing where it is *is* the membership, and Section C
     has an address line. A confessed circle's stash belongs to the
     Ministry before the confessor's coat is returned.
     """
@@ -559,7 +559,7 @@ class CmdStash(Command):
             cache = circles.establish_cache(caller, room)
             caller.msg(
                 "You find it almost without looking: a loose brick, a "
-                "gap behind a pipe — a place you'd have to know. "
+                "gap behind a pipe: a place you'd have to know. "
                 "|=mThe circle has a cache now. Its members will know "
                 "where by knowing you.|n"
             )

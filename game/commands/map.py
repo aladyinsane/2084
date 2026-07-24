@@ -58,7 +58,7 @@ class CmdMap(ContribCmdMap):
 
     No map of Sector 9 is issued, sold, or acknowledged to exist. This is
     yours: the streets as you know them, each place marked with how watched
-    it is (0 dark through 5 blinding — see |chelp visibility|n). |g@|n is
+    it is (0 dark through 5 blinding, see |chelp visibility|n). |g@|n is
     you. |w[0^|n has a way up; |wv0]|n a way down. Places beyond your
     clearance are not on it, because as far as you are concerned they are
     not anywhere.

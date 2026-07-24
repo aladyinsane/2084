@@ -11,12 +11,12 @@ the min-maxer who skipped orientation still did fine).
 _ACKNOWLEDGMENTS = {
     "map": (
         "|=mThe sector unfolds behind your eyes, dark and lit. Call it up "
-        "again any time — |cmap|=m costs nothing, and the Ministry would "
+        "again any time, |cmap|=m costs nothing, and the Ministry would "
         "rather you not get lost.|n"
     ),
     "observe": (
         "|=mThe skill of noticing the room noticing you. It sharpens with "
-        "use, here and everywhere — you will never look at a room the "
+        "use, here and everywhere: you will never look at a room the "
         "same way again, which is the point.|n"
     ),
     "dossier": (
@@ -25,7 +25,7 @@ _ACKNOWLEDGMENTS = {
     ),
     "grade": (
         "|=mA number, standing in for a citizen. Ask again after anything "
-        "that might have moved it — the Grid updates it whether you ask "
+        "that might have moved it: the Grid updates it whether you ask "
         "or not.|n"
     ),
     "errands": (

@@ -27,8 +27,8 @@ CATALOG = {
         "a wellness monitor",
         "wrist",
         "cuff",
-        "A smooth grey cuff that counts your steps, your pulse, and — the "
-        "leaflet does not mention this part — your whereabouts. It hums "
+        "A smooth grey cuff that counts your steps, your pulse, and (the "
+        "leaflet does not mention this part) your whereabouts. It hums "
         "very slightly, like something content.",
         "the Ministry worries less about citizens it can hear (heat fades "
         "twice as fast; your movements log twice as easily)",
@@ -105,7 +105,7 @@ class CmdList(Command):
                 name, slot, _, _, pitch = CATALOG[key]
                 faction, price = tuning.GEAR_PRICES[key]
                 lines.append(
-                    f" - |w{name}|n (|c buy {key}|n) — {price} standing "
+                    f" - |w{name}|n (|c buy {key}|n): {price} standing "
                     f"with {faction}, worn on the {slot}.\n"
                     f"   |=m{pitch}.|n"
                 )
@@ -123,7 +123,7 @@ class CmdBuy(Command):
     Usage:
       buy <item>
 
-    Prices are in standing — the only currency Sector 9 has ever printed.
+    Prices are in standing, the only currency Sector 9 has ever printed.
     State issue goes in your file; the other kind goes in nobody's.
     """
 
@@ -192,7 +192,7 @@ class CmdWear(Command):
     Usage:
       wear <item>
 
-    One item per place it's worn — a wrist has room for a badge or a
+    One item per place it's worn: a wrist has room for a badge or a
     cuff, not both. What you wear changes how the Grid reads you, in
     both directions.
     """
