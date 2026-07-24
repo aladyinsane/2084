@@ -9,7 +9,7 @@ In the damp service conduits beneath Tenement Row, where Ministry sensors cannot
 
 ## Verbatim Text & Analysis
 
-The chalk marks (`world/build.py`) contain fourteen distinct principles, each directly explaining an unsanctioned game verb or subterranean mechanic:
+The chalk marks (`world/build.py`) contain sixteen distinct principles, each directly explaining an unsanctioned game verb or subterranean mechanic:
 
 ### 1. On Visibility & Sweeps
 > *"sweeps can't reach where nothing watches. down here you are a rumor."*
@@ -67,7 +67,11 @@ The chalk marks (`world/build.py`) contain fourteen distinct principles, each di
 > *"what a circle keeps, it keeps in a brick (`stash`), somewhere dark, once. choose the somewhere well, and remember when you sign anything: section c has an address line."*
 * **Mechanical Counterpart**: Brick caches (`stash`) and the confiscation of circle stashes upon Section C betrayal.
 
-### 15. On Underground Standing (`word`)
+### 15. On Joint Projects & Shared Stakes
+> *"a circle that finishes something together is worth more than one of you talking. `circle project start`, when you're ready, and mean it: signing after the fact costs the whole circle the pot, not just you."*
+* **Mechanical Counterpart**: Escalating circle projects ([ADR 0013](../../decisions/0013-escalating-circle-projects.md)) — cumulative solo sabotage and courier stages, then a synchronous two-member climax, paying underground standing only on completion and forfeiting the whole pot on a completed Section C confession.
+
+### 16. On Underground Standing (`word`)
 > *"no ledger holds what you're worth down here. ask with `word`, somewhere it's safe to ask. nobody writes down the answer either."*
 * **Mechanical Counterpart**: Checking off-the-books Underground standing via `word` ([ADR 0009](../../decisions/0009-shadow-ladder-is-a-checkable-whisper.md)).
 

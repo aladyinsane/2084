@@ -50,6 +50,8 @@ class CmdCircle(Command):
       circle invite <citizen>  - invite someone present (same condition)
       circle join              - accept an invitation (same condition)
       circle leave             - walk away (what you already share stays shared)
+      circle project           - a joint project's progress, if one is running
+      circle project start     - begin one (any member; one at a time)
 
     A circle is not a guild. There is no roster the Grid can read, no hall,
     no banner. There are only people who trusted each other somewhere dark,
@@ -78,9 +80,12 @@ class CmdCircle(Command):
             self.do_join()
         elif action == "leave":
             self.do_leave()
+        elif action == "project":
+            self.do_project(rest)
         else:
             caller.msg(
-                "Usage: circle [form <name> | invite <citizen> | join | leave]"
+                "Usage: circle [form <name> | invite <citizen> | join | "
+                "leave | project [start]]"
             )
 
     def show_status(self):
@@ -218,6 +223,34 @@ class CmdCircle(Command):
             "know, you still know, and so does anyone who ever signs a "
             "form about it."
         )
+
+    def do_project(self, args):
+        from world import circle_projects, circles
+
+        caller = self.caller
+        slug = circles.circle_of(caller)
+        if not slug:
+            caller.msg("A project needs a circle first.")
+            return
+        if (args or "").strip().lower() == "start":
+            err = circle_projects.start(caller)
+            if err:
+                caller.msg(err)
+                return
+            caller.msg(
+                "You put it to the others in the fewest words it has ever "
+                "been put in. |=mCasing first: sabotage, however many of "
+                "you it takes.|n"
+            )
+            return
+        lines = circle_projects.status_lines(slug)
+        if not lines:
+            caller.msg(
+                "Nothing running. |ccircle project start|n, when you're "
+                "ready to try."
+            )
+            return
+        caller.msg("\n".join(lines))
 
 
 class CmdSignal(Command):

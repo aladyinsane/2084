@@ -237,6 +237,18 @@ def betray(confessor):
                     "keeps now."
                 )
         logger.log_info(f"watchlog: circle '{slug}' cache confiscated")
+    # ADR 0013: a running project doesn't survive a completed Section C
+    # either -- the pot forfeits whole, same reasoning as the stash above.
+    from world import circle_projects
+
+    if circle_projects.project_of(slug):
+        circle_projects.abandon(slug)
+        for member in online_members(slug):
+            if member is not confessor:
+                member.msg(
+                    "|rAnd whatever the circle was building toward: "
+                    "gone with it.|n"
+                )
     confessor.tags.remove(slug, category=MEMBER_TAG_CATEGORY)
     _dissolve_if_empty(slug)
     logger.log_info(

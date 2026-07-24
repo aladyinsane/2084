@@ -52,7 +52,7 @@ Before any feature PR is merged into `main`, check:
 | **Clearance Application (Form C-1)** | [world/form_c1.py](../../game/world/form_c1.py) | [forms-and-notices.md](artifacts/forms-and-notices.md#form-c-1) |
 | **Employment Verification (Form 77)** | [world/form_c1.py](../../game/world/form_c1.py) | [forms-and-notices.md](artifacts/forms-and-notices.md#form-77) |
 | **Confession Form (Section C)** | [commands/circles.py](../../game/commands/circles.py) | [forms-and-notices.md](artifacts/forms-and-notices.md#section-c) |
-| **Tunnel B Chalk Marks** | [world/build.py](../../game/world/build.py#L557-L607) | [the-chalk-marks.md](artifacts/the-chalk-marks.md) |
+| **Tunnel B Chalk Marks** | [world/build.py](../../game/world/build.py#L562-L616) | [the-chalk-marks.md](artifacts/the-chalk-marks.md) |
 | **Orientation Placards** | [world/build.py](../../game/world/build.py#L157-L245) | [historical-background.md](historical-background.md#ii-the-civic-machine) |
 | **Surveillance Lenses & Sensors** | [typeclasses/objects.py](../../game/typeclasses/objects.py) | [apparatus-and-requisitions.md](artifacts/apparatus-and-requisitions.md#surveillance-apparatus) |
 | **State Badges & Wellness Monitors** | [typeclasses/gear.py](../../game/typeclasses/gear.py) | [apparatus-and-requisitions.md](artifacts/apparatus-and-requisitions.md#state-issue-gear) |
