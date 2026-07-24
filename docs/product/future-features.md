@@ -49,33 +49,16 @@ The Ministry's official map (idealized, missing the places you actually need) ve
 your own annotations (contraband, shareable, seizable). Map *accuracy* as gameplay —
 which turns a comfort feature back into principle 1's "the world is the antagonist."
 
-### World-building tooling: adding areas without a full rebuild *(from Lauren's cleanup notes, 2026-07-25)*
-Lauren's question: `world/build.py` is one-shot, invoked only at initial setup
-(`contributing.md` rule 8 — the world is code, not hand-`dig`ged). Two related but
-distinct asks: (a) can a *new* district be added later without re-running, or
-risking corrupting, the districts already built? (b) could an area ever be built
-from inside the running game, rather than only in a batch file?
-**Current state:** neither is possible cleanly today. `build()` is one monolithic
-function; every `create_object` call runs unconditionally, so re-running it against
-a live DB duplicates or errors on everything already there — the same shape as the
-"one-shot, not idempotent" snag already hit twice needing manual backfill scripts
-for post-launch additions to *existing* rooms (CLAUDE.md), just bigger: a new
-district is a whole extra unconditional pass over the old ones. In-game building is
-deliberately unsupported at all — rule 8 exists specifically so the world stays
-reviewable and rebuildable from the repo, not scattered across live-server `dig`
-commands.
-**Candidate shapes, not yet decided:**
-1. Split `build()` into one function per district, each idempotent
-   (`get_or_create`-style guards keyed on room name/tag) — a new district becomes a
-   new function and a new call, without touching the guarded existing ones.
-2. Adopt the `mapbuilder` contrib (above) for new districts once hand-written batch
-   code stops scaling, while old districts stay frozen in their current batch files.
-3. Some combination: batch code stays the source of truth (rule 8's discipline is
-   worth keeping), but the tooling around it becomes safe to re-run incrementally.
-**Why not now:** no district has been added since v0.1's starting slice — real
-tooling debt, but only worth paying down when the "Big-world expansion" trigger
-below actually fires (a measured busy world asking for more space), per principle 8
-and anti-principle 4.
+### World-building tooling: adding areas without a full rebuild — DECIDED, not yet built ([ADR 0012](../decisions/0012-world-building-tooling-incremental-areas.md))
+*(from Lauren's cleanup notes, 2026-07-25)* `world/build.py`'s one-shot nature
+(`contributing.md` rule 8) blocks adding a district without risking the ones
+already built, and blocks in-game building entirely (unchanged by this
+decision — rule 8 still rules that out on purpose). ADR 0012 picked the shape
+— split `build()` into one idempotent function per district — over adopting
+the `mapbuilder` contrib or a single-entry-point hybrid. Implementation is
+deliberately deferred to whenever the "Big-world expansion" trigger below
+actually fires, so the idempotency guards get designed against a real new
+district rather than a hypothetical one.
 
 ### Propaganda engine
 World news that reacts to aggregate player action: sabotage begets "foreign saboteurs"
