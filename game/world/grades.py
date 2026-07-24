@@ -29,7 +29,7 @@ detected at the choke points that change merit.
 
 from evennia.utils import logger
 
-from world import tuning
+from world import forms, tuning
 
 GRADE_MIN = 6  # probationary: every citizen starts here, briefly
 
@@ -103,21 +103,16 @@ def check_reclassification(char):
     if new == old:
         return new
     char.db.citizen_grade = new
-    width = 46
     if new < old:
         closing = "The Grid thanks you for your legibility."
     else:
         closing = "The Ministry does not discuss its arithmetic."
     char.msg(
-        "\n".join(
-            [
-                "|w" + "=" * width + "|n",
-                "|w  NOTICE OF RECLASSIFICATION (FORM 9-A)|n",
-                "  By review of the record, your civic grade",
-                f"  is revised: Grade {old} |w->|n |wGrade {new}|n.",
-                f"  {closing}",
-                "|w" + "=" * width + "|n",
-            ]
+        forms.form_box(
+            "|wNOTICE OF RECLASSIFICATION (FORM 9-A)|n",
+            "By review of the record, your civic grade",
+            f"is revised: Grade {old} |w->|n |wGrade {new}|n.",
+            closing,
         )
     )
     if hasattr(char, "send_prompt"):
