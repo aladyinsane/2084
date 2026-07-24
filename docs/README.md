@@ -57,6 +57,7 @@ Numbered, immutable once accepted, superseded rather than edited. Every one has 
 | [roadmap.md](product/roadmap.md) | v0.1–v0.13, sequenced by what proves the thesis: *a surveillance state beats a bestiary* |
 | [future-features.md](product/future-features.md) | The parking lot — headlined by the ASCII map — and the known risks we shipped on purpose |
 | [worldbuilding-ideas.md](product/worldbuilding-ideas.md) | Worldbuilding concepts and narrative backlog feeding future gameplay features into lore |
+| [game-theory-and-fun.md](product/game-theory-and-fun.md) | Full game-theory audit and five concrete gamification proposals to make 2084 thrilling |
 
 ## Lore
 
