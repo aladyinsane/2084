@@ -3,7 +3,7 @@
 Sequenced by "what proves the thesis," not by "what's easy." The thesis: *a surveillance
 state is a better MUD antagonist than a bestiary.* Each version is a playable claim.
 
-## v0.1 — The spine (current)
+## v0.1 — The spine
 
 Walkable world + the surveillance loop's skeleton: move through the Grid, be seen,
 watch your exposure climb and decay, read your own dossier. No Watch consequences yet —
@@ -420,6 +420,161 @@ commonest newbie error (a direction with no exit) with nonsense.
 - [x] Curriculum audit: nothing new to teach — this version *is* the
       teacher, living entirely in the failure surface. Verified live:
       all nine instinct paths answered in-voice at the Annex
+
+## v0.15 — Orientation goes hands-on (+ mobile client, phase 1)
+
+The Wing taught by placard — read a wall of text, walk on. This version makes it
+teach by doing, and adds a second front door for phones.
+
+- [x] Each teaching room (map, observe, dossier, grade/errands) now invites the
+      citizen to try the verb right there; a new `world/onboarding.py` acknowledges
+      the first-ever use of a verb wherever it happens, deliberately placeless so a
+      citizen who skips the Wing isn't worse-taught for finding the verbs on their
+      own (ten-persona playtest: the min-maxer who skipped orientation still did
+      fine)
+- [x] `next` gives Wing-specific hints while a citizen is standing inside it and
+      still unoriented, naming the exact verb for the room they're in instead of a
+      generic "orientation is five rooms east" — unchanged outside the Wing or once
+      oriented
+- [x] The orientation clerk's placard states the "rounds" errand chain explicitly
+      from room one, since the clerk was already offering it
+- [x] Mobile web client, phase 1 ([research](../research/mobile-web-client.md)): the
+      stock client is 100% unmodified Evennia (GoldenLayout, jQuery, Bootstrap,
+      Popper, all CDN-loaded) with no small-screen fallback. A second, purpose-built
+      client at `webclient/mobile/` — one scrolling output pane, one fixed input bar
+      — reuses Evennia's own protocol layer (`evennia.js`) unchanged and drops
+      GoldenLayout/Bootstrap/Popper entirely. Phase 1 covers the route, template, and
+      protocol wiring; on-device testing (touch input, keyboard resizing) is phase 2,
+      not yet done — couldn't be verified from this environment
+- [x] Testing-feedback fixups: readable font size restored (the stock small-width CSS
+      shrink was sized for a GoldenLayout pane, not a screen that *is* the client),
+      map alignment fixed (a missing `cls` kwarg default was silently dropping
+      `white-space: pre-wrap`, breaking the map's column alignment), a compass D-pad
+      added for movement without typing full direction names
+- [x] Exits/Characters/You-see each given their own paragraph — the v0.13-era
+      spacing fix extended after playtest feedback that it still read as too tight
+
+## v0.16 — The advice is legible (round-two playtest fixes, tier 1)
+
+Round-two playtest fixes, tier 1: four help/UX legibility fixes, no new systems.
+
+- [x] Fixed the `help_entries.py` category/key collision that made "help the
+      grid" — the game's own most-repeated piece of advice — silently return a
+      command-category listing instead of the explainer, for every player, always
+      (every command sharing that category needed the same rename, since any one
+      recreates the collision)
+- [x] "Standing" gets a real help entry, matching exposure/visibility's format;
+      `dossier` now names the ledger at zero instead of omitting the line until a
+      citizen has earned some
+- [x] `next`'s catalog-exhausted fallback now names the underground and circles
+      explicitly instead of vague flavor text (catalog-first behavior unchanged —
+      this only fires once nothing sanctioned is left to offer)
+- [x] Orientation-skippers get unstuck from the abridged help card: a successful
+      `report` (taking a function) now sets `db.oriented`, alongside walking the
+      Demonstration Corridor — the second unambiguous "playing for real" milestone
+- [x] `x` registered as a `look` alias (near-universal MUD shorthand for examine,
+      previously fell through to nomatch)
+
+## v0.17 — The room answers back (round-two playtest fixes, tier 2)
+
+Round-two playtest fixes, tier 2: the two items round one flagged and round two
+confirmed still open.
+
+- [x] NPC deflection: the seven built citizens (ration clerk, orientation clerk,
+      lamp-mender, tea vendor, broker, requisitions clerk, archivist) each carry a
+      personality-true brush-off (`db.deflection`) for `talk`/`ask`, read by
+      `nomatch.py` before falling back to the generic instinct line
+- [x] Prop coverage: the Bolt-Hole's described tells (the too-neat blankets, unused
+      cots, a display of tinned rations, a kettle that's never boiled anything) are
+      examinable objects now — the honeypot's fair-warning layer was invisible to
+      `look` for exactly the close-reading player it was written for
+- [x] Build lint extended (sibling to `test_described_devices_exist`): asserts every
+      built `Citizen` carries a deflection line, so this class of gap gets caught
+      going forward instead of rediscovered at the next playtest
+
+## v0.18 — Round two, concluded (tiers 3–4)
+
+The last two tiers of the round-two playtest fix plan.
+
+- [x] **Tier 3 — the idler-farming fix.** Known risk since v0.12, sharpened by both
+      playtests (claude's dossier hit 35 consecutive duplicate absence incidents).
+      Per Lauren's call, all three previously-parked candidate fixes shipped
+      together: a citizen whose session has gone quiet past
+      `tuning.ASSEMBLY_ACTIVE_WINDOW` (10 min) is skipped from the roll entirely;
+      consecutive unexcused absences stop generating new incidents past
+      `tuning.ASSEMBLY_ABSENCE_CAP` (5) in a row, resetting on next attendance; a
+      citizen who registered after an assembly was announced (`announced_at`) is
+      excused from that roll
+- [x] **Tier 4 — the shadow ladder** ([ADR 0009](../decisions/0009-shadow-ladder-is-a-checkable-whisper.md)).
+      Round one's finding 4: underground standing had no visible progress readout.
+      A new `word` command (aliases `rumor`, `reputation`), gated by room visibility
+      exactly like `recruit`, names the current tier (a five-step table derived
+      purely from existing underground influence, zero new stored state) and the gap
+      to the next one — deflecting somewhere watched, speaking somewhere dark. No
+      fanfare, no dossier or grade interaction; discovery stays chalk-only, on
+      purpose (accepted cost, see the ADR)
+
+## v0.19 — Reputation travels ([ADR 0010](../decisions/0010-reputation-travels-judge-reads-citizens.md)) + legibility round 3
+
+Trust-machine backlog item 1, plus a small batch of quick legibility fixes.
+
+- [x] `judge` now works on citizens, not only `Informant` NPCs: reads whether a
+      target's most recent Section C confession, if any and unredacted, was
+      completed or returned blank, gated at `tuning.OBSERVE_TIER_REPUTATION` (40)
+      observation. Detection is by tag, set once at record creation in
+      `detention.py`'s confess branches, not by matching prose that forgery/rewrites
+      could break — same idiom as the shadow ladder and the informant version
+- [x] Decision recorded alongside: tier-3 combat (interrogation-resistance sparring)
+      **stays parked** — the learning-curve gate it was waiting on (v0.12–v0.13) was
+      met without it, and two full playtest rounds surfaced zero "wants combat"
+      findings ([Grind Shelf option 3](future-features.md#the-grind-shelf))
+- [x] Prompt spells out "Grade" instead of "G5" (same reasoning as v0.7's
+      Exposure/Visibility spell-out)
+- [x] New `help sweep` entry (aliases `watch`/`the watch`) — the sweep mechanic had
+      no helpfile at all; checked for category/key collisions first, given the
+      collision bug class this project has hit twice already
+- [x] Dossier incident rollup: *consecutive* identical incidents collapse to one
+      line with a number range and count (e.g. "1-35. Absent from mandatory civic
+      assembly (35)"), closing round-two finding 7 — only consecutive repeats
+      collapse, not every matching entry file-wide, since collapsing everywhere
+      would erase the numbering the ADR 0005 redaction gap depends on to stay
+      visible
+
+## v0.20 — Record compaction ([ADR 0011](../decisions/0011-old-incidents-compact-the-file-forgets-faster-than-the-truth-does.md))
+
+A long-term citizen's dossier grows without bound — every incident is a permanent,
+individually-numbered `Record` object, and nothing ever removed one. This version
+bounds growth for the two confirmed worst offenders without breaking ADR 0005's
+audit-trail promise.
+
+- [x] Prerequisite: incident numbers move from being derived live from list position
+      to being assigned once at creation and stored on the record (`db.number`,
+      from a persistent per-citizen counter) — behavior-preserving on its own, and
+      the piece that makes deleting old objects safe
+- [x] Compaction: `papers_check` and `assembly_absence` incidents, once 30 days old
+      and untouched (never individually amended or redacted), fold into a per-
+      citizen, per-type summary — `char.db.incident_summaries[type] = {"true": T,
+      "visible": V}`. `true` never lowers; `visible` is what `petition`/`forge` can
+      still reduce, at existing costs. A new `RecordCompactionScript` runs the daily
+      pass; movement logs and assembly attendance (never reachable by
+      petition/forge) get simple hard-deletion past a retention cap instead, no
+      summary needed
+- [x] Dossier: a new "Routine incidents on file" section shows each summarized
+      type's visible count and keyword, separate from the existing numbered list
+- [x] `petition`/`forge` extended with a keyword-targeting path (e.g. `petition
+      redact papers-checks`) alongside the existing numeric one; `amend` refuses a
+      keyword target outright — there's no single sentence left to rewrite
+- [x] Sets up Lauren's stated future feature — Underground-standing-gated visibility
+      into the Ministry's own edits, in the spirit of doublethink — with a real,
+      per-citizen, per-type data shape to read from later ([parked](future-features.md#doublethink-seeing-the-ministrys-edits-from-adr-0011-2026-07-23))
+- [x] Adjacent fix, same investigation: the papers-check sweep had the same
+      farming shape as the idler-absence bug (tier 3 above) — an unthrottled
+      identical incident on every sweep hit in the 20-50 exposure band. Fixed by
+      throttling the *file entry* only (`tuning.PAPERS_CHECK_RECORD_COOLDOWN`,
+      30 min); the exposure relief still applies every time
+- [x] Lore framework added alongside: `docs/lore/`'s Lore Maintenance Protocol and
+      In-Universe Artifact Registry, a world & interaction overview, and a
+      worldbuilding backlog feeding future features into lore
 
 ## Later / undecided
 

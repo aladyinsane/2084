@@ -47,6 +47,10 @@ Numbered, immutable once accepted, superseded rather than edited. Every one has 
 | [0005](decisions/0005-records-are-objects.md) | Records are objects; the record ≠ the truth | Editable records over an append-only audit trail — forgery gameplay needs somewhere truth still lives |
 | [0006](decisions/0006-conflict-is-non-lethal.md) | No death, no lethal PvP | Not a softening: what the regime does instead is scarier, and social ruin out-griefs ganking (that cost is faced) |
 | [0007](decisions/0007-room-graph-grid-consistent.md) | Hand-built room graph, grid-consistent | The map feature is deferred; the *mappability* decision couldn't be |
+| [0008](decisions/0008-grind-loops-sabotage-and-couriering.md) | The grind is sabotage and couriering, paid by the underground | The bestiary is the apparatus — a mob-grind's shape without a corpse |
+| [0009](decisions/0009-shadow-ladder-is-a-checkable-whisper.md) | The shadow ladder is a checkable whisper, not a file | Zero new persistent state — the tier is a pure function of a number the game already tracks |
+| [0010](decisions/0010-reputation-travels-judge-reads-citizens.md) | Reputation travels — `judge` reads a citizen's Section C | The first mechanic that lets one player surveil another's actual file, not just an NPC's |
+| [0011](decisions/0011-old-incidents-compact-the-file-forgets-faster-than-the-truth-does.md) | Old incidents compact; the file forgets faster than the truth does | The count never shrinks; the event-level detail inside a compacted bucket does, once |
 
 ## Product
 
@@ -54,10 +58,10 @@ Numbered, immutable once accepted, superseded rather than edited. Every one has 
 |---|---|
 | [overview.md](product/overview.md) | High-level summary of what 2084 is, creative position, and how players interact with the world |
 | [principles.md](product/principles.md) | Ten principles, each traced to research, each with a test — plus what we're deliberately *not* |
-| [roadmap.md](product/roadmap.md) | v0.1–v0.13, sequenced by what proves the thesis: *a surveillance state beats a bestiary* |
+| [roadmap.md](product/roadmap.md) | v0.1–v0.20, sequenced by what proves the thesis: *a surveillance state beats a bestiary* |
 | [future-features.md](product/future-features.md) | The parking lot — headlined by the ASCII map — and the known risks we shipped on purpose |
 | [worldbuilding-ideas.md](product/worldbuilding-ideas.md) | Worldbuilding concepts and narrative backlog feeding future gameplay features into lore |
-| [game-theory-and-fun.md](product/game-theory-and-fun.md) | Full game-theory audit and five concrete gamification proposals to make 2084 thrilling |
+| [game-theory-and-fun.md](product/game-theory-and-fun.md) | Informal gamification audit (not run through the ADR pipeline) — its proposals are triaged into [future-features.md](product/future-features.md) |
 
 ## Lore
 

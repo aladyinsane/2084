@@ -49,6 +49,34 @@ The Ministry's official map (idealized, missing the places you actually need) ve
 your own annotations (contraband, shareable, seizable). Map *accuracy* as gameplay —
 which turns a comfort feature back into principle 1's "the world is the antagonist."
 
+### World-building tooling: adding areas without a full rebuild *(from Lauren's cleanup notes, 2026-07-25)*
+Lauren's question: `world/build.py` is one-shot, invoked only at initial setup
+(`contributing.md` rule 8 — the world is code, not hand-`dig`ged). Two related but
+distinct asks: (a) can a *new* district be added later without re-running, or
+risking corrupting, the districts already built? (b) could an area ever be built
+from inside the running game, rather than only in a batch file?
+**Current state:** neither is possible cleanly today. `build()` is one monolithic
+function; every `create_object` call runs unconditionally, so re-running it against
+a live DB duplicates or errors on everything already there — the same shape as the
+"one-shot, not idempotent" snag already hit twice needing manual backfill scripts
+for post-launch additions to *existing* rooms (CLAUDE.md), just bigger: a new
+district is a whole extra unconditional pass over the old ones. In-game building is
+deliberately unsupported at all — rule 8 exists specifically so the world stays
+reviewable and rebuildable from the repo, not scattered across live-server `dig`
+commands.
+**Candidate shapes, not yet decided:**
+1. Split `build()` into one function per district, each idempotent
+   (`get_or_create`-style guards keyed on room name/tag) — a new district becomes a
+   new function and a new call, without touching the guarded existing ones.
+2. Adopt the `mapbuilder` contrib (above) for new districts once hand-written batch
+   code stops scaling, while old districts stay frozen in their current batch files.
+3. Some combination: batch code stays the source of truth (rule 8's discipline is
+   worth keeping), but the tooling around it becomes safe to re-run incrementally.
+**Why not now:** no district has been added since v0.1's starting slice — real
+tooling debt, but only worth paying down when the "Big-world expansion" trigger
+below actually fires (a measured busy world asking for more space), per principle 8
+and anti-principle 4.
+
 ### Propaganda engine
 World news that reacts to aggregate player action: sabotage begets "foreign saboteurs"
 headlines, paranoia, patrols. The brainstorm's best liveness idea and a strong
@@ -193,16 +221,90 @@ gaps, in leverage order:
    permanent-stain read discouraging `confess names` even when it's the right call.
 2. **Escalating circle projects.** Joint errand chains with growing pots, so continued
    membership is worth more than one defection pays. The stash starts this; projects
-   finish it.
+   finish it. *(The [gamification audit](game-theory-and-fun.md)'s "Escalating Circle
+   Heists" sketches a concrete three-stage version — sabotage two screens, intercept a
+   patrol while a comrade hits the Annex, then the payoff — additional design material
+   for whenever this gets picked up, not yet checked against the invariant below.)*
 3. **Suspected, not proven.** Every future leak mechanic must preserve deniability
    (plant reports have no fingerprints; interceptions don't name the room). Provable
-   betrayal generates kick-lists; suspectable betrayal generates the game.
+   betrayal generates kick-lists; suspectable betrayal generates the game. *(The
+   [gamification audit](game-theory-and-fun.md)'s "Paranoia Engine" sketches diegetic
+   clue-planting for this — same caveat as above: unvetted design material, not a plan.)*
 4. **Vouching.** Staking a little standing on another citizen — small, capped,
    recoverable — as trust-game participation below circle stakes.
 
 Design invariant across all of it: **betrayal profitable once, costly as a career.**
 A risk-free betrayal loop or unbeatable informant build kills cooperation
 population-wide, and the multiplayer thesis with it.
+
+### From the gamification audit *([game-theory-and-fun.md](game-theory-and-fun.md), 2026-07-24)*
+
+An unreviewed proposals doc landed with five gamification mechanics and its own
+implementation-sequencing table. Two of the five (escalating circle heists, the
+paranoia engine) duplicate trust-machine backlog items 2 and 3 above and are
+cross-referenced there instead of listed twice. The remaining three are recorded here
+as candidates, each with a real conflict against an accepted decision — the audit
+itself didn't go through contributing.md's research → principles → ADR chain, so none
+of this is vetted the way the rest of the parking lot is.
+
+**Push-your-luck streak multipliers.** Consecutive actions in watched space (Vis 3–5)
+build a multiplier on standing/credits/underground reputation, at the cost of doubling
+exposure accrual and sweep odds per tier.
+**Why not now:** runs directly against [ADR 0003](../decisions/0003-exposure-influence-not-xp.md)'s
+thesis — exposure is "the rare inversion: the number you watch most is best when it
+goes *down*." Making climbing exposure *pay* risks the "exposure could read as
+punishment roulette" risk named below. Would need its own case for why this exception
+to the exposure-is-dread rule earns its place.
+
+**Contextual action prompts / a universal `interact` verb.** Dynamic per-room lists of
+valid actions in the prompt, plus a catch-all verb routing to menus.
+**Why not now:** conflicts with two settled choices, not just untested territory.
+[ADR 0009](../decisions/0009-shadow-ladder-is-a-checkable-whisper.md) chose "purely
+opt-in discovery, no hinting" as an accepted cost, and ADR 0010 followed the same
+idiom — both deliberately never prompt a player to check. Principle 9's "no
+magic-missile moments" is exactly what v0.14's whitelist-only nomatch overhaul was
+built to enforce; a generic `interact` opening engine-style menus risks the same genre
+bleed that overhaul stopped.
+
+**Skill-based timing/sequence minigames.** Replace flat skill-check RNG (`sabotage`,
+`forge`) with a timing or sequence mini-mechanic.
+**Why not now:** the "Psychological state" entry above already named the stat-soup
+risk of mechanical surface for its own sake; a reflex-timing layer adds a different
+*kind* of skill (dexterity, not knowledge/observation) than anything else in the game,
+on top of that same risk. Needs evidence flat skill checks are actually the dull part
+before assuming a minigame fixes it.
+
+## Cleanup backlog
+
+Small, mechanical fixes with no real design tension — recorded so they don't get
+lost, not because they need a design pass.
+
+### Em-dashes in player-facing text *(from Lauren's cleanup notes, 2026-07-25)*
+Game text (room descriptions, NPC lines, messages, help entries, forms) should read
+without em-dashes.
+**Current state:** the em-dash (—) appears across roughly 30 files in `world/` and
+`commands/`, mixed between player-facing strings and code comments — only the
+former need the sweep. Some uses are a deliberate stylistic device (`build.py`'s
+overheard-conversation line, "'—and I said, you can't redact what I never said, and
+he wrote that down—'", using the dash to show a sentence caught mid-interruption) —
+those need a considered rewrite, not a find-and-replace, so the interruption still
+reads as an interruption.
+**Why not done yet:** genuinely mechanical but broad — a full-file read, not a
+regex pass, given the stylistic case above.
+
+### Consistent bordered presentation for in-game "forms" *(from Lauren's cleanup notes, 2026-07-25)*
+Every form-like presentation (Form 1-A, 2-B, 9-A, 12-D, C-1, 77, Section C's
+confession) should share one bordered look, so a form always visually reads as a
+form.
+**Current state, confirmed in code:** three different styles already coexist —
+`form_c1.py`'s Form C-1 uses a Unicode box-drawing border (`────`); `grades.py`'s
+Form 9-A uses an ASCII `====` rule; Form 1-A (`typeclasses/characters.py`), Form 2-B
+(`commands/firsthour.py`), Form 12-D (`world/build.py`'s holding-cell placard), and
+Section C's confession (`commands/detention.py`) have no border at all — just a
+bolded title line or plain prose.
+**Why not done yet:** needs one shared helper (a simple ASCII box function) adopted
+across all six-plus call sites, rather than each form growing its own — worth
+building once, not per-form.
 
 ## Deliberately deferred (with reasons)
 
