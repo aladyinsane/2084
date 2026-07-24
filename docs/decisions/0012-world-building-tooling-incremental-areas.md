@@ -1,6 +1,6 @@
-# ADR 0012 — Building new areas without rebuilding the old ones (proposed)
+# ADR 0012 — Building new areas without rebuilding the old ones
 
-- **Status:** Proposed — presenting options for Lauren's sign-off, not yet decided
+- **Status:** Accepted
 - **Date:** 2026-07-25
 
 ## Context
@@ -36,65 +36,80 @@ This hasn't been urgent: no district has been added since v0.1's starting
 slice, and `future-features.md`'s existing "Big-world expansion / more
 districts" entry already sets the real trigger — rooms get added when a
 measured, busy population asks for more space, not on builder enthusiasm
-(principle 8, anti-principle 4). This ADR exists so that when that trigger
-does fire, the tooling question has already been thought through once,
-instead of being solved under time pressure with whatever's fastest.
+(principle 8, anti-principle 4). Three shapes were sketched and presented to
+Lauren, plus a null option, so that when that trigger does fire, the tooling
+question has already been thought through once, instead of being solved under
+time pressure with whatever's fastest.
 
-## Options
+## Decision
 
-**1. Split `build()` into one function per district, each idempotent.**
+**Option 1: split `build()` into one function per district, each idempotent.**
 Each district gets its own `build_<district>()` function, guarded by a
-`get_or_create`-style check (e.g., skip creating a room if an object with its
-key/tag already exists in the expected location). A new district becomes a new
+`get_or_create`-style check (skip creating a room, NPC, or prop if an object
+with its expected key/tag already exists). A new district becomes a new
 function and a new call in the initial-setup hook; existing districts' calls
 stay in place, now safe to re-run without side effects. Batch code remains the
 single source of truth, unchanged in spirit from rule 8 — this only changes
 whether re-running a given district's function twice is safe.
-*Cost:* every existing district's `build_*` needs the idempotency guard
-retrofitted once, which touches a lot of currently-working code purely for
-future safety, not any present bug.
 
-**2. Adopt the `mapbuilder` contrib for new districts, freeze old ones.**
-`future-features.md`'s ASCII-map entry already named `mapbuilder`
-(draw-the-map-to-build-the-world) as the tool for whenever hand-written batch
-code stops scaling. Under this option, v0.1's starting district stays exactly
-as it is, in its current batch file, untouched; any *new* district is built
-with `mapbuilder` instead. Existing world-building code needs zero changes.
-*Cost:* two different world-building mechanisms coexist permanently (old
-districts hand-coded, new ones drawn), which is a real inconsistency for
-anyone maintaining the world later, and it introduces a new contrib dependency
-that today's codebase doesn't use anywhere else.
+Rejected alternatives, for the record:
 
-**3. Hybrid: batch code stays canonical, tooling becomes incrementally safe.**
-Keep hand-written batch code as the only way districts are authored (rule 8
-unchanged), but invest specifically in making the *build process* safe to
-re-run — for example, a `build()` that checks a `ServerConfig` flag or a
-tagged marker per district before creating anything, so calling it again is a
-no-op for districts already present and only builds what's new. This is
-closer to option 1 in spirit but frames the fix as "make the existing single
-entry point idempotent" rather than "decompose it into many functions."
-*Cost:* similar retrofit cost to option 1, with a design question of its own
-(what exactly marks a district as "already built" — a tag, a `ServerConfig`
-key, a room count check) that would need settling before implementation.
+- **Adopt the `mapbuilder` contrib for new districts, freeze old ones.**
+  Zero changes to existing code, but permanently splits world-building into
+  two coexisting mechanisms (old districts hand-coded, new ones drawn) and
+  introduces a contrib dependency nothing else in the codebase uses.
+- **Hybrid: one entry point, made safe to re-run.** Similar retrofit cost to
+  option 1, with an added open question (what marks a district "already
+  built" — a tag, a `ServerConfig` key, a room count) that option 1 avoids by
+  keying idempotency to each district's own objects directly.
+- **Do nothing.** Keep manual one-off backfill scripts, same as the last two
+  times. Cheapest today; leaves the answer to "can I add a district without
+  touching the others" at "not safely, no," indefinitely.
 
-**Do nothing (the null option).** Keep manual one-off backfill scripts as the
-answer, same as the last two times. Cheapest today; the cost compounds with
-every future addition, and it means the answer to "can I add a district
-without touching the others" stays "not safely, no."
+**Not decided by this ADR: when to actually implement it.** Accepting the
+shape doesn't itself schedule the retrofit — per the Context above, the
+trigger for needing this at all (a measured, busy population asking for more
+space) hasn't fired yet. Implementation is future work, gated the same way a
+new district itself would be.
 
-## Recommendation
+## Consequences
 
-Option 1 (per-district idempotent functions) seems like the best fit: it keeps
-rule 8's discipline fully intact, doesn't add a new contrib dependency the
-codebase doesn't otherwise use, and the retrofit cost is bounded and
-one-time rather than an ongoing two-mechanism split. But this is a real
-judgment call between reasonable alternatives, not an obvious win, and it's
-Lauren's call to make, not one to pick unilaterally.
+**Good**
+
+- Keeps rule 8's discipline fully intact: batch code stays the only way
+  districts are authored, reviewable and rebuildable from the repo.
+- No new contrib dependency, unlike the `mapbuilder` alternative — one fewer
+  moving part to keep working across Evennia upgrades.
+- The retrofit cost is bounded and one-time (every existing district's
+  `build_*` gets the idempotency guard once) rather than an ongoing
+  two-mechanism split that every future contributor has to remember exists.
+- Idempotency is keyed to each district's own objects (room/NPC/prop
+  key or tag), not a separate bookkeeping flag — one less thing that can
+  drift out of sync with what's actually in the database.
+
+**Bad**
+
+- Every existing district's `build_*` function needs the guard retrofitted
+  before any of this pays off, which touches a lot of currently-working code
+  purely for future safety, not any present bug — real effort spent ahead of
+  the need actually materializing.
+- In-game building (asked in Context, part 2) is still not what this
+  delivers. Option 1 makes *batch code* incrementally safe; it does not add
+  any live-server building capability, which rule 8 continues to rule out on
+  purpose. A citizen, or a builder, still cannot `dig` a new room by hand —
+  only the repo's batch files can add to the world.
+- The idempotency guards themselves are new surface area with their own
+  failure mode: a guard keyed on the wrong thing (a key that legitimately
+  changes, a tag that gets reused) could silently skip re-creating something
+  that should exist, or silently duplicate something it should have
+  recognized. Worth test coverage once built, not just a visual check.
 
 ## Revisit when
 
-- Lauren picks a direction (or decides the null option is fine for now,
-  which is a valid answer given the trigger hasn't fired).
-- The "Big-world expansion" trigger in `future-features.md` actually fires —
-  at that point this ADR needs a decision before the first new district gets
-  built, not after.
+- A district actually gets added — implementation should happen then, not
+  before, so the idempotency guards get designed against a real new district
+  rather than a hypothetical one.
+- The retrofit, once built, turns out to have missed something `build.py`
+  currently does implicitly (ordering dependencies between districts, for
+  example) — worth a specific check during implementation, not assumed away
+  by this ADR.

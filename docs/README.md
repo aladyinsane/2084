@@ -51,7 +51,7 @@ Numbered, immutable once accepted, superseded rather than edited. Every one has 
 | [0009](decisions/0009-shadow-ladder-is-a-checkable-whisper.md) | The shadow ladder is a checkable whisper, not a file | Zero new persistent state — the tier is a pure function of a number the game already tracks |
 | [0010](decisions/0010-reputation-travels-judge-reads-citizens.md) | Reputation travels — `judge` reads a citizen's Section C | The first mechanic that lets one player surveil another's actual file, not just an NPC's |
 | [0011](decisions/0011-old-incidents-compact-the-file-forgets-faster-than-the-truth-does.md) | Old incidents compact; the file forgets faster than the truth does | The count never shrinks; the event-level detail inside a compacted bucket does, once |
-| [0012](decisions/0012-world-building-tooling-incremental-areas.md) | Building new areas without rebuilding the old ones | **Proposed, not yet accepted** — three candidate shapes presented for Lauren's sign-off |
+| [0012](decisions/0012-world-building-tooling-incremental-areas.md) | Building new areas without rebuilding the old ones | Option 1 of three candidates chosen: per-district idempotent functions, not a new contrib dependency |
 
 ## Product
 
