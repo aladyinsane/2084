@@ -232,8 +232,15 @@ gaps, in leverage order:
    betrayal generates kick-lists; suspectable betrayal generates the game. *(The
    [gamification audit](game-theory-and-fun.md)'s "Paranoia Engine" sketches diegetic
    clue-planting for this — same caveat as above: unvetted design material, not a plan.)*
-4. **Vouching.** Staking a little standing on another citizen — small, capped,
-   recoverable — as trust-game participation below circle stakes.
+4. ~~**Vouching.**~~ **DECIDED, not yet built**
+   ([ADR 0014](../decisions/0014-vouching.md)). `vouch <citizen>` stakes a small,
+   sanctioned Ministry of Records stake on someone — reachable from a new player's
+   first few minutes, unlike underground standing. Forfeits whole on that citizen's
+   own Section C confession (same forfeiture idiom as the stash and circle projects);
+   offsets one incident in Form C-1's adjudication while active, giving the existing
+   "character references insufficient" rejection text a real mechanism behind it.
+   Chose the hybrid shape over a literal C-1-only reading, since C-1 alone wouldn't
+   reach the new/risk-averse audience the mechanic was named for.
 
 Design invariant across all of it: **betrayal profitable once, costly as a career.**
 A risk-free betrayal loop or unbeatable informant build kills cooperation
