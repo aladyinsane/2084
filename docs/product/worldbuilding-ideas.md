@@ -68,4 +68,10 @@ This document generates narrative and worldbuilding concepts that feed into futu
 | **Propaganda Engine** | Reacts to aggregate player sabotage with "Foreign Saboteur" news bulletins and heightened patrol paranoia | Public newsfeed archives in `docs/lore/` |
 | **Doublethink / Redaction Sight** | High underground standing allows citizens to see true vs. visible counts | Transcripts of unredacted historical records |
 | **Date-Range Petitions** | Historical administrative cycles ("The Redaction of '68") | Archive Annex procedural guides |
-| **Circle Projects** | Subterranean infrastructure building (safehouse radio, stash networks) | Field manuals in Tunnel B chalk |
+| **Circle Projects** *(name collision — see note)* | Subterranean infrastructure building (safehouse radio, stash networks) | Field manuals in Tunnel B chalk |
+
+*Name collision, flagged 2026-07-24: [ADR 0013](../decisions/0013-escalating-circle-projects.md)
+shipped a mechanically unrelated feature also called "circle projects" (trust-machine
+backlog item 2 — pooled sabotage/courier stages ending in a synchronous payout, not
+infrastructure building). This row's narrative concept is still open and un-renamed;
+if it's picked up, it needs a distinct name first.*

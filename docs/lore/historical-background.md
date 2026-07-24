@@ -98,6 +98,7 @@ From Tunnel B, the Underground operates its own counter-economy:
 * **Circles**: Secret underground cells (`circle form/invite/join/leave`) that pass encrypted messages via `signal` and cache contraband in loose brick stashes (`stash`).
 * **Sabotage Circuits**: Underground agents target live sensors across Sector 9 (`sabotage <device>`), creating temporary dark zones until Ministry repair crews restore them.
 * **Courier Runs**: The broker—disguised as a tired woman holding a string bag in the ration queue—assigns illicit transport jobs (`carry`/`deliver`), paying in off-the-books Underground standing (`word`) and clean forged `papers`.
+* **Joint Projects**: A circle that stakes its labor on a shared goal (`circle project start`) risks more than any single member's grind — casing and courier work pool toward one growing pot, paid out only when two of the circle stand together in the dark at once. A confession after the fact costs everyone the pot, not just the confessor.
 * **Black Market Requisitions**: High underground standing unlocks contraband gear, such as foil-lined coats to muffle entry heat and dead-man pockets to bypass contraband frisks.
 
 ---
