@@ -1,6 +1,6 @@
 # ADR 0013 — Escalating circle projects: a growing pot only finishing pays out
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-24
 
 ## Context
