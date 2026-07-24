@@ -47,6 +47,15 @@ SWEEP_MAX_CHANCE = 0.6
 # Being checked and cleared is a sanctioned interaction: it lowers exposure.
 PAPERS_CHECK_RELIEF = 8
 
+# Nothing capped how often a single sweep tick's papers check could file a
+# new identical incident (unlike the assembly roll, fixed in ADR-adjacent
+# work after the round-two playtest) — a citizen sitting in the sweep's
+# middle exposure band could get "Papers checked in the street; cleared."
+# filed every WATCH_SWEEP_INTERVAL indefinitely. The relief still applies
+# every time (it's the reward this interaction exists to give); only the
+# file entry is throttled, same idiom as SENSOR_LOG_COOLDOWN.
+PAPERS_CHECK_RECORD_COOLDOWN = 1800  # seconds
+
 # Exposure you leave detainment with (they know exactly where you are — for
 # the moment, you are the least interesting person in the Grid).
 RELEASE_EXPOSURE = 5
