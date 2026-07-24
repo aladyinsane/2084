@@ -88,6 +88,13 @@ class Room(ObjectParent, DefaultRoom):
             if gain:
                 moved_obj.gain_exposure(gain)
             self._maybe_log_movement(moved_obj)
+            # The Split (ADR 0013): a circle project's climax checks every
+            # arrival, not gated on the mover having an active session --
+            # the room-side check, same idiom as errands.py's joint_visit
+            # below, so it still fires however the move happened.
+            from world import circle_projects
+
+            circle_projects.check_arrival(moved_obj, self)
         # Watched arrivals: citizens and patrols read whoever walks in.
         # Slightly deferred so reactions (including detainment) land after
         # the movement itself has fully resolved.

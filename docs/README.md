@@ -60,7 +60,7 @@ Numbered, immutable once accepted, superseded rather than edited. Every one has 
 |---|---|
 | [overview.md](product/overview.md) | High-level summary of what 2084 is, creative position, and how players interact with the world |
 | [principles.md](product/principles.md) | Ten principles, each traced to research, each with a test — plus what we're deliberately *not* |
-| [roadmap.md](product/roadmap.md) | v0.1–v0.20, sequenced by what proves the thesis: *a surveillance state beats a bestiary* |
+| [roadmap.md](product/roadmap.md) | v0.1–v0.21, sequenced by what proves the thesis: *a surveillance state beats a bestiary* |
 | [future-features.md](product/future-features.md) | The parking lot — headlined by the ASCII map — and the known risks we shipped on purpose |
 | [worldbuilding-ideas.md](product/worldbuilding-ideas.md) | Worldbuilding concepts and narrative backlog feeding future gameplay features into lore |
 | [game-theory-and-fun.md](product/game-theory-and-fun.md) | Informal gamification audit (not run through the ADR pipeline) — its proposals are triaged into [future-features.md](product/future-features.md) |

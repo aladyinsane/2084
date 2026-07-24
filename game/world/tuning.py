@@ -329,3 +329,19 @@ RECORD_COMPACTION_AGE = 30 * 24 * 3600  # 30 days
 
 # How often the compaction/pruning pass runs.
 RECORD_COMPACTION_INTERVAL = 24 * 3600  # once a day
+
+# --- ADR 0013: escalating circle projects -----------------------------------
+
+# Casing and the Run are solo-completable, one stage at a time, but the
+# tally is the *circle's*, not any one member's — any member's sabotage or
+# delivery counts toward the same running total. Picked, not measured; the
+# ADR names this as worth revisiting once real play shows whether 3/2 feels
+# earned at circle scale.
+PROJECT_CASING_THRESHOLD = 3   # combined sabotage successes
+PROJECT_RUN_THRESHOLD = 2      # combined courier deliveries
+
+# The whole pot, split evenly across every current member (online or not)
+# when the Split completes. Sized to move the shadow ladder (SHADOW_TIERS)
+# most of a tier for a typical 2-3 person circle, so finishing reads as a
+# real jump rather than a rounding error on the solo grind.
+PROJECT_PAYOUT = 30

@@ -1406,6 +1406,143 @@ class TestCircleBenefits(EvenniaTest):
         self.assertIsNone(errands.current(self.char1))
 
 
+class TestCircleProjects(EvenniaTest):
+    """ADR 0013: a joint pot that only pays out whole."""
+
+    def _circle(self, name="redbird"):
+        from world import circles
+
+        slug, err = circles.form(self.char1, name)
+        self.assertIsNone(err)
+        self.char2.tags.add(slug, category="circle")
+        return slug
+
+    def _sensor(self, room=None):
+        sensor = create.create_object(
+            "typeclasses.objects.Sensor", key="a lens", location=room or self.room1,
+        )
+        sensor.db.sensitivity = 1
+        sensor.db.active = True
+        sensor.db.concealed = False
+        return sensor
+
+    def _broker(self):
+        broker = create.create_object(
+            "typeclasses.npcs.Citizen", key="the broker", location=self.room1
+        )
+        broker.tags.add("courier_broker", category="grid")
+        return broker
+
+    def test_start_requires_a_circle(self):
+        from world import circle_projects
+
+        err = circle_projects.start(self.char1)
+        self.assertIsNotNone(err)
+
+    def test_only_one_project_at_a_time(self):
+        from world import circle_projects
+
+        slug = self._circle()
+        self.assertIsNone(circle_projects.start(self.char1))
+        err = circle_projects.start(self.char2)
+        self.assertIsNotNone(err)
+        self.assertEqual(circle_projects.project_of(slug)["stage"], 0)
+
+    def test_casing_tally_is_shared_across_members(self):
+        from unittest.mock import patch
+
+        from world import circle_projects, tuning
+
+        slug = self._circle()
+        circle_projects.start(self.char1)
+        self.room1.db.visibility = 0
+        for _ in range(tuning.PROJECT_CASING_THRESHOLD - 1):
+            sensor = self._sensor()
+            with patch("world.underground.random.random", return_value=0.0):
+                self.char1.execute_cmd("sabotage lens")
+        self.assertEqual(circle_projects.project_of(slug)["stage"], 0)
+        sensor = self._sensor()
+        with patch("world.underground.random.random", return_value=0.0):
+            self.char2.execute_cmd("sabotage lens")  # a different member finishes it
+        self.assertEqual(circle_projects.project_of(slug)["stage"], 1)  # advanced to the Run
+
+    def test_run_tally_advances_to_the_split(self):
+        from unittest.mock import patch
+
+        from world import circle_projects, tuning, underground
+
+        slug = self._circle()
+        reg = circle_projects._registry()
+        reg[slug] = {"stage": 1, "progress": 0, "started": 0}
+        circle_projects._save_registry(reg)
+        self._broker()
+        dest_key, _, _ = tuning.COURIER_JOBS["quiet"]
+        self.room2.key = dest_key
+        for member in (self.char1, self.char2):
+            member.execute_cmd("carry quiet")
+            member.move_to(self.room2)
+            with patch("world.underground.random.random", return_value=0.99):
+                underground.deliver(member)
+        self.assertEqual(circle_projects.project_of(slug)["stage"], 2)
+
+    def test_split_needs_two_members_in_a_dead_zone_at_once(self):
+        from world import circle_projects
+
+        slug = self._circle()
+        reg = circle_projects._registry()
+        reg[slug] = {"stage": 2, "progress": 0, "started": 0}
+        circle_projects._save_registry(reg)
+        self.room2.key = "Tunnel B"
+        self.room2.db.visibility = 0
+        # char2 stays put in room1 (its default starting location, apart
+        # from char1) until the reunion below — moving it there explicitly
+        # first would falsely reunite the pair in room1, itself a dead zone.
+        self.char1.move_to(self.room2)
+        self.assertIsNotNone(circle_projects.project_of(slug))  # alone: no
+        self.char2.move_to(self.room2)  # the other pair of hands arrives
+        self.assertIsNone(circle_projects.project_of(slug))
+
+    def test_split_payout_splits_evenly(self):
+        from world import circle_projects, tuning
+
+        slug = self._circle()
+        reg = circle_projects._registry()
+        reg[slug] = {"stage": 2, "progress": 0, "started": 0}
+        circle_projects._save_registry(reg)
+        self.room2.key = "Tunnel B"
+        self.room2.db.visibility = 0
+        self.char1.move_to(self.room2)
+        self.char2.move_to(self.room2)
+        share = tuning.PROJECT_PAYOUT // 2
+        for member in (self.char1, self.char2):
+            self.assertEqual(
+                (member.db.influence or {}).get(tuning.UNDERGROUND), share
+            )
+
+    def test_completed_confession_forfeits_the_project(self):
+        from world import circle_projects, watch
+
+        holding = create.create_object(
+            "typeclasses.rooms.Room", key="Holding Cell (test)"
+        )
+        holding.tags.add("holding_cell", category="grid")
+        self.room1.tags.add("release_point", category="grid")
+        slug = self._circle()
+        circle_projects.start(self.char1)
+        self.char1.db.exposure = 60
+        watch.detain(self.char1)
+        self.char1.execute_cmd("confess names")
+        self.assertIsNone(circle_projects.project_of(slug))
+
+    def test_leaving_does_not_forfeit_the_project(self):
+        from world import circle_projects, circles
+
+        slug = self._circle()
+        circle_projects.start(self.char1)
+        circles.leave(self.char2)
+        self.assertIsNotNone(circle_projects.project_of(slug))
+
+
 class TestGear(EvenniaTest):
     """v0.10: the implant catalog, worn — every item a trade."""
 

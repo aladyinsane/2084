@@ -202,15 +202,17 @@ gaps, in leverage order:
    observation — earned, diegetic, same idiom as the informant version. Revisit
    triggers named in the ADR: nobody thinking to check before inviting, or the
    permanent-stain read discouraging `confess names` even when it's the right call.
-2. ~~**Escalating circle projects.**~~ **DECIDED, not yet built**
-   ([ADR 0013](../decisions/0013-escalating-circle-projects.md)). Three-stage circle
-   project (cumulative solo sabotage, cumulative solo couriering, then a synchronous
-   two-member climax), paying out underground standing only on completion and
-   forfeiting the whole pot on a completed Section C confession — the mechanism the
-   invariant below actually asked for. Chose "mostly solo, climax synchronous" over the
-   gamification audit's fully-synchronous three-stage heist sketch, to keep principle
-   8's solo-viability test honest for circles that rarely get 2+ members online at
-   once.
+2. ~~**Escalating circle projects.**~~ **Shipped 2026-07-24**
+   ([ADR 0013](../decisions/0013-escalating-circle-projects.md), `feat/circle-projects`).
+   Three-stage circle project (cumulative solo sabotage, cumulative solo couriering,
+   then a synchronous two-member climax), paying out underground standing only on
+   completion and forfeiting the whole pot on a completed Section C confession — the
+   mechanism the invariant below actually asked for. Chose "mostly solo, climax
+   synchronous" over the gamification audit's fully-synchronous three-stage heist
+   sketch, to keep principle 8's solo-viability test honest for circles that rarely
+   get 2+ members online at once. Revisit triggers named in the ADR: circles stalling
+   at the Split with casing/the run long done, or the free-rider question (any one
+   member can fill the whole shared tally alone) getting a real complaint attached.
 3. **Suspected, not proven.** Every future leak mechanic must preserve deniability
    (plant reports have no fingerprints; interceptions don't name the room). Provable
    betrayal generates kick-lists; suspectable betrayal generates the game. *(The

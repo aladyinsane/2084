@@ -576,6 +576,31 @@ audit-trail promise.
       In-Universe Artifact Registry, a world & interaction overview, and a
       worldbuilding backlog feeding future features into lore
 
+## v0.21 — Trust-machine backlog item 2: escalating circle projects ([ADR 0013](../decisions/0013-escalating-circle-projects.md))
+
+A documentation audit (ADR table, roadmap, and an unreviewed gamification doc's
+proposals triaged into the parking lot) preceded this version's feature work; both are
+folded in below since neither shipped as its own version.
+
+- [x] Doc audit: `docs/README.md`'s ADR table and roadmap summary backfilled through
+      ADR 0011; `game-theory-and-fun.md` (an unreviewed proposals doc) demoted to
+      informal input, its ideas triaged into `future-features.md` with the accepted
+      decisions they conflict with named
+- [x] Cleanup batch from Lauren's notes: em-dashes swept from all player-facing text
+      (`fix/em-dashes-in-game-text`); every in-game "form" (1-A, 2-B, 9-A, 12-D, C-1)
+      now shares one bordered presentation via `world/forms.py::form_box()`
+      (`feat/form-borders`); `help sweep` confirmed already shipped (v0.19)
+- [x] [ADR 0012](../decisions/0012-world-building-tooling-incremental-areas.md):
+      `world/build.py`'s one-shot nature settled — future districts get their own
+      idempotent function rather than a rebuild-everything risk. Decision only;
+      implementation deferred to the next actual district
+- [x] [ADR 0013](../decisions/0013-escalating-circle-projects.md): escalating circle
+      projects. Cumulative solo sabotage and courier stages (any member, the circle's
+      shared tally) followed by one synchronous two-member climax in a dead zone,
+      paying underground standing only on completion and forfeiting the whole pot on
+      a completed Section C confession — trust-machine backlog item 2's fix, chosen
+      over a fully-synchronous heist to keep principle 8's solo-viability test honest
+
 ## Later / undecided
 
 The parking lot, including the **ASCII map**: [future-features.md](future-features.md).
