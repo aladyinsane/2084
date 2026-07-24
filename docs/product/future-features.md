@@ -202,12 +202,15 @@ gaps, in leverage order:
    observation — earned, diegetic, same idiom as the informant version. Revisit
    triggers named in the ADR: nobody thinking to check before inviting, or the
    permanent-stain read discouraging `confess names` even when it's the right call.
-2. **Escalating circle projects.** Joint errand chains with growing pots, so continued
-   membership is worth more than one defection pays. The stash starts this; projects
-   finish it. *(The [gamification audit](game-theory-and-fun.md)'s "Escalating Circle
-   Heists" sketches a concrete three-stage version — sabotage two screens, intercept a
-   patrol while a comrade hits the Annex, then the payoff — additional design material
-   for whenever this gets picked up, not yet checked against the invariant below.)*
+2. ~~**Escalating circle projects.**~~ **DECIDED, not yet built**
+   ([ADR 0013](../decisions/0013-escalating-circle-projects.md)). Three-stage circle
+   project (cumulative solo sabotage, cumulative solo couriering, then a synchronous
+   two-member climax), paying out underground standing only on completion and
+   forfeiting the whole pot on a completed Section C confession — the mechanism the
+   invariant below actually asked for. Chose "mostly solo, climax synchronous" over the
+   gamification audit's fully-synchronous three-stage heist sketch, to keep principle
+   8's solo-viability test honest for circles that rarely get 2+ members online at
+   once.
 3. **Suspected, not proven.** Every future leak mechanic must preserve deniability
    (plant reports have no fingerprints; interceptions don't name the room). Provable
    betrayal generates kick-lists; suspectable betrayal generates the game. *(The

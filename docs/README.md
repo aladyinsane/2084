@@ -52,6 +52,7 @@ Numbered, immutable once accepted, superseded rather than edited. Every one has 
 | [0010](decisions/0010-reputation-travels-judge-reads-citizens.md) | Reputation travels — `judge` reads a citizen's Section C | The first mechanic that lets one player surveil another's actual file, not just an NPC's |
 | [0011](decisions/0011-old-incidents-compact-the-file-forgets-faster-than-the-truth-does.md) | Old incidents compact; the file forgets faster than the truth does | The count never shrinks; the event-level detail inside a compacted bucket does, once |
 | [0012](decisions/0012-world-building-tooling-incremental-areas.md) | Building new areas without rebuilding the old ones | Option 1 of three candidates chosen: per-district idempotent functions, not a new contrib dependency |
+| [0013](decisions/0013-escalating-circle-projects.md) | Escalating circle projects: a growing pot only finishing pays out | Mostly-solo-climax-synchronous chosen over a fully synchronous heist, to keep principle 8's solo-viability test honest |
 
 ## Product
 
