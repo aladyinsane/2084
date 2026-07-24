@@ -292,19 +292,22 @@ reads as an interruption.
 **Why not done yet:** genuinely mechanical but broad — a full-file read, not a
 regex pass, given the stylistic case above.
 
-### Consistent bordered presentation for in-game "forms" *(from Lauren's cleanup notes, 2026-07-25)*
-Every form-like presentation (Form 1-A, 2-B, 9-A, 12-D, C-1, 77, Section C's
-confession) should share one bordered look, so a form always visually reads as a
-form.
-**Current state, confirmed in code:** three different styles already coexist —
-`form_c1.py`'s Form C-1 uses a Unicode box-drawing border (`────`); `grades.py`'s
-Form 9-A uses an ASCII `====` rule; Form 1-A (`typeclasses/characters.py`), Form 2-B
-(`commands/firsthour.py`), Form 12-D (`world/build.py`'s holding-cell placard), and
-Section C's confession (`commands/detention.py`) have no border at all — just a
-bolded title line or plain prose.
-**Why not done yet:** needs one shared helper (a simple ASCII box function) adopted
-across all six-plus call sites, rather than each form growing its own — worth
-building once, not per-form.
+### ~~Consistent bordered presentation for in-game "forms"~~ — FIXED (`feat/form-borders`)
+*(from Lauren's cleanup notes, 2026-07-25)* Every form-like presentation should
+share one bordered look. Three different styles had coexisted — `form_c1.py`'s
+Unicode box-drawing border, `grades.py`'s ASCII `====` rule, and no border at all
+on Form 1-A/2-B/12-D. A new `world/forms.py::form_box()` helper (plain ASCII, left-
+aligned only — Evennia color tags don't count toward visible width, so a right-
+closed box would need width-aware stripping) is now used by Forms 1-A, 2-B, 9-A,
+12-D, and C-1. Section C's confession and Form 77 deliberately excluded — neither
+is ever rendered as a title card today (Section C is narrated as scene; Form 77 is
+only a rejection-reason phrase inside Form C-1's own text), so boxing either would
+mean inventing a header that doesn't exist rather than making an existing one
+consistent. Judgment call worth watching: Form 2-B (the `next` advisory) now
+renders as a 4-line box on every call, including the frequent no-argument case —
+consistency was the explicit ask, so applied uniformly rather than special-cased,
+but it's the one form whose call frequency makes the box's footprint worth
+revisiting if it reads as noisy in practice.
 
 ## Deliberately deferred (with reasons)
 

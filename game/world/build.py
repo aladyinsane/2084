@@ -36,6 +36,8 @@ are compass directions with true reciprocals. Sketch first, then code.
 from evennia import create_object, search_object
 from evennia.utils import logger
 
+from world import forms
+
 # Reciprocal compass pairs and their standard aliases.
 OPPOSITE = {
     "north": "south",
@@ -261,12 +263,14 @@ ROOMS = {
         "scratched four thin lines into the bench. There is a fifth line, "
         "fainter, abandoned halfway.\n\n"
         "A card is screwed to the wall at eye height, in Ministry typeface:\n"
-        "|w  NOTICE OF REMAINING ENTITLEMENTS (FORM 12-D)\n"
-        "  The detainee may: |cwait|w. The detainee may: |cconfess|w.\n"
-        "  The detainee may: |cdemand|w (see reverse). The detainee\n"
-        "  retains the rights of speech (|csay|w), of reviewing their\n"
-        "  file (|cdossier|w), and of |chelp|w, within reason.|n\n"
-        "There is no reverse. The card is screwed flat to the wall.",
+        + forms.form_box(
+            "|wNOTICE OF REMAINING ENTITLEMENTS (FORM 12-D)|n",
+            "|wThe detainee may: |cwait|w. The detainee may: |cconfess|w.",
+            "The detainee may: |cdemand|w (see reverse). The detainee",
+            "retains the rights of speech (|csay|w), of reviewing their",
+            "file (|cdossier|w), and of |chelp|w, within reason.|n",
+        )
+        + "\nThere is no reverse. The card is screwed flat to the wall.",
     ),
 }
 

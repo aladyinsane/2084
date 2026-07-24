@@ -11,7 +11,7 @@ creation commands.
 from evennia.objects.objects import DefaultCharacter
 from evennia.typeclasses.attributes import AttributeProperty
 
-from world import tuning
+from world import forms, tuning
 
 from .objects import ObjectParent
 
@@ -180,12 +180,14 @@ class Character(ObjectParent, DefaultCharacter):
         if not self.db.welcomed:
             self.db.welcomed = True
             self.msg(
-                "|w  NOTICE OF ARRIVAL (FORM 1-A)|n\n"
-                "|=m  You are registered. You are expected. Orientation "
-                "waits\n  EAST of the Assignment Hall; the Grid credits "
-                "completing it.\n  When unsure, type |cnext|=m. For the "
-                "permitted forms of\n  assistance, |chelp|=m. The Grid "
-                "provides.|n"
+                forms.form_box(
+                    "|wNOTICE OF ARRIVAL (FORM 1-A)|n",
+                    "|=mYou are registered. You are expected. Orientation",
+                    "waits EAST of the Assignment Hall; the Grid credits",
+                    "completing it. When unsure, type |cnext|=m. For the",
+                    "permitted forms of assistance, |chelp|=m. The Grid",
+                    "provides.|n",
+                )
             )
         digest = self.login_digest()
         if digest:

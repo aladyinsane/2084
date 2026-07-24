@@ -108,11 +108,16 @@ class CmdNext(Command):
     help_category = "sector 9"
 
     def func(self):
-        from world import errands, tuning
+        from world import errands, forms, tuning
 
         caller = self.caller
         advice = self._advice(caller, errands, tuning)
-        caller.msg(f"|=mCITIZEN ADVISORY (FORM 2-B):|n {advice}")
+        caller.msg(
+            forms.form_box(
+                "|=mCITIZEN ADVISORY (FORM 2-B)|n",
+                advice,
+            )
+        )
 
     @staticmethod
     def _advice(caller, errands, tuning):

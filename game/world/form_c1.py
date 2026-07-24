@@ -7,13 +7,14 @@ only the record layer — a laundered file passes (ADR 0005), which is the
 whole reason anyone launders one.
 """
 
-from world import functions, records, tuning
+from world import forms, functions, records, tuning
 
 _HEADER = (
-    "|=k────────────────────────────────────────────────────|n\n"
-    "|w  MINISTRY OF RECORDS — FORM C-1|n\n"
-    "|w  APPLICATION FOR ELEVATED CLEARANCE (GRADE C-1)|n\n"
-    "|=k────────────────────────────────────────────────────|n\n"
+    forms.form_box(
+        "|wMINISTRY OF RECORDS - FORM C-1|n",
+        "|wAPPLICATION FOR ELEVATED CLEARANCE (GRADE C-1)|n",
+    )
+    + "\n"
 )
 
 
