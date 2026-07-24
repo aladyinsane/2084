@@ -49,7 +49,7 @@ The Ministry's official map (idealized, missing the places you actually need) ve
 your own annotations (contraband, shareable, seizable). Map *accuracy* as gameplay —
 which turns a comfort feature back into principle 1's "the world is the antagonist."
 
-### World-building tooling: adding areas without a full rebuild *(from Lauren's cleanup notes, 2026-07-25)*
+### World-building tooling: adding areas without a full rebuild *(from Lauren's cleanup notes, 2026-07-25; written up as [ADR 0012](../decisions/0012-world-building-tooling-incremental-areas.md), proposed)*
 Lauren's question: `world/build.py` is one-shot, invoked only at initial setup
 (`contributing.md` rule 8 — the world is code, not hand-`dig`ged). Two related but
 distinct asks: (a) can a *new* district be added later without re-running, or
