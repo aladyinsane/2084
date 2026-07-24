@@ -165,7 +165,7 @@ class Character(ObjectParent, DefaultCharacter):
             if out:
                 lines.append(
                     f"Of {circles.circle_name(slug)}: "
-                    f"{', '.join(sorted(out))} — on the Grid right now."
+                    f"{', '.join(sorted(out))}: on the Grid right now."
                 )
         if not lines:
             return None

@@ -30,7 +30,7 @@ class CmdSabotage(Command):
     A skill like any other: the first attempts go badly for most, and a
     failed attempt is exactly the kind of thing that ends up in a file.
     Done well, the device dies quietly, the underground hears who did it,
-    and a street gets a little darker — until the maintenance crew works
+    and a street gets a little darker, until the maintenance crew works
     its way down the backlog, because the Ministry repairs what citizens
     report broken, and the Ministry reports these itself.
     """
@@ -59,7 +59,7 @@ class CmdSabotage(Command):
         target = target[0] if target else None
         if not target:
             caller.msg(
-                "Nothing here answers to that — nothing live you can find, "
+                "Nothing here answers to that, nothing live you can find, "
                 "anyway. Dead screens don't need your help."
             )
             return
@@ -67,7 +67,7 @@ class CmdSabotage(Command):
         success, room_dark, pay = underground.do_sabotage(caller, target)
         if not success:
             caller.msg(
-                "|rThe housing gives, then bites back|n — a contact you "
+                "|rThe housing gives, then bites back|n: a contact you "
                 "didn't see closes a circuit you didn't know was there. The "
                 "device is fine. Somewhere, a fault report files itself, "
                 "with a timestamp, from this room."
@@ -76,7 +76,7 @@ class CmdSabotage(Command):
             return
         caller.msg(
             f"A shim, a twist, a held breath. {target.key} dies without "
-            "drama — the diode just stops pretending to be a star."
+            "drama: the diode just stops pretending to be a star."
         )
         if room_dark:
             caller.msg(
@@ -124,7 +124,7 @@ class CmdCarry(Command):
             tier = underground.current_job(caller)
             dest, _, drop = tuning.COURIER_JOBS[tier]
             caller.msg(
-                f"You are already carrying. The drop is at {dest} — {drop}. "
+                f"You are already carrying. The drop is at {dest}: {drop}. "
                 "One parcel at a time; you are not a cart."
             )
             return
@@ -155,7 +155,7 @@ class CmdCarry(Command):
         caller.msg(
             f"{broker.key} hands you a paper-wrapped parcel in the course "
             "of apparently adjusting their coat.\n"
-            f"|=mThe drop: {dest} — {drop}. Worth {pay}. You were never "
+            f"|=mThe drop: {dest}, {drop}. Worth {pay}. You were never "
             "here, which is true of everyone in this queue.|n"
         )
 
@@ -211,7 +211,7 @@ class CmdWord(Command):
     Usage:
       word
 
-    No ledger holds this — the underground doesn't write things down. Ask
+    No ledger holds this: the underground doesn't write things down. Ask
     somewhere it's safe to ask, and word finds its way to you the same
     way it finds its way anywhere: mouth to ear, corner to corner.
     """

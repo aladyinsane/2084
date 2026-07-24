@@ -90,7 +90,7 @@ ERRANDS = {
         "reward_size": "medium",
         "commendation": "Commended: a model of civic reliability",
         "done": (
-            "Later, the clerk finds you — or a form finds you, which is "
+            "Later, the clerk finds you, or a form finds you, which is "
             "the same thing. A commendation has been entered in your "
             "file. It is the first thing in there you wanted."
         ),
@@ -134,7 +134,7 @@ ERRANDS = {
         "done": (
             "The lamp-mender doesn't look down from the ladder. \"Good "
             "legs.\" A pause, quieter: \"The bolt-hole under the "
-            "tenements — you've seen the chalk. Look at who keeps it "
+            "tenements, you've seen the chalk. Look at who keeps it "
             "nice before you trust it. That's the whole lesson. That's "
             "everything I know.\""
         ),
@@ -145,7 +145,7 @@ ERRANDS = {
         "title": "Four Hands",
         "brief": (
             "\"Some work needs four hands and zero witnesses. Be in "
-            "Tunnel B with someone your circle trusts — both of you, at "
+            "Tunnel B with someone your circle trusts, both of you, at "
             "once, where the chalk is. What happens down there is the "
             "two of you knowing you both showed. That is the work.\""
         ),
@@ -210,7 +210,7 @@ def take(char, key):
     if char.db.errand:
         return (
             "You are already on an errand. Finish it or |cerrands drop|n "
-            "it — half-done favors are remembered longer than refused ones."
+            "it: half-done favors are remembered longer than refused ones."
         )
     if not available_to(char, key):
         return "Nobody is offering that. Not to you, not yet, or not again."
@@ -256,7 +256,7 @@ def _complete(char, spec):
         nspec = ERRANDS[nxt]
         char.msg(
             f"|=m{nspec['giver'].capitalize()} has more for you, when "
-            f"you're ready: |c{nspec['title']}|n|=m — find them and "
+            f"you're ready: |c{nspec['title']}|n|=m, find them and "
             "|cerrands|n|=m.|n"
         )
     logger.log_info(f"watchlog: (an errand ends) {char.key}: {spec['title']}")

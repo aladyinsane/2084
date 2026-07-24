@@ -27,7 +27,7 @@ class CmdErrands(Command):
 
     Some citizens have uses for legs and eyes. Each offer names its risk;
     what it doesn't say, you should ask yourself. Errands complete through
-    the things you'd do anyway — walking, working, watching, carrying —
+    the things you'd do anyway: walking, working, watching, carrying,
     and one at a time is all anyone will trust you with.
     """
 
@@ -78,7 +78,7 @@ class CmdErrands(Command):
                     r for r in spec["rooms"] if r not in state["progress"]
                 ]
                 lines.append(
-                    f"  |=mStill to walk: {', '.join(remaining) or 'nowhere — almost done'}.|n"
+                    f"  |=mStill to walk: {', '.join(remaining) or 'nowhere, almost done'}.|n"
                 )
             elif spec["type"] == "shifts":
                 lines.append(

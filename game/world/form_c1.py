@@ -37,7 +37,7 @@ def node_start(caller):
 def node_purpose(caller):
     text = (
         _HEADER
-        + "SECTION 2 — STATED PURPOSE OF ELEVATION\n"
+        + "SECTION 2: STATED PURPOSE OF ELEVATION\n"
         "(Select one. The selections are not different.)"
     )
     options = (
@@ -60,7 +60,7 @@ def node_purpose(caller):
 def node_declaration(caller, raw_string, **kwargs):
     text = (
         _HEADER
-        + "SECTION 4 — DECLARATION\n"
+        + "SECTION 4: DECLARATION\n"
         '"I affirm that the contents of my citizen file are accurate, that '
         "they have always been accurate, and that my consultation of them "
         'prior to this application was itself unnecessary."'
@@ -112,7 +112,7 @@ def node_adjudicate(caller):
         )
         text = (
             "The archivist reads your file once forward and, apparently for "
-            "pleasure, once backward. Then the good stamp comes out — the "
+            "pleasure, once backward. Then the good stamp comes out: the "
             "brass one.\n\n"
             "|wAPPLICATION APPROVED. CLEARANCE GRADE C-1 ISSUED.|n\n\n"
             "\"The Spire lobby will admit you now,\" the archivist says. "
@@ -123,7 +123,7 @@ def node_adjudicate(caller):
     else:
         records.add_record(
             caller,
-            f"Form C-1 submitted; REJECTED — {reason}",
+            f"Form C-1 submitted; REJECTED: {reason}",
             author="Ministry of Records",
             kind="observation",
         )

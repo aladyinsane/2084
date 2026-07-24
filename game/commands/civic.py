@@ -38,9 +38,9 @@ class CmdReport(Command):
     Usage:
       report
 
-    The Grid does not ask what you would like to be. It reads your file —
+    The Grid does not ask what you would like to be. It reads your file:
     your recorded aptitudes are your application, whether or not you meant
-    them as one — and stamps a function on you. Citizens with a function
+    them as one, and stamps a function on you. Citizens with a function
     work their own post for better standing. Functions can be reassigned by
     reporting again, and are suspended by, for example, being detained.
     """
@@ -70,7 +70,7 @@ class CmdReport(Command):
         if key == old_key:
             caller.msg(
                 "The clerk consults your file, consults a rubric, and "
-                f"stamps: |w{spec['title']}|n — your existing designation. "
+                f"stamps: |w{spec['title']}|n, your existing designation. "
                 "The stamp comes down anyway. Stamps are not for you; they "
                 "are for the file."
             )
@@ -106,7 +106,7 @@ class CmdWork(Command):
     With a function: work your assigned post, for standing with your
     ministry. Without one: casual clerical labor is accepted at the
     Assignment Hall counter, at casual rates. Either way, nothing reassures
-    the Grid like visible usefulness — working takes a little heat off you.
+    the Grid like visible usefulness: working takes a little heat off you.
     """
 
     key = "work"
@@ -115,7 +115,7 @@ class CmdWork(Command):
 
     CASUAL_SHIFTS = [
         "You stamp permits until the stamp needs re-inking. Form 12-C, "
-        "approved. Form 12-C, approved. Form 12-C — a hesitation — approved.",
+        "approved. Form 12-C, approved. Form 12-C, a hesitation, approved.",
         "You alphabetize a drawer of citizens. Two of the folders are empty "
         "with the names scratched out. You file them under the scratches.",
         "You transcribe a ledger of ration allocations. The arithmetic is "
@@ -146,7 +146,7 @@ class CmdWork(Command):
             if not _room_tagged(caller.location, "workplace"):
                 caller.msg(
                     "No one here will pay for your usefulness. Casual labor "
-                    "is taken at the Assignment Hall counter — or |creport|n "
+                    "is taken at the Assignment Hall counter, or |creport|n "
                     "there to be assigned a function of your own."
                 )
                 return
@@ -294,7 +294,7 @@ class CmdListen(Command):
         if not incidents:
             caller.msg(
                 "The line shuffles forward. Weather, rations, the smell of "
-                "the recyclers — nothing with a name in it today."
+                "the recyclers, nothing with a name in it today."
             )
             return
         lines = ["You let the queue's murmur wash over you, and pick out:"]
@@ -317,7 +317,7 @@ class CmdPetition(Command):
       petition redact <routine-incident keyword>
 
     Entry numbers are as shown in your dossier. Routine incidents old enough
-    to have folded into a lifetime count (ADR 0011) have no number anymore —
+    to have folded into a lifetime count (ADR 0011) have no number anymore:
     redact those by the keyword shown next to them instead, one off the
     count per petition. Amendments and redactions are services of the
     Ministry of Records, payable in standing with the Ministry of Records,
@@ -372,7 +372,7 @@ class CmdPetition(Command):
                 caller.msg(
                     f"{archivist.key} looks at you as if you'd asked to "
                     "rewrite a tally mark. \"There is no single entry there "
-                    'to correct — you may petition it redacted, one at a '
+                    'to correct. You may petition it redacted, one at a '
                     'time, or not at all."'
                 )
                 return
@@ -464,7 +464,7 @@ class CmdForge(Command):
     Possible only somewhere nothing watches at all. Done well, the file
     simply says something else now. Done badly, the file gains a page. A
     routine incident old enough to have folded into a lifetime count (ADR
-    0011) has no text left to rewrite — forging it just tries to strike one
+    0011) has no text left to rewrite: forging it just tries to strike one
     off the tally instead, same success chance, same risk of getting caught.
     """
 
@@ -572,7 +572,7 @@ class CmdApply(Command):
 
     Heard at the Archive Annex, where the archivist keeps the forms. Grade
     C-1 clearance admits you to the Central Spire lobby. The Ministry will
-    read your file, your function, and your ledger — in that order, and
+    read your file, your function, and your ledger, in that order, and
     only the versions of them it has.
     """
 

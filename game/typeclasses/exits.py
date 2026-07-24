@@ -45,7 +45,7 @@ class Exit(ObjectParent, DefaultExit):
                     # The near-miss is the product working (v0.8.5).
                     traversing_object.msg(
                         "|yThe scanner's tone deepens for one syllable as "
-                        "you pass|n — and resumes. Your parcel weighs "
+                        "you pass|n, and resumes. Your parcel weighs "
                         "nothing again."
                     )
         super().at_traverse(traversing_object, target_location, **kwargs)

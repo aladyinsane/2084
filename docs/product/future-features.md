@@ -279,18 +279,20 @@ before assuming a minigame fixes it.
 Small, mechanical fixes with no real design tension — recorded so they don't get
 lost, not because they need a design pass.
 
-### Em-dashes in player-facing text *(from Lauren's cleanup notes, 2026-07-25)*
-Game text (room descriptions, NPC lines, messages, help entries, forms) should read
-without em-dashes.
-**Current state:** the em-dash (—) appears across roughly 30 files in `world/` and
-`commands/`, mixed between player-facing strings and code comments — only the
-former need the sweep. Some uses are a deliberate stylistic device (`build.py`'s
-overheard-conversation line, "'—and I said, you can't redact what I never said, and
-he wrote that down—'", using the dash to show a sentence caught mid-interruption) —
-those need a considered rewrite, not a find-and-replace, so the interruption still
-reads as an interruption.
-**Why not done yet:** genuinely mechanical but broad — a full-file read, not a
-regex pass, given the stylistic case above.
+### ~~Em-dashes in player-facing text~~ — FIXED (`fix/em-dashes-in-game-text`)
+*(from Lauren's cleanup notes, 2026-07-25)* Game text should read without em-dashes.
+Swept every player-facing string (room descriptions, NPC lines, messages, help
+entries, forms, and — since Evennia surfaces them via `help <command>` — every
+`Command` subclass's docstring) across `world/`, `commands/`, and `typeclasses/`,
+replaced with whatever reads most naturally in context (colon, comma, semicolon, or
+a full stop), verified against a script confirming zero `Command` docstrings still
+contain one. Code comments and non-Command docstrings were left alone, since they're
+never shown to a player. The one deliberate stylistic use (`build.py`'s
+overheard-conversation line, using the dash to show a sentence caught
+mid-interruption) was rewritten with ellipses instead of a plain substitution, to
+keep the "caught mid-conversation" effect. One test assertion
+(`test_petition_redact_by_keyword`) depended on the exact dossier compaction-summary
+format and was updated to match.
 
 ### Consistent bordered presentation for in-game "forms" *(from Lauren's cleanup notes, 2026-07-25)*
 Every form-like presentation (Form 1-A, 2-B, 9-A, 12-D, C-1, 77, Section C's

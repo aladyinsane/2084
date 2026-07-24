@@ -59,7 +59,7 @@ _INSTINCTS = (
         ("kill", "attack", "fight", "murder", "strike", "stab", "shoot",
          "punch", "hit"),
         "Your hands remember an older grammar. Nothing in Sector 9 answers "
-        "to it: nobody here dies of violence — they die of paperwork, and "
+        "to it: nobody here dies of violence; they die of paperwork, and "
         "paperwork is a thing you can learn. |=m(Conflict on the Grid is "
         "waged in files, standing, and trust. |chelp the grid|=m is where "
         "it starts.)|n"
@@ -77,7 +77,7 @@ _INSTINCTS = (
     (
         ("hide", "sneak", "stealth", "lurk"),
         "There is no hiding, citizen; there are only places nothing "
-        "watches. |=m(Dark rooms are their own concealment — |chelp "
+        "watches. |=m(Dark rooms are their own concealment: |chelp "
         "visibility|=m. The map knows which is which: |cmap|=m.)|n"
     ),
     (

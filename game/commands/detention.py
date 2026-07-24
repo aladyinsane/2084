@@ -22,7 +22,7 @@ class CmdConfess(Command):
     To what? That has never mattered. A confession is a formality the file
     requires; the file is patient, and so are the officers. Citizens who
     have associates will find the form already knows how many lines
-    Section C needs — only the confirmation is theirs to give, or refuse.
+    Section C needs: only the confirmation is theirs to give, or refuse.
     """
 
     key = "confess"
@@ -40,7 +40,7 @@ class CmdConfess(Command):
             # No associates: the v0.2 confession, unchanged.
             caller.msg(
                 "You confess. The words arrange themselves surprisingly "
-                "easily — the form on the table is mostly pre-printed, and "
+                "easily: the form on the table is mostly pre-printed, and "
                 "your part is small.\n\nThe officer countersigns without "
                 "reading it."
             )
@@ -58,7 +58,7 @@ class CmdConfess(Command):
         if mode not in ("names", "alone"):
             caller.msg(
                 "The officer slides the form across. Your part is small and "
-                "mostly pre-printed — except |wSection C: Associates|n, "
+                "mostly pre-printed, except |wSection C: Associates|n, "
                 f"which has been ruled with |r{blanks}|n blank line"
                 f"{'s' if blanks != 1 else ''}. Not a guess. A count.\n\n"
                 "The officer waits. |cconfess names|n completes Section C. "
@@ -146,7 +146,7 @@ class CmdWait(Command):
         caller.db.detained_wait = count
         if count >= tuning.WAIT_RELEASE_TURNS:
             caller.msg(
-                "A clerk appears at the grille — not an officer, a clerk. They "
+                "A clerk appears at the grille, not an officer, a clerk. They "
                 "check a list, check you against it, and frown at the "
                 "discrepancy between how interesting you are and how much "
                 "space you occupy."

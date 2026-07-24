@@ -2448,7 +2448,7 @@ class TestRecordCompaction(EvenniaTest):
         records.compact_incidents(self.char1)
         blob = self._captured(self.char1, "dossier")
         self.assertIn("Routine incidents on file:", blob)
-        self.assertIn("Papers checked in the street; cleared. — 2 on file", blob)
+        self.assertIn("Papers checked in the street; cleared.: 2 on file", blob)
         self.assertIn("papers-checks", blob)
 
     def test_petition_redact_by_keyword(self):
