@@ -126,6 +126,20 @@ sharpest rung short of unpersoning.
 **Why not now:** needs skills (v0.3) and detainment (v0.2) to exist first. When it
 lands, telegraphing rules apply double — losing a skill must never feel random.
 
+### Detainment: `wait`/`demand` need more of a "game" feel *(from Lauren, 2026-07-24)*
+Lauren's read after using it: `wait` (`game/commands/detention.py`) is just typing
+`wait` up to `tuning.WAIT_RELEASE_TURNS` (5) times with flavor text cycling
+underneath, no skill or decision in it. `demand` is worse than a no-op: it never
+releases you, always logs an "unruly" dossier note, and **resets** the wait counter
+back to 0 — so it isn't really a third option so much as a trap for anyone trying to
+`wait` out a release. Lauren wants to think through a real redesign later, something
+with more shape than a turn counter.
+**Why not now:** flagged for a longer design pass, not started yet. Distinct from (but
+adjacent to) the Grind Shelf's parked **interrogation-resistance sparring** option
+below — that's a PvE loop that trains a resistance skill for use *during* detention;
+this is about the base wait/demand loop every detained citizen faces regardless of
+skill. Worth designing together if both get picked up.
+
 ### Services as places *(from 3M field research)*
 3M puts every capability at an address: upgrade at the Lab, download at the Hall, heal
 at the E.R. Errand-through-geography is made for 2084, where moving through watched
