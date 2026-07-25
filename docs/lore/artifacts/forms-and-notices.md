@@ -56,7 +56,7 @@ In Sector 9, bureaucratic forms are the primary medium through which the state m
   * Requires a fee paid in Ministry of Records standing.
   * Demands affirmation: *"My file is accurate; it has always been accurate."*
   * Requires prerequisite Form 77 (Employment Verification).
-  * Dirty dossiers fail the reference check, forcing citizens to undergo record laundering or forgery first.
+  * Dirty dossiers fail the reference check, forcing citizens to undergo record laundering or forgery first — unless a fellow citizen has staked their own standing on the applicant's name (`vouch`, [ADR 0014](../../decisions/0014-vouching.md)), which the Ministry quietly tolerates as one extra incident's worth of character reference. No form exists for this; it isn't paper, which is exactly why it works below the level Section C operates at.
 
 ---
 

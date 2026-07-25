@@ -601,3 +601,81 @@ class CmdApply(Command):
             startnode="node_start",
             cmd_on_exit=None,
         )
+
+
+def _citizen_here(caller, name):
+    from typeclasses.characters import Character
+
+    target = caller.search(name, quiet=True)
+    target = target[0] if target else None
+    if not target or target is caller or not isinstance(target, Character):
+        return None
+    return target
+
+
+class CmdVouch(Command):
+    """
+    Stake a little of your standing on someone else's name.
+
+    Usage:
+      vouch <citizen>
+
+    A character reference, and nothing more official than that: no form,
+    no dead zone, no consent required of the one you name. It costs a
+    little Ministry of Records standing, returned to you in full if you
+    change your mind (|cunvouch|n) or take back if the citizen you named
+    ever completes Section C themselves. One name against yours at a time.
+    """
+
+    key = "vouch"
+    locks = "cmd:all()"
+    help_category = "sector 9"
+
+    def func(self):
+        from world import vouching
+
+        caller = self.caller
+        name = (self.args or "").strip()
+        if not name:
+            caller.msg("Usage: vouch <citizen>")
+            return
+        target = _citizen_here(caller, name)
+        if not target:
+            caller.msg("Nobody here answers to that, worth the risk or not.")
+            return
+        err = vouching.vouch(caller, target)
+        if err:
+            caller.msg(err)
+            return
+        caller.msg(
+            f"You put your name behind {target.key}'s, quietly, where the "
+            "Ministry can read it if it ever looks. |=mIf they ever "
+            "complete Section C, your word goes with theirs.|n"
+        )
+
+
+class CmdUnvouch(Command):
+    """
+    Take your name back.
+
+    Usage:
+      unvouch
+
+    Withdraws your active vouch and returns the standing you staked, in
+    full, no penalty. Whatever you told them, or didn't, that's between
+    you.
+    """
+
+    key = "unvouch"
+    locks = "cmd:all()"
+    help_category = "sector 9"
+
+    def func(self):
+        from world import vouching
+
+        caller = self.caller
+        err = vouching.unvouch(caller)
+        if err:
+            caller.msg(err)
+            return
+        caller.msg("You take your name back. Nothing was ever written down.")

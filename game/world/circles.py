@@ -213,6 +213,20 @@ def betray(confessor):
     """
     from world import records
 
+    # ADR 0014: a completed Section C costs the confessor's backers too,
+    # whether or not they're even in a circle -- this is the confessor's
+    # own act, not something their circle's fate should gate.
+    from world import vouching
+
+    forfeited = vouching.forfeit_all(confessor)
+    for backer in forfeited:
+        if backer.sessions.count():
+            backer.msg(
+                f"|rWhatever you saw in {confessor.key}, the Ministry saw "
+                "different.|n Your name goes with theirs now, and the "
+                "standing you staked on them is gone."
+            )
+
     slug = circle_of(confessor)
     if not slug:
         return 0

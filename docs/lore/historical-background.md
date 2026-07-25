@@ -50,6 +50,8 @@ Located at the Archive Annex, Records governs the truth. Records maintains that 
 
 Yet Records understands human frailty—and the utility of institutional debt. Through petitioning at the Annex counter, a citizen may spend hard-earned Ministry standing to redact or amend their file. When routine incidents multiply over the years, Records compacts old transgressions into summary counts, keeping the visible tally separate from the unerasable `true_count`. The Ministry forgets nothing, but it will allow a file to appear pristine for a consideration.
 
+Records also tolerates a smaller, quieter debt: a citizen may `vouch` a little of their own standing for someone else's name—no form, no counter, nothing paper enough to be called official—and the Ministry reads it anyway when it matters, tolerating one more incident on a vouched-for file than it otherwise would. The debt runs both ways: a citizen who later signs Section C for their own crimes costs their backers the standing they staked, whether or not either party ever wrote a word of it down.
+
 ### 3. The Ministry of Commerce (The Chit and the Queue)
 Commerce manages survival. Along the covered walkway of the Ration Queue, citizens stand for hours awaiting ration chits. Commerce controls requisitions, issuing state-approved items—badges that smooth interactions with watched counters, and wellness monitors that accelerate heat decay while logging every step twice as easily. Commerce ensures that even sustenance and equipment reinforce compliance.
 
