@@ -54,6 +54,7 @@ Numbered, immutable once accepted, superseded rather than edited. Every one has 
 | [0012](decisions/0012-world-building-tooling-incremental-areas.md) | Building new areas without rebuilding the old ones | Option 1 of three candidates chosen: per-district idempotent functions, not a new contrib dependency |
 | [0013](decisions/0013-escalating-circle-projects.md) | Escalating circle projects: a growing pot only finishing pays out | Mostly-solo-climax-synchronous chosen over a fully synchronous heist, to keep principle 8's solo-viability test honest |
 | [0014](decisions/0014-vouching.md) | Vouching: a small, sanctioned stake on someone else's name | Hybrid chosen over a literal C-1-only reading, so the mechanic actually reaches the new/risk-averse players it was named for |
+| [0015](decisions/0015-suspected-not-proven-circumstantial-informant-clues.md) | Suspected, not proven: circumstantial informant clues | Deniability already held before this ADR — the real gap was that the message had nothing circumstantial in it to reason about |
 
 ## Product
 
