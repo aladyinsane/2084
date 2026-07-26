@@ -325,9 +325,18 @@ def collect_informant_reports():
             continue
         npc.db.last_report = now
         target = random.choice(members)
+        # ADR 0015: if the circle has an active project, name the room its
+        # most recent qualifying act happened in -- an act, not an actor, so
+        # this never narrows to one member (Casing/the Run are already a
+        # shared tally). No active project: the old, generic message.
+        from world import circle_projects
+
+        project = circle_projects.project_of(slug)
+        room = project.get("last_event_room") if project else None
+        detail = f", one of them recently active near {room}" if room else ""
         records.add_record(
             target,
-            "Reported by a source: associates with an unregistered circle",
+            f"Reported by a source: associates with an unregistered circle{detail}",
         )
         target.gain_exposure(tuning.INFORMANT_REPORT_EXPOSURE)
         logger.log_info(

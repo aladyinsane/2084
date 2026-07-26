@@ -181,6 +181,11 @@ def check(char, event):
     if stage["event"] != event:
         return
     proj["progress"] += 1
+    # ADR 0015: the room of whoever most recently moved the tally, kept for
+    # informant reports to reference -- an act, not an actor, since the
+    # tally itself is already shared across the whole circle.
+    if char.location:
+        proj["last_event_room"] = char.location.key
     reg[slug] = proj
     _save_registry(reg)
     if proj["progress"] >= stage["threshold"]:

@@ -1,6 +1,6 @@
 # ADR 0015 — Suspected, not proven: circumstantial informant clues
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-26
 
 ## Context
