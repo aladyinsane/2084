@@ -227,11 +227,19 @@ gaps, in leverage order:
    get 2+ members online at once. Revisit triggers named in the ADR: circles stalling
    at the Split with casing/the run long done, or the free-rider question (any one
    member can fill the whole shared tally alone) getting a real complaint attached.
-3. **Suspected, not proven.** Every future leak mechanic must preserve deniability
-   (plant reports have no fingerprints; interceptions don't name the room). Provable
-   betrayal generates kick-lists; suspectable betrayal generates the game. *(The
-   [gamification audit](game-theory-and-fun.md)'s "Paranoia Engine" sketches diegetic
-   clue-planting for this — same caveat as above: unvetted design material, not a plan.)*
+3. ~~**Suspected, not proven.**~~ **Shipped 2026-07-26**
+   ([ADR 0015](../decisions/0015-suspected-not-proven-circumstantial-informant-clues.md),
+   `docs/adr-0015-suspected-not-proven`). Audited against the research doc's framing
+   first: deniability already held (no fingerprints, no named rooms, in either existing
+   leak mechanic) — the actual gap was that the informant-report message was static
+   flavor text with nothing circumstantial in it, so circles had nothing real to reason
+   about. Now, when a circle has an active project running (ADR 0013), a report
+   references the room of the project's most recent qualifying sabotage/delivery —
+   never a member, never an informant, and structurally can't narrow to one name since
+   Casing/the Run are already a shared tally. No active project: unchanged generic
+   text, same as before. The literal "hidden role between players" the research
+   diagnosis names as missing ([parked below](#the-mole-a-player-facing-double-agent))
+   is not addressed by this — recorded separately rather than folded in.
 4. ~~**Vouching.**~~ **Shipped 2026-07-24** ([ADR 0014](../decisions/0014-vouching.md),
    `feat/vouching`). `vouch <citizen>` stakes a small, sanctioned Ministry of Records
    stake on someone — reachable from a new player's first few minutes, unlike
@@ -248,6 +256,24 @@ gaps, in leverage order:
 Design invariant across all of it: **betrayal profitable once, costly as a career.**
 A risk-free betrayal loop or unbeatable informant build kills cooperation
 population-wide, and the multiplayer thesis with it.
+
+### The mole: a player-facing double agent *(parked from ADR 0015, 2026-07-26)*
+[game-theory-of-the-grid.md](../research/game-theory-of-the-grid.md)'s diagnosis names
+hidden roles between *players* as the one structurally missing piece — informants have
+hidden loyalty (`street`/`ministry`), circle-mates don't. A new Section C option: a
+detained citizen stays in their circle but starts reporting on it from the inside,
+deniable the same way an NPC plant is. Presented as a real alternative to item 3 above
+and explicitly not chosen for that version — it's a new hidden-role mechanic, not an
+extension of one that already exists, and deserves its own research/design pass rather
+than riding in as "finishing item 3."
+**Undesigned:** how a citizen gets turned (an offer during detention? Only after a
+first Section C? Coerced or bought?), whether it's opt-in or something the Ministry can
+force, what tells (if any) a circle gets that one of its own might be compromised
+beyond what item 3's circumstantial clues already give them, and the fairness question
+underneath all of it — a circle-mate secretly working against you is a sharper edge
+than an NPC informant, since NPCs are recruited by choice and this wouldn't be.
+**Why not now:** genuinely bigger scope than sharpening an existing mechanic; wants its
+own ADR once someone's ready to think through consent and detection properly.
 
 ### From the gamification audit *([game-theory-and-fun.md](game-theory-and-fun.md), 2026-07-24)*
 
