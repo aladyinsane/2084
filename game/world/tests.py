@@ -314,6 +314,16 @@ class TestCivic(EvenniaTest):
         self.room1.tags.add("workplace", category="grid")
         self.room1.tags.add("gossip_spot", category="grid")
 
+    def _captured(self, char, command):
+        old = char.msg
+        seen = []
+        char.msg = lambda text=None, **kw: seen.append(str(text))
+        try:
+            char.execute_cmd(command)
+        finally:
+            char.msg = old
+        return "\n".join(seen)
+
     def _archivist(self):
         archivist = create.create_object(
             "typeclasses.npcs.Citizen", key="the archivist", location=self.room1
@@ -337,6 +347,24 @@ class TestCivic(EvenniaTest):
         # Cooldown: an immediate second shift changes nothing.
         self.char1.execute_cmd("work")
         self.assertEqual(self.char1.skill("clerking"), 1)
+
+    def test_off_cooldown_texture_reflects_how_close_the_next_shift_is(self):
+        # Playtest finding, picked up in the solo-fun pass: off-cooldown
+        # gave no sense of when the next shift opens. Now it reads
+        # differently depending on how much of the cooldown has elapsed.
+        import time
+        from commands.civic import CmdWork
+        from world import tuning
+
+        self.char1.db.last_work = time.time()
+        blob = self._captured(self.char1, "work")
+        self.assertIn(blob, CmdWork.OFF_COOLDOWN_FAR)
+
+        self.char1.db.last_work = (
+            time.time() - tuning.WORK_COOLDOWN * tuning.WORK_NEAR_COOLDOWN_FRACTION
+        )
+        blob = self._captured(self.char1, "work")
+        self.assertIn(blob, CmdWork.OFF_COOLDOWN_NEAR)
 
     def test_observe_improves_skill(self):
         self.char1.execute_cmd("observe")

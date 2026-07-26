@@ -124,6 +124,25 @@ class CmdWork(Command):
         "signature is a printed facsimile of a signature.",
     ]
 
+    # Off-cooldown texture (playtest finding, never triaged until now: the
+    # dead seconds between shifts had one static line and no sense of when
+    # the next one opens). Same idiom as the sweep's near-miss telegraphy
+    # (scripts.py's NEAR_MISSES) -- proximity read through prose tiers, not
+    # a raw countdown; nothing in this codebase shows a player a literal
+    # number of seconds to wait, and a digital countdown would be the first.
+    OFF_COOLDOWN_FAR = [
+        "You are waved off before you have finished offering. Eagerness "
+        "is also noted.",
+        "\"Already been,\" the counter says, without checking. It has "
+        "not, quite. It will not be argued with.",
+    ]
+    OFF_COOLDOWN_NEAR = [
+        "You are waved off, but the pen is already reaching for a fresh "
+        "form. Not yet. Nearly.",
+        "\"Give it a moment,\" the counter says, not unkindly, already "
+        "turning the next form face-up.",
+    ]
+
     def func(self):
         from world import functions
 
@@ -156,11 +175,11 @@ class CmdWork(Command):
             skill_name = "clerking"
 
         now = time.time()
-        if now - (caller.db.last_work or 0) < tuning.WORK_COOLDOWN:
-            caller.msg(
-                "You are waved off without a glance: the next shift isn't "
-                "yours yet. Eagerness is also noted."
-            )
+        elapsed = now - (caller.db.last_work or 0)
+        if elapsed < tuning.WORK_COOLDOWN:
+            near = elapsed >= tuning.WORK_COOLDOWN * tuning.WORK_NEAR_COOLDOWN_FRACTION
+            lines = self.OFF_COOLDOWN_NEAR if near else self.OFF_COOLDOWN_FAR
+            caller.msg(random.choice(lines))
             return
         caller.db.last_work = now
         caller.msg(random.choice(shifts))
