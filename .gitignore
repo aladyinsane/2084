@@ -5,6 +5,7 @@ docs/research/sources/
 # Local credentials / scratch notes / Claude instructions
 dev-notes.md
 CLAUDE.md
+live-testing-*.txt
 *.key*
 
 # Python / Evennia
