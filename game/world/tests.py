@@ -915,6 +915,52 @@ class TestTrust(EvenniaTest):
         ]
         self.assertEqual(len(reported), 1)
 
+    def test_ministry_plant_report_names_the_project_room_not_a_member(self):
+        # ADR 0015: an active project's last qualifying act gives the
+        # report a room to reference -- an act, not an actor, so it can't
+        # single out char1 or char2 by name.
+        from world import circle_projects, circles
+
+        slug = self._circle_of_two()
+        circle_projects.start(self.char1)
+        reg = circle_projects._registry()
+        reg[slug]["last_event_room"] = "Tunnel B"
+        circle_projects._save_registry(reg)
+        npc = self._informant("ministry")
+        npc.db.recruited_by = slug
+        npc.db.last_report = 0
+        circles.collect_informant_reports()
+        reported = [
+            c
+            for member in (self.char1, self.char2)
+            for c in self._file_contents(member)
+            if "Reported by a source" in c
+        ]
+        self.assertEqual(len(reported), 1)
+        self.assertIn("Tunnel B", reported[0])
+        self.assertNotIn(self.char1.key, reported[0])
+        self.assertNotIn(self.char2.key, reported[0])
+
+    def test_ministry_plant_report_is_generic_without_a_project(self):
+        from world import circles
+
+        slug = self._circle_of_two()
+        npc = self._informant("ministry")
+        npc.db.recruited_by = slug
+        npc.db.last_report = 0
+        circles.collect_informant_reports()
+        reported = [
+            c
+            for member in (self.char1, self.char2)
+            for c in self._file_contents(member)
+            if "Reported by a source" in c
+        ]
+        self.assertEqual(len(reported), 1)
+        self.assertEqual(
+            reported[0],
+            "Reported by a source: associates with an unregistered circle",
+        )
+
     def test_judge_reads_truth_only_at_skill(self):
         from world import tuning
 
@@ -1465,6 +1511,24 @@ class TestCircleProjects(EvenniaTest):
         with patch("world.underground.random.random", return_value=0.0):
             self.char2.execute_cmd("sabotage lens")  # a different member finishes it
         self.assertEqual(circle_projects.project_of(slug)["stage"], 1)  # advanced to the Run
+
+    def test_casing_records_the_last_event_room(self):
+        # ADR 0015: the room of the most recent qualifying act, not the
+        # actor -- kept for informant reports to reference.
+        from unittest.mock import patch
+
+        from world import circle_projects
+
+        slug = self._circle()
+        circle_projects.start(self.char1)
+        self.room1.db.visibility = 0
+        self.room1.key = "Tunnel B"
+        sensor = self._sensor()
+        with patch("world.underground.random.random", return_value=0.0):
+            self.char1.execute_cmd("sabotage lens")
+        self.assertEqual(
+            circle_projects.project_of(slug)["last_event_room"], "Tunnel B"
+        )
 
     def test_run_tally_advances_to_the_split(self):
         from unittest.mock import patch

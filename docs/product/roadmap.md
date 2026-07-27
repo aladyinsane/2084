@@ -621,6 +621,29 @@ circle stakes had no trust-game participation below them at all.
       Maintenance Protocol (Form C-1's entry in `forms-and-notices.md`, the Ministry
       of Records section of `historical-background.md`)
 
+## v0.23 — Suspected, not proven ([ADR 0015](../decisions/0015-suspected-not-proven-circumstantial-informant-clues.md))
+
+Trust-machine backlog item 3, the last of the four. Audited against the research doc's
+own framing first: deniability already held in both existing leak mechanics
+(informant reports, signal interception) — the real gap was that reports carried no
+circumstantial detail, so circles had nothing concrete to reason about when one
+arrived.
+
+- [x] A recruited Ministry plant's report now references the room of the circle's most
+      recent qualifying project act (sabotage or delivery), when a project ([ADR
+      0013](../decisions/0013-escalating-circle-projects.md)) is running — "one of them
+      recently active near {room}." No active project: unchanged, generic text. The
+      room names an act, not an actor: verified live that the report can land on a
+      different member's file than the one who actually did the sabotage, exactly the
+      deniable, circumstantial texture the mechanic exists to give
+- [x] Zero new persistent lifecycle: the room piggybacks on `circle_projects`' own
+      per-slug registry entry, wiped and reset on exactly the events that state already
+      is
+- [x] The bigger swing the research diagnosis actually named as missing — a real hidden
+      "mole" role between players, not just NPC informants — was presented to Lauren
+      as an alternative and explicitly not chosen for this version; parked in
+      future-features.md for its own design pass
+
 ## Later / undecided
 
 The parking lot, including the **ASCII map**: [future-features.md](future-features.md).
