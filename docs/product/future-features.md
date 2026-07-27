@@ -123,8 +123,12 @@ purpose). Invert the consent and it's ours: detainment outcomes that *remove rec
 aptitudes* — the regime deletes what it decided you shouldn't know. Slots into ADR
 0005 (aptitudes are record entries) and gives ADR 0006's interrogation ladder its
 sharpest rung short of unpersoning.
-**Why not now:** needs skills (v0.3) and detainment (v0.2) to exist first. When it
-lands, telegraphing rules apply double — losing a skill must never feel random.
+**Why not now:** originally, needed skills (v0.3) and detainment (v0.2) to exist first —
+both have existed since v0.4, and this entry sat unrevisited through everything built on
+top of them since. Caught 2026-07-27 during a docs audit: not blocked on anything
+anymore, just never re-surfaced. Not a commitment to build it next, just a correction —
+it's genuinely available to pick up whenever it's wanted, and the redesign-`wait`/`demand`
+item directly below is a natural companion pass if either gets picked up.
 
 ### Detainment: `wait`/`demand` need more of a "game" feel *(from Lauren, 2026-07-24)*
 Lauren's read after using it: `wait` (`game/commands/detention.py`) is just typing
@@ -395,6 +399,22 @@ generously.
 Memory objects that outlive characters, an archaeology of past players. Haunting, very
 principle-8. No design yet; a sentence to remember it by.
 
+### Subterranean infrastructure, needs a new name
+*(From [worldbuilding-ideas.md](worldbuilding-ideas.md#iv-pipeline-to-future-features),
+orphaned 2026-07-24, recovered 2026-07-27.)*
+
+That doc's narrative-concept pipeline had a "Circle Projects" row — safehouse radio,
+stash networks, subterranean infrastructure a circle builds up over time — that lost
+its name to [ADR 0013](../decisions/0013-escalating-circle-projects.md)'s unrelated
+mechanic (pooled sabotage/courier stages ending in a synchronous payout). The
+collision was flagged in `worldbuilding-ideas.md` itself at the time, but the concept
+never got an actual entry here — it's been sitting unreferenced in the feeder doc for
+three versions. Recording it properly now, not endorsing it: a genuinely different
+idea from ADR 0013, un-designed, and unbuildable under its old name.
+**Why not now:** needs a new name before anyone can even discuss it without ambiguity,
+and no research/principles pass has been run against it yet — this is a bookmark, not
+a plan.
+
 ---
 
 ## Known risks in shipped features
@@ -447,3 +467,18 @@ The known failure mode: every veteran converges on one best build. Mitigations s
 as requirements (skill-by-use breadth cost, world reacting to record, institutional
 standing as identity anchor). **What tells us it's happening:** vet dossiers looking
 interchangeable. Check at every playtest gate from v0.3 on.
+
+### `flip`'s retention was never actually checked
+*From [command-surface-audit.md](../research/command-surface-audit.md), v0.7. Caught
+2026-07-27 during a docs audit.*
+
+The audit considered dropping `flip` (the narrowest verb in the underground set — buy
+out a Ministry-loyal informant) and explicitly deferred the decision: *"retained: it is
+the observation grind's best payoff. Watch it; if nobody flips anyone by the next
+playtest gate, it folds into `recruit`."* At least one playtest gate has passed since
+(the [ten-persona playtest](../research/playtest-2026-07-20-ten-personas.md),
+2026-07-20) with no record anywhere of anyone checking whether `flip` actually got
+used, and the watch clause itself was never carried forward past v0.7 — this document
+had no memory of it until now. **What tells us it's happening:** nobody's dossier or
+session log ever mentions `flip`. Check at the next real playtest, and either confirm
+it earns its place or fold it into `recruit` as originally proposed.

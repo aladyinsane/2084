@@ -74,4 +74,6 @@ This document generates narrative and worldbuilding concepts that feed into futu
 shipped a mechanically unrelated feature also called "circle projects" (trust-machine
 backlog item 2 — pooled sabotage/courier stages ending in a synchronous payout, not
 infrastructure building). This row's narrative concept is still open and un-renamed;
-if it's picked up, it needs a distinct name first.*
+if it's picked up, it needs a distinct name first. Given a real parking-lot entry
+2026-07-27, after sitting orphaned here for three versions: see
+[future-features.md's Speculative section](future-features.md#subterranean-infrastructure-needs-a-new-name).*
