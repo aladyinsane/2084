@@ -92,6 +92,11 @@ WORK_COOLDOWN = 45  # seconds between shifts
 WORK_INFLUENCE = 2  # a redaction = 4 shifts (~3 min of visible usefulness)
 WORK_EXPOSURE_RELIEF = 2
 
+# Off-cooldown texture (ten-persona playtest finding, picked up in the solo-
+# fun pass): past this fraction of WORK_COOLDOWN elapsed, the rejection
+# reads as "nearly" rather than "not yet."
+WORK_NEAR_COOLDOWN_FRACTION = 0.66
+
 # Records Annex services (the sanctioned route). Costs are influence with the
 # Ministry of Records; using the service at all is itself noticed.
 AMEND_COST = 4
