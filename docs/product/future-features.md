@@ -193,6 +193,12 @@ Grid's own materials. **Options, not decisions** — an ADR happens when one is 
 4. **Records archaeology.** Grinding the archive itself: `research` at the Annex
    surfaces fragments; assembling a story about an unperson pays influence jackpots.
    The rare-drop table is narrative.
+   *(Update 2026-07-26: picked by Lauren, from the solo-player fun audit, as the first
+   Grind Shelf option to actually plan — [ADR 0016](../decisions/0016-records-archaeology.md)
+   drafted, Proposed, not yet accepted. Atomic fragment sentences recombine without
+   grammar-stitching for the infinite generic grind; a rare draw surfaces one of a
+   handful of hand-authored named cases instead. Hybrid payout, same shape ADR 0014
+   chose: small Records standing per fragment, underground standing on completion.)*
 5. **Watch-the-Watch bounties.** The underground pays for verified observation:
    patrol schedules, sensor sharpness reports (`observe` output becomes a sellable
    commodity). Turns the existing skill into an income loop with a market.
