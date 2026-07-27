@@ -2838,3 +2838,113 @@ class TestRecordCompaction(EvenniaTest):
         with patch("commands.civic.random.random", return_value=0.0):
             self._captured(self.char1, "forge papers-checks")
         self.assertEqual(records.summary_for(self.char1, "papers_check"), (2, 1))
+
+
+class TestArchaeology(EvenniaTest):
+    """ADR 0016: records archaeology, the third grind loop."""
+
+    def setUp(self):
+        super().setUp()
+        self.archivist = create.create_object(
+            "typeclasses.npcs.Citizen", key="the archivist", location=self.room1
+        )
+        self.archivist.tags.add("records_service", category="grid")
+
+    def _captured(self, char, command):
+        old = char.msg
+        seen = []
+        char.msg = lambda text=None, **kw: seen.append(str(text))
+        try:
+            char.execute_cmd(command)
+        finally:
+            char.msg = old
+        return "\n".join(seen)
+
+    def test_research_requires_the_archivist(self):
+        self.char1.move_to(self.room2)
+        self.char1.db.influence = {}
+        self.char1.execute_cmd("research")
+        self.assertFalse((self.char1.db.influence or {}).get("Ministry of Records"))
+
+    def test_research_pays_costs_and_teaches_clerking(self):
+        from unittest.mock import patch
+
+        from world import archaeology, tuning
+
+        self.char1.db.exposure = 0
+        with patch("world.archaeology.random.random", return_value=0.99):
+            archaeology.research(self.char1)
+        self.assertEqual(self.char1.skill("clerking"), 1)
+        self.assertEqual(
+            (self.char1.db.influence or {}).get("Ministry of Records"),
+            tuning.RESEARCH_INFLUENCE,
+        )
+        self.assertEqual(self.char1.db.exposure, tuning.RESEARCH_EXPOSURE)
+
+    def test_research_off_cooldown_texture_reflects_proximity(self):
+        import time
+
+        from commands.civic import CmdResearch
+        from world import tuning
+
+        self.char1.db.last_research = time.time()
+        blob = self._captured(self.char1, "research")
+        self.assertIn(blob, CmdResearch.FAR_LINES)
+
+        self.char1.db.last_research = (
+            time.time()
+            - tuning.RESEARCH_COOLDOWN * tuning.WORK_NEAR_COOLDOWN_FRACTION
+        )
+        blob = self._captured(self.char1, "research")
+        self.assertIn(blob, CmdResearch.NEAR_LINES)
+
+    def test_generic_case_completes_and_pays_underground(self):
+        from unittest.mock import patch
+
+        from world import archaeology, tuning
+
+        with patch("world.archaeology.random.random", return_value=0.99):
+            for _ in range(tuning.CASE_FRAGMENTS_REQUIRED):
+                archaeology.research(self.char1)
+        self.assertIsNone(self.char1.db.archaeology_case)
+        self.assertEqual(
+            (self.char1.db.influence or {}).get(tuning.UNDERGROUND),
+            tuning.CASE_COMPLETION_PAYOUT,
+        )
+
+    def test_a_new_case_starts_after_completion(self):
+        from unittest.mock import patch
+
+        from world import archaeology, tuning
+
+        with patch("world.archaeology.random.random", return_value=0.99):
+            for _ in range(tuning.CASE_FRAGMENTS_REQUIRED):
+                archaeology.research(self.char1)
+            archaeology.research(self.char1)
+        self.assertIsNotNone(self.char1.db.archaeology_case)
+        self.assertEqual(len(self.char1.db.archaeology_case["found"]), 1)
+
+    def test_named_case_completes_marks_solved_and_pays_more(self):
+        from unittest.mock import patch
+
+        from world import archaeology, tuning
+
+        key = next(iter(archaeology.NAMED_CASES))
+        count = len(archaeology.NAMED_CASES[key]["fragments"])
+        with patch("world.archaeology.random.random", return_value=0.0), patch(
+            "world.archaeology._next_named_draw", return_value=key
+        ):
+            for _ in range(count):
+                archaeology.research(self.char1)
+        self.assertIn(key, self.char1.db.archaeology_solved)
+        self.assertEqual(
+            (self.char1.db.influence or {}).get(tuning.UNDERGROUND),
+            tuning.NAMED_CASE_PAYOUT,
+        )
+        self.assertNotIn(key, self.char1.db.archaeology_named or {})
+
+    def test_solved_named_cases_are_never_redrawn(self):
+        from world import archaeology
+
+        self.char1.db.archaeology_solved = list(archaeology.NAMED_CASES.keys())
+        self.assertIsNone(archaeology._next_named_draw(self.char1))

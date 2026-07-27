@@ -358,3 +358,28 @@ PROJECT_PAYOUT = 30
 # it's reachable from a new player's first few `work` shifts, not gated
 # behind having already taken underground risks.
 VOUCH_STAKE = 3
+
+# --- ADR 0016: records archaeology -------------------------------------------
+
+# `research` at the Annex: routine, cheap, same shape as `work`. No skill
+# check, no failure state -- the cost is cumulative exposure, not a roll.
+RESEARCH_COOLDOWN = 60          # seconds between uses
+RESEARCH_INFLUENCE = 1          # Ministry of Records standing per fragment
+RESEARCH_EXPOSURE = 1           # routine draw
+RESEARCH_RARE_EXPOSURE = 4      # a rare/named draw is noticed more
+
+# Rare-draw chance: base + a small clerking bonus, same shape as
+# SABOTAGE_SKILL_BONUS. Only rolled toward a citizen's own not-yet-solved
+# named cases; a generic draw happens the rest of the time regardless.
+RESEARCH_RARE_BASE_CHANCE = 0.10
+RESEARCH_RARE_SKILL_BONUS = 0.002   # per clerking point: +10% at cap
+
+# A generic case resolves at this many collected fragments and pays
+# underground standing -- small, since it's meant to be ground repeatedly.
+CASE_FRAGMENTS_REQUIRED = 3
+CASE_COMPLETION_PAYOUT = 8
+
+# A named case's payout is sized like PROJECT_PAYOUT was: enough to move
+# the shadow ladder (SHADOW_TIERS) a real amount, so finishing one reads as
+# a jump, not a rounding error on the generic grind.
+NAMED_CASE_PAYOUT = 18
