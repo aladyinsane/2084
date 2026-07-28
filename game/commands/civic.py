@@ -472,6 +472,66 @@ class CmdPetition(Command):
         caller.send_prompt()
 
 
+class CmdResearch(Command):
+    """
+    Research the archive.
+
+    Usage:
+      research
+
+    The Annex's public terminals hold decades of what the Ministry decided
+    was worth keeping. Most of it is exactly as dull as it looks, and the
+    archivist logs who reads what. Sometimes a page doesn't belong.
+    """
+
+    key = "research"
+    locks = "cmd:all()"
+    help_category = "sector 9"
+
+    FAR_LINES = [
+        "The terminal is still loading the last thing you asked it. "
+        "Patience is a filing skill.",
+        '"One record at a time," the archivist says, not looking up.',
+    ]
+    NEAR_LINES = [
+        "The terminal's cursor blinks, nearly ready to be asked again.",
+        "The archivist checks the clock, then you, then the clock again.",
+    ]
+
+    def _archivist(self):
+        room = self.caller.location
+        if not room:
+            return None
+        for obj in room.contents:
+            if obj.tags.get("records_service", category="grid"):
+                return obj
+        return None
+
+    def func(self):
+        from world import archaeology
+
+        caller = self.caller
+        if not self._archivist():
+            caller.msg(
+                "The archive is consulted at the Archive Annex, under the "
+                "archivist's eye, or not at all."
+            )
+            return
+
+        now = time.time()
+        elapsed = now - (caller.db.last_research or 0)
+        if elapsed < tuning.RESEARCH_COOLDOWN:
+            near = (
+                elapsed
+                >= tuning.RESEARCH_COOLDOWN * tuning.WORK_NEAR_COOLDOWN_FRACTION
+            )
+            lines = self.NEAR_LINES if near else self.FAR_LINES
+            caller.msg(random.choice(lines))
+            return
+        caller.db.last_research = now
+        archaeology.research(caller)
+
+
 class CmdForge(Command):
     """
     Rewrite an entry in your file without asking anyone.

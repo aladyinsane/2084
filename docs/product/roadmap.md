@@ -644,6 +644,42 @@ arrived.
       as an alternative and explicitly not chosen for this version; parked in
       future-features.md for its own design pass
 
+## v0.24 — Records archaeology ([ADR 0016](../decisions/0016-records-archaeology.md))
+
+The solo-player fun audit's bigger pick, after the `work`-cooldown quick fix: a third
+repeatable grind loop, the first new one since v0.6's sabotage and couriering (ADR
+0008), and the first that never leaves sanctioned space.
+
+- [x] `research` at the Archive Annex (gated on the archivist, same as `petition`; no
+      clearance gate, reachable from a citizen's first session). Draws one atomic
+      fragment sentence toward a randomly-named generic case, no grammatical
+      recombination — sentences stand alone, presented together, immune to Mad-Libs
+      agreement bugs. 3 fragments complete a case, pay underground standing, and a new
+      case starts automatically
+- [x] A rare draw (base chance + a small `clerking` bonus) instead surfaces a piece of
+      one of three hand-authored, lore-connected named cases
+      ([catalogued in `docs/lore/`](../lore/artifacts/unperson-case-files.md)); completing
+      one pays more and prints a full narrative reveal, solved once per citizen
+- [x] Hybrid payout, same shape ADR 0014 (vouching) chose: small Ministry of Records
+      standing per fragment (sanctioned, day-one reachable), underground standing on
+      completion (the actual payoff). Checked explicitly against
+      `grind-loops-without-killing.md`'s 5-point extraction checklist — every item
+      satisfied
+- [x] Off-cooldown texture reuses the near/far prose-tier pattern shipped for `work`
+      (below) rather than a new static line
+- [x] Lore Maintenance Protocol applied: new archivist reaction lines, the Orientation
+      Wing's Your File placard updated, `historical-background.md`'s Records section
+      updated, and a new lore artifact (`unperson-case-files.md`) cataloguing the three
+      named cases
+- [x] Live-verified: a real `research` call at the Annex drew a fragment, moved
+      exposure and Ministry of Records standing, trained clerking, and confirmed the
+      case-in-progress never leaks into the sanctioned `dossier`
+
+*(Folded in from the same audit: `work`'s off-cooldown rejection now varies by two
+prose tiers — "far" vs. "nearly" — instead of one static line, closing a ten-persona
+playtest finding that had never made it into this document at all. Small, mechanical,
+no ADR needed.)*
+
 ## Later / undecided
 
 The parking lot, including the **ASCII map**: [future-features.md](future-features.md).

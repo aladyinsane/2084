@@ -12,6 +12,7 @@ This directory contains the narrative background, in-universe artifacts, and wor
 | [artifacts/forms-and-notices.md](artifacts/forms-and-notices.md) | In-universe documentation of state forms (Form 1-A, Form 2-B, Form 9-A, Form 12-D, Form C-1, Form 77, Section C) |
 | [artifacts/the-chalk-marks.md](artifacts/the-chalk-marks.md) | Complete transcript and textual analysis of the subterranean Tunnel B chalk curriculum |
 | [artifacts/apparatus-and-requisitions.md](artifacts/apparatus-and-requisitions.md) | In-universe catalogue of state surveillance equipment and black-market contraband gear |
+| [artifacts/unperson-case-files.md](artifacts/unperson-case-files.md) | In-universe catalogue of the hand-authored `research` named cases at the Archive Annex |
 
 ---
 
@@ -57,3 +58,4 @@ Before any feature PR is merged into `main`, check:
 | **Surveillance Lenses & Sensors** | [typeclasses/objects.py](../../game/typeclasses/objects.py) | [apparatus-and-requisitions.md](artifacts/apparatus-and-requisitions.md#surveillance-apparatus) |
 | **State Badges & Wellness Monitors** | [typeclasses/gear.py](../../game/typeclasses/gear.py) | [apparatus-and-requisitions.md](artifacts/apparatus-and-requisitions.md#state-issue-gear) |
 | **Foil Coats & Dead-Man Pockets** | [typeclasses/gear.py](../../game/typeclasses/gear.py) | [apparatus-and-requisitions.md](artifacts/apparatus-and-requisitions.md#black-market-gear) |
+| **Unperson Case Files** | [world/archaeology.py](../../game/world/archaeology.py) | [unperson-case-files.md](artifacts/unperson-case-files.md) |

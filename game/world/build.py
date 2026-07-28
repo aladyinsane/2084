@@ -204,7 +204,9 @@ ROOMS = {
         "petitions: visit the archivist at the Archive Annex to "
         "|cpetition|w for corrections, priced in standing you have earned. "
         "The Ministry forgets nothing unless asked politely, in writing, "
-        "for a consideration.|n\n\n"
+        "for a consideration. The archive holds more than your own file, "
+        "too: a citizen with time to spend may |cresearch|w it at the "
+        "Annex's terminals, and be paid for the noticing.|n\n\n"
         "Continue EAST.",
     ),
     "o_civic": (
@@ -861,7 +863,9 @@ def build():
         "who decides what happened. The archivist amends and redacts citizen "
         "files for a consideration in standing: petition them, and the past "
         "improves. The service is real, the ledger is balanced, and the "
-        "request goes in a file of its own."
+        "request goes in a file of its own. Citizens with nothing to "
+        "correct are welcome to |cresearch|n the shelves regardless; the "
+        "archivist logs that too, without comment."
     )
     archivist.db.react_calm = (
         "{npc} continues re-shelving the past, one folder at a time."
@@ -874,8 +878,8 @@ def build():
     )
     archivist.db.deflection = (
         "\"I don't discuss files I'm not holding,\" the archivist says, "
-        "without looking up. \"|cpetition|n one, and we'll have plenty to "
-        "discuss.\""
+        "without looking up. \"|cpetition|n one, or |cresearch|n the "
+        "shelves yourself. Either way, I'm still working.\""
     )
 
     logger.log_info(f"2084: built Sector 9 ({len(rooms)} rooms).")

@@ -1,6 +1,6 @@
 # ADR 0016 — Records archaeology: a third grind loop, at the Annex
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-26
 
 ## Context

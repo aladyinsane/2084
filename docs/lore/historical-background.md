@@ -52,6 +52,8 @@ Yet Records understands human frailty—and the utility of institutional debt. T
 
 Records also tolerates a smaller, quieter debt: a citizen may `vouch` a little of their own standing for someone else's name—no form, no counter, nothing paper enough to be called official—and the Ministry reads it anyway when it matters, tolerating one more incident on a vouched-for file than it otherwise would. The debt runs both ways: a citizen who later signs Section C for their own crimes costs their backers the standing they staked, whether or not either party ever wrote a word of it down.
 
+The Annex's terminals are not only for consulting one's own file. A citizen with time to spend may `research` the wider archive: most of what turns up is exactly as dull as the rest of the record, but not all of it agrees with itself. Three such disagreements, patient enough and old enough to have acquired a shape, are catalogued in [the unperson case files](artifacts/unperson-case-files.md).
+
 ### 3. The Ministry of Commerce (The Chit and the Queue)
 Commerce manages survival. Along the covered walkway of the Ration Queue, citizens stand for hours awaiting ration chits. Commerce controls requisitions, issuing state-approved items—badges that smooth interactions with watched counters, and wellness monitors that accelerate heat decay while logging every step twice as easily. Commerce ensures that even sustenance and equipment reinforce compliance.
 

@@ -31,6 +31,7 @@ from commands.civic import (
     CmdObserve,
     CmdPetition,
     CmdReport,
+    CmdResearch,
     CmdUnvouch,
     CmdVouch,
     CmdWork,
@@ -72,6 +73,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdObserve())
         self.add(CmdListen())
         self.add(CmdPetition())
+        self.add(CmdResearch())
         self.add(CmdForge())
         self.add(CmdReport())
         self.add(CmdApply())

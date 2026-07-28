@@ -190,15 +190,16 @@ Grid's own materials. **Options, not decisions** — an ADR happens when one is 
    dull" findings — every remaining round-two finding was legibility polish,
    not a missing system. Revisit only if a real playtest explicitly names
    wanting a combat-shaped loop.)*
-4. **Records archaeology.** Grinding the archive itself: `research` at the Annex
-   surfaces fragments; assembling a story about an unperson pays influence jackpots.
-   The rare-drop table is narrative.
-   *(Update 2026-07-26: picked by Lauren, from the solo-player fun audit, as the first
-   Grind Shelf option to actually plan — [ADR 0016](../decisions/0016-records-archaeology.md)
-   drafted, Proposed, not yet accepted. Atomic fragment sentences recombine without
-   grammar-stitching for the infinite generic grind; a rare draw surfaces one of a
-   handful of hand-authored named cases instead. Hybrid payout, same shape ADR 0014
-   chose: small Records standing per fragment, underground standing on completion.)*
+4. ~~**Records archaeology.**~~ **Shipped 2026-07-27** ([ADR 0016](../decisions/0016-records-archaeology.md),
+   `feat/records-archaeology`). Picked by Lauren, from the solo-player fun audit, as the
+   first Grind Shelf option actually built. `research` at the Annex draws atomic
+   fragment sentences (no grammar-stitching) toward a randomly-named generic case,
+   infinite by construction; a rare draw instead surfaces a piece of one of three
+   hand-authored named cases
+   ([catalogued in lore](../lore/artifacts/unperson-case-files.md)). Hybrid payout, same
+   shape ADR 0014 chose: small Records standing per fragment, underground standing on
+   completion. Checked against `grind-loops-without-killing.md`'s 5-point extraction
+   checklist explicitly — every item satisfied.
 5. **Watch-the-Watch bounties.** The underground pays for verified observation:
    patrol schedules, sensor sharpness reports (`observe` output becomes a sellable
    commodity). Turns the existing skill into an income loop with a market.
@@ -354,6 +355,16 @@ renders as a 4-line box on every call, including the frequent no-argument case �
 consistency was the explicit ask, so applied uniformly rather than special-cased,
 but it's the one form whose call frequency makes the box's footprint worth
 revisiting if it reads as noisy in practice.
+
+### ~~`work`'s off-cooldown dead air~~ — FIXED (`fix/work-cooldown-texture`)
+*(from the ten-persona playtest, 2026-07-20; never triaged here until the solo-player
+fun audit caught it, 2026-07-26)* `work`'s 45 dead cooldown seconds had one static
+rejection line and gave no sense of when the next shift opens. Now the rejection reads
+from one of two prose tiers (`OFF_COOLDOWN_FAR` / `OFF_COOLDOWN_NEAR`) depending on how
+close the cooldown is to elapsing, same idiom as the sweep's near-miss telegraphy
+(`scripts.py`'s `NEAR_MISSES`) — proximity read through prose, never a raw countdown.
+New tuning constant `WORK_NEAR_COOLDOWN_FRACTION`, reused as-is by `research`'s own
+cooldown texture ([ADR 0016](../decisions/0016-records-archaeology.md)).
 
 ## Deliberately deferred (with reasons)
 
