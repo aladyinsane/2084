@@ -58,6 +58,7 @@ Numbered, immutable once accepted, superseded rather than edited. Every one has 
 | [0015](decisions/0015-suspected-not-proven-circumstantial-informant-clues.md) | Suspected, not proven: circumstantial informant clues | Deniability already held before this ADR — the real gap was that the message had nothing circumstantial in it to reason about |
 | [0016](decisions/0016-records-archaeology.md) | Records archaeology: a third grind loop, at the Annex | Atomic fragment sentences instead of grammatical recombination — infinite without the Mad-Libs agreement bugs |
 | [0017](decisions/0017-propaganda-engine.md) | The propaganda engine: giving the alert system a voice (Proposed) | District alert already drives patrol density silently — this narrates a mechanic that was already real, rather than inventing a new one |
+| [0018](decisions/0018-orientation-wing-interactive-and-sector-wide.md) | The Orientation Wing becomes genuinely interactive, and teaching starts reaching past it (Proposed) | Resolves the tension with v0.15's own "never gate, nobody's worse for skipping" design explicitly rather than silently overriding it |
 
 ## Product
 

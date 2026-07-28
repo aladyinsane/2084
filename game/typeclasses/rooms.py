@@ -100,16 +100,41 @@ class Room(ObjectParent, DefaultRoom):
         # the movement itself has fully resolved.
         # Completing the Wing's practical portion is a citizen's first
         # merit (v0.12, endowed progress): the corridor room carries the
-        # `orients` tag and credits whoever walks it.
+        # `orients` tag and credits whoever walks it. ADR 0018: credit is
+        # no longer automatic on arrival alone -- it requires having
+        # actually exercised the core verbs somewhere along the way (no
+        # hard lock, principle 9: leaving and re-entering after trying
+        # them still works, since db.oriented stays False until earned).
         if (
             not moved_obj.db.oriented
             and hasattr(moved_obj, "gain_exposure")
             and self.tags.get("orients", category="grid")
         ):
-            moved_obj.db.oriented = True
-            from world import grades
+            from world import onboarding
 
-            grades.check_reclassification(moved_obj)
+            if onboarding.has_completed_core_orientation(moved_obj):
+                moved_obj.db.oriented = True
+                from world import grades
+
+                grades.check_reclassification(moved_obj)
+                from commands.firsthour import CmdNext
+                from world import errands, tuning
+
+                moved_obj.msg(
+                    "|=mThe Grid credits your orientation in full.|n\n"
+                    + CmdNext._advice(moved_obj, errands, tuning)
+                )
+            else:
+                missing = sorted(
+                    onboarding.CORE_ORIENTATION_VERBS
+                    - (moved_obj.db.first_use_verbs or set())
+                )
+                verb_list = ", ".join(f"|c{verb}|n" for verb in missing)
+                moved_obj.msg(
+                    "|yThe Grid credits attendance, not attention:|n you "
+                    f"have not yet tried {verb_list}. |=mWalk back through "
+                    "and try them; the credit is waiting, not lost.|n"
+                )
         if moved_obj.has_account and move_type in ("move", "traverse"):
             from evennia.utils import delay
 

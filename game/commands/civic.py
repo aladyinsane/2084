@@ -325,6 +325,10 @@ class CmdListen(Command):
             )
         caller.msg("\n".join(lines))
 
+        from world.onboarding import acknowledge_first_use
+
+        acknowledge_first_use(caller, "listen")
+
 
 class CmdPetition(Command):
     """
@@ -471,6 +475,10 @@ class CmdPetition(Command):
         )
         caller.send_prompt()
 
+        from world.onboarding import acknowledge_first_use
+
+        acknowledge_first_use(caller, "petition")
+
 
 class CmdResearch(Command):
     """
@@ -530,6 +538,10 @@ class CmdResearch(Command):
             return
         caller.db.last_research = now
         archaeology.research(caller)
+
+        from world.onboarding import acknowledge_first_use
+
+        acknowledge_first_use(caller, "research")
 
 
 class CmdForge(Command):
@@ -681,6 +693,10 @@ class CmdApply(Command):
             cmd_on_exit=None,
         )
 
+        from world.onboarding import acknowledge_first_use
+
+        acknowledge_first_use(caller, "apply")
+
 
 def _citizen_here(caller, name):
     from typeclasses.characters import Character
@@ -732,6 +748,10 @@ class CmdVouch(Command):
             "complete Section C, your word goes with theirs.|n"
         )
 
+        from world.onboarding import acknowledge_first_use
+
+        acknowledge_first_use(caller, "vouch")
+
 
 class CmdUnvouch(Command):
     """
@@ -758,3 +778,7 @@ class CmdUnvouch(Command):
             caller.msg(err)
             return
         caller.msg("You take your name back. Nothing was ever written down.")
+
+        from world.onboarding import acknowledge_first_use
+
+        acknowledge_first_use(caller, "unvouch")
