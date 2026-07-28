@@ -45,6 +45,8 @@ In high-surveillance spaces—such as the Central Spire Checkpoint or the Demons
 
 When compliance fails, Order moves the citizen not to a grave, but to **the Holding Cell**. In four white walls beneath an unswitchable light, the citizen loses motion and gains the permitted verbs of detainment: `wait`, `demand`, or `confess`.
 
+The same loudspeakers that convene civic assemblies carry Order's other voice: periodic bulletins on "foreign-directed sabotage," "isolated incidents," and, when the district runs hot enough, frank admissions that patrols have increased. None of it names a citizen. The bulletins react to real activity the Ministry already tracks (the same district alert that quietly sets how many grey uniforms walk a street) — the loudspeakers are not lying about the shape of things, only about how alarmed the Ministry claims to be about it.
+
 ### 2. The Ministry of Records (The Dossier and the Seam)
 Located at the Archive Annex, Records governs the truth. Records maintains that a character is not an archetype or an indelible lineage, but an accumulating **dossier**. Every infraction, every sensor log, every missed assembly, and every processed commendation is written into an append-only audit trail.
 

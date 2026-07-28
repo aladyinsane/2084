@@ -60,17 +60,16 @@ deliberately deferred to whenever the "Big-world expansion" trigger below
 actually fires, so the idempotency guards get designed against a real new
 district rather than a hypothetical one.
 
-### Propaganda engine
+### ~~Propaganda engine~~ — SHIPPED (v0.25, 2026-07-28, [ADR 0017](../decisions/0017-propaganda-engine.md))
 World news that reacts to aggregate player action: sabotage begets "foreign saboteurs"
 headlines, paranoia, patrols. The brainstorm's best liveness idea and a strong
 principle-8 machine (world feels inhabited at low population).
-*(Update 2026-07-27: picked by Lauren, from the solo-player fun thread, as the follow-up
-to records archaeology — atmosphere/world-reactivity rather than a fourth grind loop.
-[ADR 0017](../decisions/0017-propaganda-engine.md) drafted, Proposed, not yet accepted.
-The original blocker died with v0.6; the actual design found district alert already
-silently drives patrol density, so the engine narrates that existing mechanic rather
-than inventing a new one. Pure narration chosen over letting activity feed back into
-alert, to keep solo players from raising their own difficulty by grinding.)*
+Picked by Lauren, from the solo-player fun thread, as the follow-up to records
+archaeology — atmosphere/world-reactivity rather than a fourth grind loop. The original
+blocker died with v0.6; the actual design found district alert already silently drives
+patrol density, so the engine narrates that existing mechanic rather than inventing a
+new one. Pure narration shipped, not real feedback into alert, so solo players can't
+raise their own difficulty by grinding.
 
 ### Secret languages and coded speech
 Ciphers, slang, hidden meanings on monitored channels (M9). Rich, unique territory.

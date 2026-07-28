@@ -680,6 +680,28 @@ prose tiers — "far" vs. "nearly" — instead of one static line, closing a ten
 playtest finding that had never made it into this document at all. Small, mechanical,
 no ADR needed.)*
 
+## v0.25 — The propaganda engine ([ADR 0017](../decisions/0017-propaganda-engine.md))
+
+Solo-fun thread's second follow-up: atmosphere and world-reactivity instead of a fourth
+grind loop, parked since the very first brainstorm and finally built once there was
+real activity to react to.
+
+- [x] District alert (`watch.get_alert()`) already drove patrol density silently since
+      v0.2 — this doesn't invent a new mechanic, it narrates that one for the first
+      time, the same fix shape near-miss telegraphy (v0.8.5) already gave the sweep at
+      the per-roll level
+- [x] `world/propaganda.py`: a since-last-bulletin rolling tally of sabotage/courier
+      activity (reset every time a bulletin fires, no lifetime accumulation), fed by
+      one new line at each hook point ADR 0013 already established
+- [x] `PropagandaScript` checks the tally plus the existing alert level on a slow tick
+      and broadcasts one of four tiers of headline to every currently-connected
+      citizen — aggregate and anonymous only, never naming anyone. Nobody online: the
+      tick skips outright rather than firing into an empty room, so a returning
+      citizen still hears their own accumulated activity reflected back
+- [x] Pure narration, not real feedback: chosen explicitly over letting heavy activity
+      push alert up further, so a solo player's own grinding can never quietly raise
+      their own session's difficulty as a side effect
+
 ## Later / undecided
 
 The parking lot, including the **ASCII map**: [future-features.md](future-features.md).
