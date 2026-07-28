@@ -64,8 +64,13 @@ district rather than a hypothetical one.
 World news that reacts to aggregate player action: sabotage begets "foreign saboteurs"
 headlines, paranoia, patrols. The brainstorm's best liveness idea and a strong
 principle-8 machine (world feels inhabited at low population).
-**Why not now:** needs enough player actions to react *to*; before v0.3 it would be a
-random headline generator.
+*(Update 2026-07-27: picked by Lauren, from the solo-player fun thread, as the follow-up
+to records archaeology — atmosphere/world-reactivity rather than a fourth grind loop.
+[ADR 0017](../decisions/0017-propaganda-engine.md) drafted, Proposed, not yet accepted.
+The original blocker died with v0.6; the actual design found district alert already
+silently drives patrol density, so the engine narrates that existing mechanic rather
+than inventing a new one. Pure narration chosen over letting activity feed back into
+alert, to keep solo players from raising their own difficulty by grinding.)*
 
 ### Secret languages and coded speech
 Ciphers, slang, hidden meanings on monitored channels (M9). Rich, unique territory.

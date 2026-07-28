@@ -57,6 +57,7 @@ Numbered, immutable once accepted, superseded rather than edited. Every one has 
 | [0014](decisions/0014-vouching.md) | Vouching: a small, sanctioned stake on someone else's name | Hybrid chosen over a literal C-1-only reading, so the mechanic actually reaches the new/risk-averse players it was named for |
 | [0015](decisions/0015-suspected-not-proven-circumstantial-informant-clues.md) | Suspected, not proven: circumstantial informant clues | Deniability already held before this ADR — the real gap was that the message had nothing circumstantial in it to reason about |
 | [0016](decisions/0016-records-archaeology.md) | Records archaeology: a third grind loop, at the Annex | Atomic fragment sentences instead of grammatical recombination — infinite without the Mad-Libs agreement bugs |
+| [0017](decisions/0017-propaganda-engine.md) | The propaganda engine: giving the alert system a voice (Proposed) | District alert already drives patrol density silently — this narrates a mechanic that was already real, rather than inventing a new one |
 
 ## Product
 
