@@ -1379,6 +1379,71 @@ class TestOnboarding(EvenniaTest):
         first = self._sent("errands take rounds")
         self.assertIn("Work found you", first)
 
+    def _archivist(self):
+        archivist = create.create_object(
+            "typeclasses.npcs.Citizen", key="the archivist", location=self.room1
+        )
+        archivist.tags.add("records_service", category="grid")
+        return archivist
+
+    def test_listen_acknowledges_first_use(self):
+        self.room1.tags.add("gossip_spot", category="grid")
+        from world import records
+
+        records.add_record(self.char2, "Papers checked in the street; cleared.")
+        first = self._sent("listen")
+        self.assertIn("says more than it means to", first)
+
+    def test_petition_acknowledges_first_use(self):
+        from world import records, tuning
+
+        self._archivist()
+        rec = records.add_record(self.char1, "A minor infraction.")
+        self.char1.db.influence = {"Ministry of Records": tuning.REDACT_COST}
+        first = self._sent(f"petition redact {rec.db.number}")
+        self.assertIn("sanctioned route", first)
+
+    def test_research_acknowledges_first_use(self):
+        self._archivist()
+        first = self._sent("research")
+        self.assertIn("exactly as dull as it looks", first)
+
+    def test_apply_acknowledges_first_use(self):
+        self._archivist()
+        first = self._sent("apply")
+        self.assertIn("only the versions of them it has", first)
+
+    def test_vouch_and_unvouch_acknowledge_first_use(self):
+        from world import tuning
+
+        self.char1.db.influence = {"Ministry of Records": tuning.VOUCH_STAKE}
+        first = self._sent(f"vouch {self.char2.key}")
+        self.assertIn("character reference, quietly filed", first)
+        second = self._sent("unvouch")
+        self.assertIn("taken back, standing returned in full", second)
+
+    def test_list_and_buy_acknowledge_first_use(self):
+        vendor = create.create_object(
+            "typeclasses.npcs.Citizen", key="the requisitions clerk",
+            location=self.room1,
+        )
+        vendor.tags.add("vendor", category="grid")
+        vendor.db.stock = ["badge"]
+        first = self._sent("list")
+        self.assertIn("what's for sale", first.lower())
+        self.char1.db.influence = {"Ministry of Records": 10}
+        second = self._sent("buy badge")
+        self.assertIn("want-ladder has a first rung", second)
+
+    def test_wear_acknowledges_first_use(self):
+        item = create.create_object(
+            "typeclasses.gear.Gear", key="test badge", location=self.char1
+        )
+        item.db.gear_kind = "badge"
+        item.db.slot = "wrist"
+        first = self._sent("wear test badge")
+        self.assertIn("one item per place it's worn", first.lower())
+
     def test_next_gives_wing_specific_hint_inside_the_wing(self):
         self.room1.tags.add("wing_watched", category="grid")
         advice = self._sent("next")
@@ -2452,9 +2517,11 @@ class TestGrades(EvenniaTest):
 
     def test_orientation_credit_reaches_grade_5(self):
         # Endowed progress: walking the Demonstration Corridor is sized to
-        # land the first grade-up minutes into play.
+        # land the first grade-up minutes into play. ADR 0018: credit
+        # requires having actually tried the four core verbs first.
         from world import grades, records
 
+        self.char1.db.first_use_verbs = {"map", "observe", "dossier", "grade"}
         self.room2.db.visibility = 0
         self.room2.tags.add("orients", category="grid")
         self.char1.move_to(self.room2)
@@ -2469,6 +2536,24 @@ class TestGrades(EvenniaTest):
         self.char1.move_to(self.room1)
         self.char1.move_to(self.room2)
         self.assertEqual(grades.merit(self.char1), tuning.GRADE_MERIT_ORIENTATION)
+
+    def test_orientation_withholds_credit_until_core_verbs_tried(self):
+        # ADR 0018: walking into the corridor without having tried the
+        # four core verbs doesn't silently credit attendance as attention.
+        from world import grades
+
+        self.room2.db.visibility = 0
+        self.room2.tags.add("orients", category="grid")
+        self.char1.move_to(self.room2)
+        self.assertFalse(self.char1.db.oriented)
+        self.assertEqual(grades.merit(self.char1), 0)
+        # Doing the rest, then re-entering, credits it -- no hard lock,
+        # just a gate on the credit itself.
+        self.char1.db.first_use_verbs = {"map", "observe", "dossier", "grade"}
+        self.char1.move_to(self.room1)
+        self.char1.move_to(self.room2)
+        self.assertTrue(self.char1.db.oriented)
+        self.assertEqual(grades.grade_of(self.char1), 5)
 
     def test_sanctioned_influence_is_merit_but_underground_is_not(self):
         from world import grades

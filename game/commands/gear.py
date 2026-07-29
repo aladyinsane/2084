@@ -114,6 +114,10 @@ class CmdList(Command):
             if lines
             else "Whatever is sold here, it is not sold to you yet."
         )
+        if lines:
+            from world.onboarding import acknowledge_first_use
+
+            acknowledge_first_use(caller, "list")
 
 
 class CmdBuy(Command):
@@ -184,6 +188,10 @@ class CmdBuy(Command):
                 f"|=mWear it with |cwear {key}|n|=m.|n"
             )
 
+        from world.onboarding import acknowledge_first_use
+
+        acknowledge_first_use(caller, "buy")
+
 
 class CmdWear(Command):
     """
@@ -228,6 +236,10 @@ class CmdWear(Command):
             return
         target.db.worn = True
         caller.msg(f"You put on {target.key}.")
+
+        from world.onboarding import acknowledge_first_use
+
+        acknowledge_first_use(caller, "wear")
 
 
 class CmdRemoveGear(Command):

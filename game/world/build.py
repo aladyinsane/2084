@@ -252,10 +252,11 @@ ROOMS = {
         "as you entered. This sensation - of a number rising because you "
         "went somewhere - is the fundamental transaction of the Grid. "
         "Spend it wisely.\n"
-        "  Your orientation is complete, and has been credited: note the "
-        "revision of your civic grade. The ladder runs from Grade 6 to "
-        "Grade 1, and you are now on it. Exit WEST, then SOUTH, then WEST "
-        "to the Assignment Hall. The Grid is waiting.|n",
+        "  Orientation completes here, for a citizen who has actually used "
+        "what these rooms taught, not merely walked past it. The ladder "
+        "runs from Grade 6 to Grade 1; check |cgrade|n and see where you "
+        "stand. Exit WEST, then SOUTH, then WEST to the Assignment Hall. "
+        "The Grid is waiting.|n",
     ),
     # Off-plan by design: you are *taken* here, never walked (documented
     # exception under ADR 0007 — no exits, so nothing to map).
