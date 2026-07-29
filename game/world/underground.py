@@ -91,9 +91,10 @@ def deliver(char):
         from world import errands
 
         errands.check(char, "deliver", tier=tier)
-    from world import circle_projects
+    from world import circle_projects, propaganda
 
     circle_projects.check(char, "deliver")
+    propaganda.record("courier")
     return total, jackpot
 
 

@@ -609,3 +609,46 @@ class RecordCompactionScript(Script):
         for char in Character.objects.all():
             records.compact_incidents(char)
             records.prune_observations(char)
+
+
+class PropagandaScript(Script):
+    """
+    ADR 0017: the district alert level already drives patrol density
+    (PatrolManagerScript, above) -- silently. This gives it a voice.
+    Every tick, checks a rolling tally of recent sabotage/courier activity
+    plus the existing alert level and, if there's anything to say,
+    broadcasts one bulletin to every connected citizen. Aggregate and
+    anonymous only; never names anyone. If nobody's online, the tick is
+    skipped outright -- the tally waits for whoever's next connected
+    rather than firing into an empty room.
+    """
+
+    def at_script_creation(self):
+        from world import tuning
+
+        self.key = "propaganda"
+        self.desc = "Broadcasts world-news bulletins reacting to recent activity."
+        self.interval = tuning.PROPAGANDA_TICK
+        self.persistent = True
+
+    @staticmethod
+    def _citizens():
+        from .characters import Character
+
+        return [
+            char
+            for char in Character.objects.all()
+            if char.has_account and char.sessions.count()
+        ]
+
+    def at_repeat(self):
+        citizens = self._citizens()
+        if not citizens:
+            return
+        from world import propaganda
+
+        bulletin = propaganda.pick_bulletin()
+        if not bulletin:
+            return
+        for char in citizens:
+            char.msg(bulletin)

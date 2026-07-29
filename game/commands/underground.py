@@ -88,9 +88,10 @@ class CmdSabotage(Command):
             f"credits you {pay}: standing with {tuning.UNDERGROUND} "
             f"{(caller.db.influence or {}).get(tuning.UNDERGROUND, 0)}.|n"
         )
-        from world import circle_projects
+        from world import circle_projects, propaganda
 
         circle_projects.check(caller, "sabotage")
+        propaganda.record("sabotage")
 
 
 class CmdCarry(Command):
