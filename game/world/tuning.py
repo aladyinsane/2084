@@ -383,3 +383,22 @@ CASE_COMPLETION_PAYOUT = 8
 # the shadow ladder (SHADOW_TIERS) a real amount, so finishing one reads as
 # a jump, not a rounding error on the generic grind.
 NAMED_CASE_PAYOUT = 18
+
+# --- ADR 0017: the propaganda engine -----------------------------------------
+
+# How often the world checks whether it has something to say. Slower than
+# any per-room tick on purpose -- this broadcasts to every connected
+# citizen at once, not just one room, so it needs a longer fuse than
+# AMBIENCE_INTERVAL.
+PROPAGANDA_TICK = 240  # seconds
+
+# Combined sabotage+courier events since the last bulletin, at or above
+# which the tone moves up a tier (alert, read directly from watch.py,
+# moves it too -- see propaganda.pick_bulletin).
+PROPAGANDA_ELEVATED_THRESHOLD = 2
+PROPAGANDA_HIGH_THRESHOLD = 6
+
+# Even a perfectly quiet tick occasionally gets a bland bulletin, so the
+# loudspeakers read as a living newsfeed rather than a pure alarm that's
+# always silent until it isn't.
+PROPAGANDA_QUIET_CHANCE = 0.15

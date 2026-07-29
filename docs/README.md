@@ -31,6 +31,7 @@ mechanisms produced. They exist to be used in arguments, and each one has a test
 | [playtest-2026-07-20-ten-personas.md](research/playtest-2026-07-20-ten-personas.md) | Ten play styles in one evening: the hostile command suggester, the deaf world, the missing shadow ladder — and what held (the ladder, the circle flow, `next`) |
 | [mobile-web-client.md](research/mobile-web-client.md) | Why the stock GoldenLayout web client can't just get responsive CSS, and the phased plan for a purpose-built mobile client on the same protocol |
 | [solo-player-fun-audit.md](research/solo-player-fun-audit.md) | Solo play passes principle 8 structurally, but repeatable content hasn't grown since v0.6 — and one ten-persona playtest finding never made it into the parking lot at all |
+| [endgame-and-long-term-goals.md](research/endgame-and-long-term-goals.md) | What a citizen plays *toward*: three non-exclusive long-horizon peaks (co-option, doublethink, durable underground legacy), none a "you win" cutscene — principle 8 rules that out structurally |
 | [prior-drafts/](research/prior-drafts/README.md) | Pre-workflow design material (codex, mechanics draft, brainstorm), frozen; ADRs beat anything in there |
 | [sources/](research/sources/) | The novel itself |
 
@@ -57,7 +58,7 @@ Numbered, immutable once accepted, superseded rather than edited. Every one has 
 | [0014](decisions/0014-vouching.md) | Vouching: a small, sanctioned stake on someone else's name | Hybrid chosen over a literal C-1-only reading, so the mechanic actually reaches the new/risk-averse players it was named for |
 | [0015](decisions/0015-suspected-not-proven-circumstantial-informant-clues.md) | Suspected, not proven: circumstantial informant clues | Deniability already held before this ADR — the real gap was that the message had nothing circumstantial in it to reason about |
 | [0016](decisions/0016-records-archaeology.md) | Records archaeology: a third grind loop, at the Annex | Atomic fragment sentences instead of grammatical recombination — infinite without the Mad-Libs agreement bugs |
-| [0017](decisions/0017-propaganda-engine.md) | The propaganda engine: giving the alert system a voice (Proposed) | District alert already drives patrol density silently — this narrates a mechanic that was already real, rather than inventing a new one |
+| [0017](decisions/0017-propaganda-engine.md) | The propaganda engine: giving the alert system a voice | District alert already drives patrol density silently — this narrates a mechanic that was already real, rather than inventing a new one |
 | [0018](decisions/0018-orientation-wing-interactive-and-sector-wide.md) | The Orientation Wing becomes genuinely interactive, and teaching starts reaching past it (Proposed) | Resolves the tension with v0.15's own "never gate, nobody's worse for skipping" design explicitly rather than silently overriding it |
 
 ## Product

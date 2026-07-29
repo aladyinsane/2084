@@ -47,6 +47,11 @@ upgrading Evennia is a deliberate chore with its own commit, never a side effect
    ones in the **Tunnel B chalk**. A verb no room teaches is a verb that fails
    principle 9 from the other side — the world must explain itself. (Standing
    instruction from Lauren, 2026-07-18, added with v0.6.)
+10. **Presentation follows [architecture.md's Presentation conventions](architecture.md#presentation-conventions)**
+    — the color palette and `form_box()` as the one border style. Don't invent a
+    new rule color or hand-roll a new bordered layout; the dossier drifted from
+    exactly this once already (fixed 2026-07-28) because the rule wasn't written
+    down anywhere to check against.
 
 ## Workflow
 

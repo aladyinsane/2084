@@ -63,6 +63,14 @@ class TestDossier(EvenniaCommandTest):
         self.assertIn("CITIZEN FILE", output)
         self.assertIn("Exposure", output)
 
+    def test_border_matches_the_rest_of_the_bureaucratic_forms(self):
+        """The dossier drifted to its own width before this fix (2026-07-28's
+        presentation tidy-up); lock in the match with form_box()'s width."""
+        from world.forms import FORM_WIDTH
+
+        output = self.call(CmdDossier(), "")
+        self.assertIn("=" * FORM_WIDTH, output)
+
     def test_standing_shown_as_none_recorded_at_zero(self):
         """Round-two playtest finding 2: the line vanished entirely at
         zero, so a new citizen had no way to learn "standing" existed."""
@@ -3033,3 +3041,128 @@ class TestArchaeology(EvenniaTest):
 
         self.char1.db.archaeology_solved = list(archaeology.NAMED_CASES.keys())
         self.assertIsNone(archaeology._next_named_draw(self.char1))
+
+
+class TestPropaganda(EvenniaTest):
+    """ADR 0017: the propaganda engine narrates the existing alert level."""
+
+    def setUp(self):
+        super().setUp()
+        from world import propaganda, watch
+
+        propaganda._save_registry({"sabotage": 0, "courier": 0})
+        watch.set_alert(0)
+
+    def test_pick_bulletin_resets_the_tally(self):
+        from world import propaganda
+
+        propaganda.record("sabotage")
+        propaganda.record("sabotage")
+        propaganda.pick_bulletin()
+        self.assertEqual(propaganda._registry(), {"sabotage": 0, "courier": 0})
+
+    def test_quiet_tick_is_usually_silent(self):
+        from unittest.mock import patch
+
+        from world import propaganda
+
+        with patch("world.propaganda.random.random", return_value=0.99):
+            self.assertIsNone(propaganda.pick_bulletin())
+
+    def test_quiet_tick_occasionally_speaks_anyway(self):
+        from unittest.mock import patch
+
+        from world import propaganda
+
+        with patch("world.propaganda.random.random", return_value=0.0):
+            blob = propaganda.pick_bulletin()
+        self.assertIn(blob, propaganda.QUIET_BULLETINS)
+
+    def test_low_activity_reads_as_low_tier(self):
+        from world import propaganda, tuning
+
+        self.assertGreater(tuning.PROPAGANDA_ELEVATED_THRESHOLD, 1)
+        propaganda.record("courier")
+        blob = propaganda.pick_bulletin()
+        self.assertIn(blob, propaganda.LOW_BULLETINS)
+
+    def test_heavy_activity_reads_as_high_tier(self):
+        from world import propaganda, tuning
+
+        for _ in range(tuning.PROPAGANDA_HIGH_THRESHOLD):
+            propaganda.record("sabotage")
+        blob = propaganda.pick_bulletin()
+        self.assertIn(blob, propaganda.HIGH_BULLETINS)
+
+    def test_existing_alert_alone_reads_as_elevated_or_higher(self):
+        from world import propaganda, watch, tuning
+
+        watch.set_alert(1)
+        blob = propaganda.pick_bulletin()
+        self.assertIn(blob, propaganda.ELEVATED_BULLETINS)
+
+        watch.set_alert(tuning.ALERT_MAX)
+        blob = propaganda.pick_bulletin()
+        self.assertIn(blob, propaganda.HIGH_BULLETINS)
+
+    def test_sabotage_and_delivery_record_events(self):
+        from unittest.mock import patch
+
+        from world import propaganda, tuning, underground
+
+        self.room1.tags.add("workplace", category="grid")
+        sensor = create.create_object(
+            "typeclasses.objects.Sensor", key="a lens", location=self.room1
+        )
+        with patch("world.underground.random.random", return_value=0.0):
+            self.char1.execute_cmd("sabotage lens")
+        self.assertEqual(propaganda._registry()["sabotage"], 1)
+
+        broker = create.create_object(
+            "typeclasses.npcs.Citizen", key="the broker", location=self.room1
+        )
+        broker.tags.add("courier_broker", category="grid")
+        dest_key, _, _ = tuning.COURIER_JOBS["quiet"]
+        self.room2.key = dest_key
+        self.char1.execute_cmd("carry quiet")
+        self.char1.move_to(self.room2)
+        with patch("world.underground.random.random", return_value=0.99):
+            underground.deliver(self.char1)
+        self.assertEqual(propaganda._registry()["courier"], 1)
+
+    def test_script_stays_silent_with_nobody_online(self):
+        from unittest.mock import patch
+
+        from typeclasses.scripts import PropagandaScript
+        from world import propaganda
+
+        propaganda.record("sabotage")
+        propaganda.record("sabotage")
+        # Script creation can fire an immediate first tick, so the patch
+        # must be in place before create_script, not just before the
+        # explicit at_repeat() call below.
+        with patch.object(PropagandaScript, "_citizens", return_value=[]):
+            script = create.create_script(PropagandaScript)
+            script.at_repeat()
+        script.stop()
+        # Tally untouched: the tick was skipped outright, not consumed.
+        self.assertEqual(propaganda._registry()["sabotage"], 2)
+
+    def test_script_broadcasts_to_online_citizens(self):
+        from unittest.mock import patch
+
+        from typeclasses.scripts import PropagandaScript
+        from world import propaganda
+
+        propaganda.record("sabotage")
+        seen = []
+        old = self.char1.msg
+        self.char1.msg = lambda text=None, **kw: seen.append(str(text))
+        try:
+            script = create.create_script(PropagandaScript)
+            with patch("world.propaganda.random.random", return_value=0.0):
+                script.at_repeat()
+            script.stop()
+        finally:
+            self.char1.msg = old
+        self.assertTrue(seen)

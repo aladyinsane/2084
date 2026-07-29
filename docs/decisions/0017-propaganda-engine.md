@@ -1,6 +1,6 @@
 # ADR 0017 — The propaganda engine: giving the alert system a voice
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-27
 
 ## Context
