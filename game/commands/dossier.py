@@ -12,6 +12,8 @@ nobody's business.
 
 from evennia import Command
 
+from world.forms import FORM_WIDTH
+
 
 def _incident_lines(visible):
     """
@@ -76,11 +78,16 @@ class CmdDossier(Command):
             if faction not in tuning.UNSANCTIONED_FACTIONS
         }
 
-        width = 52
+        # Same border color/width as every other bureaucratic document
+        # (world/forms.py's form_box() rule) -- the dossier predates that
+        # unification pass and had drifted to its own grey (|=k) at a
+        # slightly different width; two rules instead of form_box()'s one
+        # because the title needs its own divider above the field list.
+        width = FORM_WIDTH
         lines = [
-            "|=k" + "=" * width + "|n",
+            "|w" + "=" * width + "|n",
             "|w MINISTRY OF RECORDS - CITIZEN FILE|n",
-            "|=k" + "-" * width + "|n",
+            "|w" + "-" * width + "|n",
             f" Subject:   {caller.key}",
             f" Grade:     Citizen, Grade {grades.grade_of(caller)}",
             f" Function:  {standing.get('function', '|=munassigned|n')}",
@@ -155,9 +162,9 @@ class CmdDossier(Command):
             lines.append(" Movements on file (most recent):")
             lines.extend(f"   - {rec.db.content}" for rec in movements[-3:])
 
-        lines.append("|=k" + "-" * width + "|n")
+        lines.append("|w" + "-" * width + "|n")
         lines.append("|=m This file is accurate. This file has always been accurate.|n")
-        lines.append("|=k" + "=" * width + "|n")
+        lines.append("|w" + "=" * width + "|n")
         caller.msg("\n".join(lines))
 
         from world.onboarding import acknowledge_first_use

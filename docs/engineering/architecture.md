@@ -68,6 +68,8 @@ dropping connections — live-development is the normal workflow (`evennia reloa
 | The underground | `world/underground.py` + `commands/underground.py` (`sabotage`/`carry`/`deliver`/`papers`) | ADR 0008's grind loops; both pay the `UNDERGROUND` ledger, which the dossier deliberately cannot see (`UNSANCTIONED_SKILLS`/`_FACTIONS` in tuning) |
 | Maintenance crew | `typeclasses/scripts.py` — `MaintenanceScript` | Repairs the sabotage backlog oldest-first; only repairs *sabotage* — the alley screen predates the backlog and stays broken |
 | Contraband seizure | `underground.seize_contraband`, called from papers checks, `watch.detain`, and scanner-gate `at_traverse` | The courier run's "death"; the Watch never hunts couriers, it just finds them through systems that already exist |
+| Records archaeology | `world/archaeology.py` (fragment tables, per-citizen `char.db` state) + `research` in `commands/civic.py`, gated on the archivist same as `petition` | ADR 0016: atomic fragment sentences (no grammatical recombination) build a randomly-named generic case; a rare draw instead surfaces one of three hand-authored named cases. Hybrid payout: Records standing per fragment, underground standing on completion |
+| The propaganda engine | `world/propaganda.py` (`ServerConfig`-backed since-last-bulletin tally) + `PropagandaScript` in `typeclasses/scripts.py` | ADR 0017: narrates the district alert level (already driving `PatrolManagerScript`'s density) rather than inventing a new mechanic; pure narration, no feedback into alert. Fed by one hook line each in `CmdSabotage` and `underground.deliver()` |
 
 ## Data-model conventions
 
@@ -78,6 +80,45 @@ dropping connections — live-development is the normal workflow (`evennia reloa
   scripts; typeclass methods are the verbs on one object's own state.
 - **No gameplay logic in the database layer.** The DB persists; Python decides.
 - **Every number is in `world/tuning.py`.** No literals in mechanics code.
+
+## Presentation conventions
+
+Written down 2026-07-28 (a "tidy up the screen" pass), because none of this was
+written down before and `dossier.py` had quietly drifted from it as a result — see
+the fix noted in `commands/dossier.py`. Audited against the rest of the codebase
+first: the color palette below was already followed consistently everywhere except
+that one file, so this section is documentation catching up to existing practice,
+not a new rule imposed from outside.
+
+- **Color palette, by meaning, not by mood:**
+  - `|c...|n` — a verb the player can actually type (`|cwork|n`). Reserve this
+    exclusively for real command names/usages; never decorative.
+  - `|w...|n` — emphasis: headers, titles, official-document borders.
+  - `|=m...|n` — a quiet aside: mechanical detail, flavor, mostly-narrator commentary
+    that isn't the main beat of the message (e.g. "you feel the note being made").
+  - `|g...|n` — a good outcome for the player, or (contextually, e.g. an `observe`
+    readout's live/dead device status) an "active/on" state.
+  - `|r...|n` — a bad outcome: failure, danger, detention, rejection, or (same
+    contextual pairing as `|g` above) an "inactive/off" state.
+  - `|y...|n` — elevated but not yet bad: near-misses, escalating propaganda tone,
+    warnings.
+- **One border style.** `world/forms.py::form_box()` is the single source of truth
+  for bordered official-document presentation (`|w` rule, `FORM_WIDTH` = 50
+  columns, left-aligned only since Evennia color tags don't count toward visible
+  width). Anything that reads as an official document — forms, the dossier — uses
+  this width and this color, even where the layout is bespoke enough that it can't
+  call `form_box()` directly (the dossier has an extra internal divider `form_box()`
+  doesn't support). Don't hand-roll a different rule color or width for a new
+  bordered display; extend `form_box()` if its shape doesn't fit yet.
+- **Wrapping is the client's job, by design.** Nothing in this codebase server-side
+  wraps text — standard MUD practice, and Evennia doesn't do it for you either.
+  Prose in source is hand-broken into short lines (roughly 70 characters) purely
+  for *source* readability; it has no effect on what the player's client renders,
+  since consecutive lines with no `\n` between them concatenate into one logical
+  line before the client wraps it. The thing that actually matters for players on
+  narrow clients (the mobile web client especially, v0.15) is keeping any single
+  *rendered* line short enough to read on a narrow viewport — mainly a concern for
+  bordered/tabular output (`form_box()`'s fixed width) more than free-flowing prose.
 
 ## Testing
 

@@ -63,6 +63,14 @@ class TestDossier(EvenniaCommandTest):
         self.assertIn("CITIZEN FILE", output)
         self.assertIn("Exposure", output)
 
+    def test_border_matches_the_rest_of_the_bureaucratic_forms(self):
+        """The dossier drifted to its own width before this fix (2026-07-28's
+        presentation tidy-up); lock in the match with form_box()'s width."""
+        from world.forms import FORM_WIDTH
+
+        output = self.call(CmdDossier(), "")
+        self.assertIn("=" * FORM_WIDTH, output)
+
     def test_standing_shown_as_none_recorded_at_zero(self):
         """Round-two playtest finding 2: the line vanished entirely at
         zero, so a new citizen had no way to learn "standing" existed."""
