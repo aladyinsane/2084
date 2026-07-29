@@ -31,6 +31,7 @@ mechanisms produced. They exist to be used in arguments, and each one has a test
 | [playtest-2026-07-20-ten-personas.md](research/playtest-2026-07-20-ten-personas.md) | Ten play styles in one evening: the hostile command suggester, the deaf world, the missing shadow ladder — and what held (the ladder, the circle flow, `next`) |
 | [mobile-web-client.md](research/mobile-web-client.md) | Why the stock GoldenLayout web client can't just get responsive CSS, and the phased plan for a purpose-built mobile client on the same protocol |
 | [solo-player-fun-audit.md](research/solo-player-fun-audit.md) | Solo play passes principle 8 structurally, but repeatable content hasn't grown since v0.6 — and one ten-persona playtest finding never made it into the parking lot at all |
+| [endgame-and-long-term-goals.md](research/endgame-and-long-term-goals.md) | What a citizen plays *toward*: three non-exclusive long-horizon peaks (co-option, doublethink, durable underground legacy), none a "you win" cutscene — principle 8 rules that out structurally |
 | [prior-drafts/](research/prior-drafts/README.md) | Pre-workflow design material (codex, mechanics draft, brainstorm), frozen; ADRs beat anything in there |
 | [sources/](research/sources/) | The novel itself |
 

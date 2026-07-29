@@ -217,8 +217,17 @@ would actually do), all single-player-viable (principle 8), none mandatory.
 
 ### Endgame paths (escape / overthrow / inner circle)
 Long-horizon goals matter for retention.
-**Why not now:** endgames only mean something once the midgame exists. Sequencing, not
-doubt.
+*(Update 2026-07-28: Lauren asked what the endgame actually is, and whether "why not
+now" still holds — the midgame this was waiting on is now substantially built. First
+pass at an answer: [endgame-and-long-term-goals.md](../research/endgame-and-long-term-goals.md).
+Three non-exclusive candidate long-horizon peaks sketched — inner-party co-option
+[played straight, not subverted into a clean win, per the source material's own
+logic], doublethink [the natural capstone for the still-parked doublethink feature
+below], and a relational "what outlasts you" peak drawing on the trust machine's
+existing "profitable once, costly as a career" invariant. Not decided; genuinely
+still thinking about it, per Lauren's ask.)*
+**Why not now:** the original blocker (nothing to build toward yet) is largely
+resolved; what's actually undecided now is design, not sequencing.
 
 ### The trust-machine backlog *(from game-theory research, 2026-07-19)*
 [game-theory-of-the-grid.md](../research/game-theory-of-the-grid.md) audited the
