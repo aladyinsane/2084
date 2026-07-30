@@ -1,6 +1,6 @@
 # ADR 0018 — The Orientation Wing becomes genuinely interactive, and teaching starts reaching past it
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-28
 
 ## Context
@@ -164,11 +164,19 @@ logic for `o_corridor`'s completion credit (§3), and the `next`-advice hand-off
 completion (§4). Tests cover all three. Not touched: any existing room's `desc`
 string in `build.py`.
 
-**Sketched, not written:** `o_civic`'s narrowed placard (dropping to just the
-`grade` prompt, per §1's illustrative sketch) and the exact wording of the six new
-onboarding acknowledgments. Both are exactly the kind of voice-matching creative
-work worth Lauren's eyes before it ships, at this scale, given how load-bearing this
-content is. Proposed as the very next PR once she's reviewed this one.
+**Sketched, not written (at merge time):** `o_civic`'s narrowed placard (dropping
+to just the `grade` prompt, per §1's illustrative sketch) and the exact wording of
+the six new onboarding acknowledgments. Both were exactly the kind of voice-matching
+creative work worth Lauren's eyes before it ships, at this scale, given how
+load-bearing this content is.
+
+**Update, 2026-07-29:** Lauren reviewed this ADR and approved the approach as
+written, including the §1 split (narrow `o_civic` to `grade`, teach the other eight
+verbs at their real locations) and the no-hard-lock shape. The onboarding
+acknowledgment wording actually shipped with this ADR's original implementation
+commit, not in a follow-up — that part of this note was already stale by merge
+time. `o_civic`'s placard narrowing is the one piece that genuinely followed as a
+separate PR, implementing the §1 sketch as written.
 
 ## Revisit when
 
