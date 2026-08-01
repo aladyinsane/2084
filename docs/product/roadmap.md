@@ -702,6 +702,51 @@ real activity to react to.
       push alert up further, so a solo player's own grinding can never quietly raise
       their own session's difficulty as a side effect
 
+## v0.26 — The Orientation Wing becomes interactive ([ADR 0018](../decisions/0018-orientation-wing-interactive-and-sector-wide.md))
+
+Resolves the tension between v0.15's "skipping the Wing costs nothing" principle and
+Lauren's ask for a genuinely interactive tutorial: the underlying principle survives,
+but walking the Wing itself now requires actually using it.
+
+- [x] Orientation completion (`db.oriented`, the Grade-5 endowment) is gated on having
+      actually exercised the four core verbs (`map`, `observe`, `dossier`, `grade`)
+      somewhere along the way, not just having walked the five rooms — no exit is ever
+      hard-locked; a citizen who walks through without trying them gets an honest
+      "credits attendance, not attention" message and can walk back through after
+- [x] Orientation completion hands off directly to `next`'s own advice logic, printed
+      as part of the completion message, so a citizen who finishes the Wing gets
+      concrete "what to do now" guidance without needing to already know `next` exists
+- [x] `onboarding.py`'s first-use acknowledgment system grew from the original seven
+      v0.13 verbs to sixteen, covering everything that shipped since (`research`,
+      `vouch`/`unvouch`, `apply`, `petition`, `listen`, `list`/`buy`/`wear`) — the
+      actual, cheap answer to "does teaching reach the whole sector": richer teaching
+      wherever a verb is actually first used, not a bigger building
+- [x] `o_civic`'s placard narrowed to its one enforced verb (`grade`), down from nine
+      mentions with zero enforced interaction — the other eight are taught at their
+      real locations instead, per the bet named in the ADR's Bad section
+- [x] The Corridor's placard reworded to never claim completion it can't back up, once
+      credit became conditional
+
+## v0.27 — Opposed checks: observe, forge, and sabotage roll against an obstacle ([ADR 0019](../decisions/0019-opposed-checks-for-observe-forge-and-sabotage.md))
+
+A shared, D&D-style resolution mechanism replaces three independent formulas, each
+obstacle now driven by state the game already tracks instead of a flat tuning
+constant blind to it.
+
+- [x] New `world/checks.py::opposed_check()`: both sides roll a d20, skill and
+      obstacle difficulty both normalized to the same 0–10 band, ties favor the
+      obstacle
+- [x] `observe`'s concealment gate: concealed sensors carry a numeric `db.concealment`
+      (replacing a boolean) and roll against it — never a guaranteed reveal, even at
+      skill cap, unlike the old flat skill-45 threshold
+- [x] `forge`'s difficulty rides the citizen's own exposure (no per-record sensitivity
+      data exists to key off instead — a deviation from the research doc's original
+      phrasing, named explicitly in the ADR)
+- [x] `sabotage`'s difficulty combines the target sensor's own sensitivity with
+      current district alert (`watch.get_alert()`) — more than the ADR's literal ask,
+      using data already sitting on the object being sabotaged
+- [x] Live-verified `observe` and `sabotage` over telnet with real, non-mocked rolls
+
 ## Later / undecided
 
 The parking lot, including the **ASCII map**: [future-features.md](future-features.md).
