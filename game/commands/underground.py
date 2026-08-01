@@ -50,9 +50,7 @@ class CmdSabotage(Command):
         if not target_name:
             caller.msg("Usage: sabotage <device>")
             return
-        targets = underground.sabotage_targets(
-            room, caller.skill("observation")
-        )
+        targets = underground.sabotage_targets(room, caller)
         target = caller.search(
             target_name, candidates=targets, quiet=True
         )
