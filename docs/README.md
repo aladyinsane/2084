@@ -60,7 +60,8 @@ Numbered, immutable once accepted, superseded rather than edited. Every one has 
 | [0015](decisions/0015-suspected-not-proven-circumstantial-informant-clues.md) | Suspected, not proven: circumstantial informant clues | Deniability already held before this ADR — the real gap was that the message had nothing circumstantial in it to reason about |
 | [0016](decisions/0016-records-archaeology.md) | Records archaeology: a third grind loop, at the Annex | Atomic fragment sentences instead of grammatical recombination — infinite without the Mad-Libs agreement bugs |
 | [0017](decisions/0017-propaganda-engine.md) | The propaganda engine: giving the alert system a voice | District alert already drives patrol density silently — this narrates a mechanic that was already real, rather than inventing a new one |
-| [0018](decisions/0018-orientation-wing-interactive-and-sector-wide.md) | The Orientation Wing becomes genuinely interactive, and teaching starts reaching past it (Proposed) | Resolves the tension with v0.15's own "never gate, nobody's worse for skipping" design explicitly rather than silently overriding it |
+| [0018](decisions/0018-orientation-wing-interactive-and-sector-wide.md) | The Orientation Wing becomes genuinely interactive, and teaching starts reaching past it | Resolves the tension with v0.15's own "never gate, nobody's worse for skipping" design explicitly rather than silently overriding it |
+| [0019](decisions/0019-opposed-checks-for-observe-forge-and-sabotage.md) | Opposed checks: `observe`, `forge`, and `sabotage` roll against an obstacle, not a flat constant (Proposed) | A shared `opposed_check()` replaces three independent formulas, each obstacle now driven by state the game already tracks (exposure, district alert, sensor sensitivity) instead of a tuning constant blind to it |
 
 ## Product
 
