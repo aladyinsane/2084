@@ -336,6 +336,44 @@ risk of mechanical surface for its own sake; a reflex-timing layer adds a differ
 on top of that same risk. Needs evidence flat skill checks are actually the dull part
 before assuming a minigame fixes it.
 
+### Clickable commands inline in room text (web client)
+*(Lauren's journal, 2026-07-27)* Idea: when a command name appears in a room
+description or other text (e.g. "type |cobserve|n"), make it clickable in the web
+client — click it, it runs.
+**Why worth a look:** the purpose-built mobile client
+([mobile-web-client.md](../research/mobile-web-client.md)) already reuses Evennia's
+own protocol layer rather than the stock GoldenLayout client, and its phase 2 (real
+on-device testing) is still open — this could plausibly ride along with that work
+rather than need a separate client pass. Evennia's webclient protocol already carries
+color-tagged text (`|c...|n` etc. survive to the client); whether it exposes a clean
+existing hook for command-as-hyperlink versus needing custom JS in the mobile
+client's own template hasn't been researched.
+**Why not now:** no research pass has been run against what Evennia's webclient
+contrib actually offers here — default answer until checked, not a design objection.
+
+### Too many separate advancement trackers — fold clearance into grade, or something else
+*(Lauren's journal, 2026-08-01)* Lauren's read: there are currently too many separate
+numbers a citizen tracks as "am I advancing" — Grade, Clearance, standing (per
+institution), skills (per skill), exposure, influence. Idea: combine grade and
+clearance specifically into one measurement, or find some other consolidation.
+**Auditing what's actually there first:** they're not fully independent today —
+`CmdGrade`'s own docstring already lists "clearance granted" as one of several inputs
+to merit, alongside standing paid, errands seen through, a function held, and
+orientation completed. But Clearance also remains its own separately-gated system: a
+`clearance(N)` lockfunc, its own EvMenu form (C-1), its own Spire-access consequence —
+a citizen experiences it as a second, independent ladder, not merely one input among
+several to Grade. So the "too many trackers" read holds even though the two aren't
+wholly siloed today.
+**Why this is a real question, not a quick fix:** Grade (v0.12) was chosen
+specifically as *the* familiar, single legible ladder players already know from
+other MUDs; folding Clearance into it outright would need to preserve Clearance's
+actual gating function (it locks real exits/content; Grade doesn't gate anything by
+itself) without the merge just becoming a second name for the same number. This
+touches ADR 0002 (skills/standing as the identity model) and ADR 0003
+(exposure/influence replacing XP/levels) at the foundation, not just v0.12 — worth a
+real research pass on what's actually redundant versus what only *looks* redundant,
+the same weight as the endgame research question, before an ADR picks a shape.
+
 ## Cleanup backlog
 
 Small, mechanical fixes with no real design tension — recorded so they don't get
@@ -382,6 +420,18 @@ close the cooldown is to elapsing, same idiom as the sweep's near-miss telegraph
 (`scripts.py`'s `NEAR_MISSES`) — proximity read through prose, never a raw countdown.
 New tuning constant `WORK_NEAR_COOLDOWN_FRACTION`, reused as-is by `research`'s own
 cooldown texture ([ADR 0016](../decisions/0016-records-archaeology.md)).
+
+### `help standing` clarity pass — needs a specific complaint first
+*(Lauren's journal, 2026-07-25)* Ask: make sure the `standing` helpfile is clear.
+Reviewed the current entry (`game/world/help_entries.py`) while filing this — it
+already follows the "How it's earned / How it's spent / Where to see it" structure
+used elsewhere, and cross-references `exposure` and `grade` by name to distinguish
+standing from both. Nothing jumped out as obviously wrong or missing on a cold read.
+**Not actioned:** what specifically prompted the note isn't clear without Lauren's
+own read on what's confusing — rewriting a helpfile without a concrete complaint
+risks polishing prose that was never the actual problem. Flagged here rather than
+silently closed; needs a specific example (a confused playtester, a moment that
+didn't land) before it's actionable.
 
 ## Deliberately deferred (with reasons)
 
@@ -438,6 +488,36 @@ idea from ADR 0013, un-designed, and unbuildable under its old name.
 **Why not now:** needs a new name before anyone can even discuss it without ambiguity,
 and no research/principles pass has been run against it yet — this is a bookmark, not
 a plan.
+
+### The world outside the Grid: farmers vs. the Ministry, over land and water
+*(Lauren's journal, 2026-07-25)* An idea for what exists beyond Sector 9 itself: a
+resource conflict between farmers/rural landholders and whichever Ministry wants
+their land and water for AI data centers. A different axis on principle 1's
+antagonist — the regime's hunger for resources, not only its hunger for legible
+citizens.
+**Why not now:** genuinely new territory, not a Sector 9 feature — closer in kind to
+"Big-world expansion / more districts" above, which is explicitly gated on a measured
+busy world, not builder enthusiasm. No research pass has been run against it, and a
+real open question sits underneath: does this stay backstory/lore texture citizens
+hear about secondhand, or does it become an actual playable area? Those are very
+different commitments, and this idea doesn't yet say which. Worth keeping regardless
+because it's a fresh expression of an existing principle rather than a new subsystem
+— the antagonist wanting your land is the same shape as the antagonist wanting your
+file, just aimed at a different target.
+
+### A "credits" currency, earned and spent
+*(Lauren's journal, 2026-07-26)* Idea: a currency citizens earn and spend.
+**Worth flagging before this goes anywhere:** the game already has one earned/spent
+economy — Influence ([ADR 0003](../decisions/0003-exposure-influence-not-xp.md)),
+per-faction standing with sinks built in from day one, chosen explicitly over
+anything XP/score-shaped. "Crafting / economy simulation" above is already
+deliberately deferred for an adjacent reason ("ration books and queues are the
+setting's economy; a market simulator isn't — principle 1's test fails"). A second,
+parallel "credits" currency would need a real answer for why it's not just Influence
+under a new name, or what gap Influence genuinely leaves open — a currency spendable
+*across* factions, unlike Influence's per-institution ledgers, is the most obvious
+candidate gap, but that's a guess at Lauren's intent, not a confirmed one — before
+it's worth a research pass rather than a rename.
 
 ---
 
