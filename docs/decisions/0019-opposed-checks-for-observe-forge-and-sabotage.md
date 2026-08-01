@@ -1,6 +1,6 @@
 # ADR 0019 — Opposed checks: `observe`, `forge`, and `sabotage` roll against an obstacle, not a flat constant
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-07-31
 
 ## Context

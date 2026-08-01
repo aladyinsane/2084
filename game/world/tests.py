@@ -410,7 +410,7 @@ class TestCivic(EvenniaTest):
 
         self.room1.db.visibility = 0
         watch.add_record_note(self.char1, "DETAINED: test")
-        with patch("commands.civic.random.random", return_value=0.0):
+        with patch("world.checks.opposed_check", return_value=True):
             self.char1.execute_cmd("forge 1 = Commended for vigilance")
         rec = records.incident_by_number(self.char1, 1)
         self.assertEqual(rec.db.content, "Commended for vigilance")
@@ -425,7 +425,7 @@ class TestCivic(EvenniaTest):
         self.room1.db.visibility = 0
         watch.add_record_note(self.char1, "DETAINED: test")
         self.char1.db.exposure = 0
-        with patch("commands.civic.random.random", return_value=0.99):
+        with patch("world.checks.opposed_check", return_value=False):
             self.char1.execute_cmd("forge 1 = Commended for vigilance")
         contents = [r.db.content for r in records.records_for(self.char1)]
         self.assertTrue(any("tampering" in c for c in contents))
@@ -1145,7 +1145,7 @@ class TestTrust(EvenniaTest):
         )
         seam.db.sensitivity = 1
         seam.db.active = True
-        seam.db.concealed = True
+        seam.db.concealment = 9
         return seam
 
     def test_honeypot_is_not_a_dead_zone(self):
@@ -1183,16 +1183,21 @@ class TestTrust(EvenniaTest):
         script.stop()
         watch.release(self.char1)
 
-    def test_observe_reveals_concealed_only_to_practiced_eyes(self):
+    def test_observe_reveals_concealed_only_when_the_check_is_won(self):
+        from unittest.mock import patch
+
         from world import tuning
 
         self._honeypot()
         self.char1.move_to(self.room2)
-        self.char1.db.skills = {"observation": tuning.OBSERVE_TIER_DETAIL}
-        blob = self._captured(self.char1, "observe")
+        # High enough for the (untouched) detail tier to print per-device
+        # info -- isolates the concealment gate ADR 0019 actually changed.
+        self.char1.db.skills = {"observation": tuning.OBSERVE_TIER_STATUS}
+        with patch("world.checks.opposed_check", return_value=False):
+            blob = self._captured(self.char1, "observe")
         self.assertIn("no fixed devices", blob)
-        self.char1.db.skills = {"observation": tuning.OBSERVE_TIER_CONCEALED}
-        blob = self._captured(self.char1, "observe")
+        with patch("world.checks.opposed_check", return_value=True):
+            blob = self._captured(self.char1, "observe")
         self.assertIn("concealed", blob)
 
 
@@ -1570,7 +1575,6 @@ class TestCircleProjects(EvenniaTest):
         )
         sensor.db.sensitivity = 1
         sensor.db.active = True
-        sensor.db.concealed = False
         return sensor
 
     def _broker(self):
@@ -1605,11 +1609,11 @@ class TestCircleProjects(EvenniaTest):
         self.room1.db.visibility = 0
         for _ in range(tuning.PROJECT_CASING_THRESHOLD - 1):
             sensor = self._sensor()
-            with patch("world.underground.random.random", return_value=0.0):
+            with patch("world.checks.opposed_check", return_value=True):
                 self.char1.execute_cmd("sabotage lens")
         self.assertEqual(circle_projects.project_of(slug)["stage"], 0)
         sensor = self._sensor()
-        with patch("world.underground.random.random", return_value=0.0):
+        with patch("world.checks.opposed_check", return_value=True):
             self.char2.execute_cmd("sabotage lens")  # a different member finishes it
         self.assertEqual(circle_projects.project_of(slug)["stage"], 1)  # advanced to the Run
 
@@ -1625,7 +1629,7 @@ class TestCircleProjects(EvenniaTest):
         self.room1.db.visibility = 0
         self.room1.key = "Tunnel B"
         sensor = self._sensor()
-        with patch("world.underground.random.random", return_value=0.0):
+        with patch("world.checks.opposed_check", return_value=True):
             self.char1.execute_cmd("sabotage lens")
         self.assertEqual(
             circle_projects.project_of(slug)["last_event_room"], "Tunnel B"
@@ -2190,6 +2194,48 @@ class TestMap(EvenniaTest):
         self.assertIn("Sector 9", blob)
 
 
+class TestOpposedChecks(EvenniaTest):
+    """ADR 0019: the shared opposed_check() helper itself."""
+
+    def test_actor_wins_on_higher_total(self):
+        from unittest.mock import patch
+
+        from world import checks
+
+        self.char1.db.skills = {"observation": 0}
+        with patch("world.checks._roll", side_effect=[15, 10]):
+            self.assertTrue(checks.opposed_check(self.char1, "observation", 3))
+
+    def test_obstacle_wins_ties(self):
+        from unittest.mock import patch
+
+        from world import checks
+
+        self.char1.db.skills = {"observation": 0}
+        with patch("world.checks._roll", side_effect=[10, 10]):
+            self.assertFalse(checks.opposed_check(self.char1, "observation", 5))
+
+    def test_skill_raises_the_actors_total(self):
+        from unittest.mock import patch
+
+        from world import checks, tuning
+
+        self.char1.db.skills = {"observation": tuning.CHECK_SKILL_DIVISOR * 3}
+        # Actor rolls low (5) but skill contributes +3; obstacle rolls high
+        # (7) with a difficulty of 0 -- skill alone should carry the win.
+        with patch("world.checks._roll", side_effect=[5, 7]):
+            self.assertTrue(checks.opposed_check(self.char1, "observation", 0))
+
+    def test_obstacle_difficulty_can_overcome_skill(self):
+        from unittest.mock import patch
+
+        from world import checks
+
+        self.char1.db.skills = {"observation": 0}
+        with patch("world.checks._roll", side_effect=[15, 1]):
+            self.assertFalse(checks.opposed_check(self.char1, "observation", 20))
+
+
 class TestTheGrind(EvenniaTest):
     """v0.6 (ADR 0008): sabotage circuit, courier runs, the underground."""
 
@@ -2198,7 +2244,7 @@ class TestTheGrind(EvenniaTest):
 
         return [rec.db.content for rec in records.records_for(char)]
 
-    def _sensor(self, room=None, active=True, concealed=False):
+    def _sensor(self, room=None, active=True, concealment=0):
         sensor = create.create_object(
             "typeclasses.objects.Sensor",
             key="a lens",
@@ -2206,7 +2252,7 @@ class TestTheGrind(EvenniaTest):
         )
         sensor.db.sensitivity = 1
         sensor.db.active = active
-        sensor.db.concealed = concealed
+        sensor.db.concealment = concealment
         return sensor
 
     def _broker(self):
@@ -2225,7 +2271,7 @@ class TestTheGrind(EvenniaTest):
 
         sensor = self._sensor()
         self.room1.db.visibility = 0  # one sensor is all that watches here
-        with patch("world.underground.random.random", return_value=0.0):
+        with patch("world.checks.opposed_check", return_value=True):
             self.char1.execute_cmd("sabotage lens")
         self.assertFalse(sensor.db.active)
         self.assertIsNotNone(sensor.db.sabotaged_at)
@@ -2243,7 +2289,7 @@ class TestTheGrind(EvenniaTest):
 
         sensor = self._sensor()
         self.char1.db.exposure = 0
-        with patch("world.underground.random.random", return_value=0.99):
+        with patch("world.checks.opposed_check", return_value=False):
             self.char1.execute_cmd("sabotage lens")
         self.assertTrue(sensor.db.active)  # device survives
         self.assertEqual(self.char1.db.exposure, tuning.SABOTAGE_FAIL_EXPOSURE)
@@ -2251,17 +2297,16 @@ class TestTheGrind(EvenniaTest):
             any("interference" in c for c in self._file_contents(self.char1))
         )
 
-    def test_concealed_devices_need_a_practiced_eye(self):
+    def test_concealed_devices_need_the_check_won_twice(self):
+        """Once to be spotted (observation vs. concealment), once to be cut
+        (sabotage vs. difficulty) -- both routed through opposed_check."""
         from unittest.mock import patch
 
-        from world import tuning
-
-        sensor = self._sensor(concealed=True)
-        with patch("world.underground.random.random", return_value=0.0):
+        sensor = self._sensor(concealment=9)
+        with patch("world.checks.opposed_check", return_value=False):
             self.char1.execute_cmd("sabotage lens")
         self.assertTrue(sensor.db.active)  # can't cut what you can't find
-        self.char1.db.skills = {"observation": tuning.OBSERVE_TIER_CONCEALED}
-        with patch("world.underground.random.random", return_value=0.0):
+        with patch("world.checks.opposed_check", return_value=True):
             self.char1.execute_cmd("sabotage lens")
         self.assertFalse(sensor.db.active)
 
@@ -2922,13 +2967,13 @@ class TestRecordCompaction(EvenniaTest):
         self._old_incident(self.char1, "Papers checked in the street; cleared.", "papers_check")
         records.compact_incidents(self.char1)
 
-        with patch("commands.civic.random.random", return_value=0.99):
+        with patch("world.checks.opposed_check", return_value=False):
             self._captured(self.char1, "forge papers-checks")
         self.assertEqual(records.summary_for(self.char1, "papers_check"), (2, 2))
         contents = [r.db.content for r in records.records_for(self.char1, kind="incident")]
         self.assertTrue(any("tampering" in c for c in contents))
 
-        with patch("commands.civic.random.random", return_value=0.0):
+        with patch("world.checks.opposed_check", return_value=True):
             self._captured(self.char1, "forge papers-checks")
         self.assertEqual(records.summary_for(self.char1, "papers_check"), (2, 1))
 
@@ -3114,7 +3159,7 @@ class TestPropaganda(EvenniaTest):
         sensor = create.create_object(
             "typeclasses.objects.Sensor", key="a lens", location=self.room1
         )
-        with patch("world.underground.random.random", return_value=0.0):
+        with patch("world.checks.opposed_check", return_value=True):
             self.char1.execute_cmd("sabotage lens")
         self.assertEqual(propaganda._registry()["sabotage"], 1)
 

@@ -228,15 +228,21 @@ class CmdObserve(Command):
         room = caller.location
         if not room:
             return
+        from world import checks
+
         skill = caller.skill("observation")
         sensors = [
             obj
             for obj in room.contents
             if hasattr(obj, "sensitivity") and not obj.destination
             and hasattr(obj, "db") and obj.db.active is not None
-            # Concealed devices (v0.5) do not exist below a practiced eye —
-            # which is what makes a honeypot a honeypot.
-            and (not obj.db.concealed or skill >= tuning.OBSERVE_TIER_CONCEALED)
+            # Concealed devices (v0.5) roll an opposed check against their
+            # own concealment (ADR 0019) -- never a guarantee, even at skill
+            # cap, which is what makes a honeypot a honeypot.
+            and (
+                not obj.db.concealment
+                or checks.opposed_check(caller, "observation", obj.db.concealment)
+            )
         ]
         vis = getattr(room, "visibility", 0)
 
@@ -258,7 +264,7 @@ class CmdObserve(Command):
         else:
             for sensor in sensors:
                 status = "|glive|n" if sensor.db.active else "|rdead|n"
-                hidden = "|r(concealed)|n " if sensor.db.concealed else ""
+                hidden = "|r(concealed)|n " if sensor.db.concealment else ""
                 if skill >= tuning.OBSERVE_TIER_DETAIL and sensor.db.active:
                     lines.append(
                         f" - {hidden}{sensor.key}: {status}, sharpness "
@@ -564,7 +570,7 @@ class CmdForge(Command):
     help_category = "the underground"
 
     def func(self):
-        from world import records, watch
+        from world import checks, records, watch
 
         caller = self.caller
         room = caller.location
@@ -585,10 +591,11 @@ class CmdForge(Command):
         type_key = _compactable_type_by_label(num_part)
         if type_key:
             spec = tuning.COMPACTABLE_INCIDENT_TYPES[type_key]
-            skill = caller.skill("forgery")
-            chance = tuning.FORGE_BASE_CHANCE + skill * tuning.FORGE_SKILL_BONUS
             caller.improve_skill("forgery")
-            if random.random() < chance:
+            difficulty = tuning.FORGE_BASE_DIFFICULTY + (
+                caller.db.exposure or 0
+            ) // tuning.FORGE_EXPOSURE_DIFFICULTY_DIVISOR
+            if checks.opposed_check(caller, "forgery", difficulty):
                 if records.redact_summary(caller, type_key):
                     caller.msg(
                         "Chalk, patience, and a borrowed terminal jacked "
@@ -629,10 +636,11 @@ class CmdForge(Command):
             caller.msg("Your file has no such entry to improve.")
             return
 
-        skill = caller.skill("forgery")
-        chance = tuning.FORGE_BASE_CHANCE + skill * tuning.FORGE_SKILL_BONUS
         caller.improve_skill("forgery")
-        if random.random() < chance:
+        difficulty = tuning.FORGE_BASE_DIFFICULTY + (
+            caller.db.exposure or 0
+        ) // tuning.FORGE_EXPOSURE_DIFFICULTY_DIVISOR
+        if checks.opposed_check(caller, "forgery", difficulty):
             records.amend(record, new_text, actor=caller, authorized=False)
             caller.msg(
                 "Chalk, patience, and a borrowed terminal jacked into a dead "

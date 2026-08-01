@@ -105,9 +105,10 @@ SERVICE_EXPOSURE = 10
 
 # Forgery (the unsanctioned route): only possible somewhere truly unwatched
 # (visibility 0). Success rewrites your file off the books; failure *is* an
-# incident.
-FORGE_BASE_CHANCE = 0.25
-FORGE_SKILL_BONUS = 0.005  # per skill point: +0.5%/pt, +25% at cap
+# incident. ADR 0019: difficulty rides your own exposure -- a hot citizen's
+# paperwork draws more scrutiny than a cold one's.
+FORGE_BASE_DIFFICULTY = 2
+FORGE_EXPOSURE_DIFFICULTY_DIVISOR = 10  # +1 difficulty per 10 exposure
 FORGE_FAIL_EXPOSURE = 15
 
 # Observation: reading the apparatus back. Tier thresholds are skill values.
@@ -116,6 +117,12 @@ OBSERVE_TIER_DETAIL = 35   # see how sharp each device is
 
 # Skill-by-use: +1 per meaningful use, to a v0.3 soft cap.
 SKILL_CAP = 50
+
+# ADR 0019: opposed_check()'s die and the skill->modifier scale. Skill is
+# 0-SKILL_CAP; dividing by 5 gives a 0-10 modifier, matched deliberately to
+# the 0-10 band every obstacle_difficulty below is normalized toward.
+CHECK_DIE_SIDES = 20
+CHECK_SKILL_DIVISOR = 5
 
 # Queue gossip surfaces incidents this recent, about other citizens.
 GOSSIP_WINDOW = 6 * 3600  # seconds
@@ -160,8 +167,9 @@ FLIP_COST = 5
 INFORMANT_REPORT_COOLDOWN = 600  # seconds
 INFORMANT_REPORT_EXPOSURE = 5
 
-# Concealed devices only show themselves to a truly practiced eye.
-OBSERVE_TIER_CONCEALED = 45
+# Concealed devices (ADR 0019): db.concealment > 0 means concealed, and is
+# the obstacle_difficulty a citizen's observation rolls against -- no more
+# flat skill threshold, no guarantee even at skill cap.
 
 # Civic assemblies: the script ticks at ASSEMBLY_TICK; after announcement,
 # attendance is taken one tick later; then the Grid rests for REST_TICKS.
@@ -186,9 +194,11 @@ ASSEMBLY_ABSENCE_CAP = 5
 
 # --- v0.6: the grind (ADR 0008) --------------------------------------------
 
-# Sabotage: chance ramps with the skill; failure is an incident and heat.
-SABOTAGE_BASE_CHANCE = 0.30
-SABOTAGE_SKILL_BONUS = 0.01          # per skill point: +50% at cap
+# Sabotage (ADR 0019): difficulty is the target's own sensitivity plus
+# current district alert -- a sharper device and a hotter sector both push
+# back harder. Failure is an incident and heat either way.
+SABOTAGE_BASE_DIFFICULTY = 2
+SABOTAGE_ALERT_DIFFICULTY_SCALE = 3  # per alert point (0-ALERT_MAX): +3 difficulty
 SABOTAGE_FAIL_EXPOSURE = 12
 SABOTAGE_INFLUENCE = 2               # underground standing per dead device
 SABOTAGE_DARK_BONUS = 3              # extra when the room goes fully dark
@@ -368,9 +378,11 @@ RESEARCH_INFLUENCE = 1          # Ministry of Records standing per fragment
 RESEARCH_EXPOSURE = 1           # routine draw
 RESEARCH_RARE_EXPOSURE = 4      # a rare/named draw is noticed more
 
-# Rare-draw chance: base + a small clerking bonus, same shape as
-# SABOTAGE_SKILL_BONUS. Only rolled toward a citizen's own not-yet-solved
-# named cases; a generic draw happens the rest of the time regardless.
+# Rare-draw chance: base + a small clerking bonus, a flat skill-scaled
+# formula (pre-ADR-0019 shape -- research has no obstacle to oppose against,
+# so it keeps this rather than adopting opposed_check()). Only rolled toward
+# a citizen's own not-yet-solved named cases; a generic draw happens the
+# rest of the time regardless.
 RESEARCH_RARE_BASE_CHANCE = 0.10
 RESEARCH_RARE_SKILL_BONUS = 0.002   # per clerking point: +10% at cap
 

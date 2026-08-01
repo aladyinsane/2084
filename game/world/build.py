@@ -607,9 +607,9 @@ def build():
     # The honeypot's hidden device: not described in the room (a concealed
     # device is exactly the case principle 9's described-devices-exist rule
     # does not cover — the room isn't promising it; the Ministry is hiding
-    # it). `observe` only surfaces it at a very practiced skill, `forge`
-    # refuses to work near it, and the sweep can reach past the chalk mark
-    # on the door.
+    # it). `observe` rolls an opposed check against its concealment (ADR
+    # 0019) -- never a guarantee even at skill cap. `forge` refuses to work
+    # near it, and the sweep can reach past the chalk mark on the door.
     seam = create_object(
         "typeclasses.objects.Sensor",
         key="a hairline seam in the conduit",
@@ -623,11 +623,11 @@ def build():
     )
     seam.db.sensitivity = 1
     seam.db.active = True
-    seam.db.concealed = True
+    seam.db.concealment = 9
     seam.locks.add("get:false()")
     seam.db.get_err_msg = "The ceiling declines to be examined by touch."
     # Concealed means concealed: not in the room listing, not lookable.
-    # `observe` at a practiced enough skill is the only in-fiction reveal
+    # `observe` winning its opposed check is the only in-fiction reveal
     # (it scans contents in code, which no view lock touches) — playtest
     # caught the seam standing in the open under "You see:".
     seam.locks.add("view:false()")

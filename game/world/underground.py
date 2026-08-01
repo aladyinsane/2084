@@ -163,15 +163,20 @@ def buy_papers(char):
 # --- sabotage ---------------------------------------------------------------
 
 
-def sabotage_targets(room, skill_concealed):
+def sabotage_targets(room, char):
     """Live devices in the room this citizen is able to find."""
+    from world import checks
+
     return [
         obj
         for obj in room.contents
         if hasattr(obj, "sensitivity")
         and not obj.destination
         and obj.db.active
-        and (not obj.db.concealed or skill_concealed >= tuning.OBSERVE_TIER_CONCEALED)
+        and (
+            not obj.db.concealment
+            or checks.opposed_check(char, "observation", obj.db.concealment)
+        )
     ]
 
 
@@ -180,12 +185,15 @@ def do_sabotage(char, sensor):
     One attempt on one live device. Returns (success, room_dark, pay).
     Failure writes the incident and the heat itself.
     """
-    from world import records
+    from world import checks, records, watch
 
-    skill = char.skill("sabotage")
-    chance = tuning.SABOTAGE_BASE_CHANCE + skill * tuning.SABOTAGE_SKILL_BONUS
     char.improve_skill("sabotage")
-    if random.random() >= chance:
+    difficulty = (
+        tuning.SABOTAGE_BASE_DIFFICULTY
+        + (sensor.db.sensitivity or 0)
+        + watch.get_alert() * tuning.SABOTAGE_ALERT_DIFFICULTY_SCALE
+    )
+    if not checks.opposed_check(char, "sabotage", difficulty):
         records.add_record(
             char, "Suspected interference with municipal equipment"
         )
