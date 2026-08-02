@@ -374,6 +374,26 @@ touches ADR 0002 (skills/standing as the identity model) and ADR 0003
 real research pass on what's actually redundant versus what only *looks* redundant,
 the same weight as the endgame research question, before an ADR picks a shape.
 
+### Build out the Underground as the tutorial for unsanctioned commands
+*(Lauren, 2026-08-02, conversation)* Idea: the Underground currently teaches its own
+verbs (`word`, sabotage) only through the chalk in Tunnel B and whatever a player
+stumbles into — build it out properly as the unsanctioned-command counterpart to the
+Orientation Wing (ADR 0018), which does this job for sanctioned civic life.
+**Already anticipated, not a new direction:** [ADR 0009](../decisions/0009-shadow-ladder-is-a-checkable-whisper.md)
+accepted "found in the chalk, or not at all" as opt-in discovery on purpose — pointing
+every citizen at `word` via `nomatch.py`'s instinct line was explicitly rejected because
+it would leak the underground's existence to newbies who haven't found it themselves.
+But that ADR's own "Revisit when" section names almost exactly this ask as the intended
+trigger: if a playtest reports discovering `word` too late or not at all, the candidate
+fix is *more chalk in Tunnel B*, specifically because "chalk is the sanctioned place to
+teach unsanctioned verbs; a nomatch hint would not be." So this isn't reopening ADR
+0009's discovery bet — it's the shape ADR 0009 already said this should take if it ever
+became worth doing.
+**Why now:** raised alongside the geography-expansion discussion (new districts gated
+behind existing progression) — the Underground is one of only two districts that
+exist today, and a proper tutorial pass through it is worth doing before newer players
+are routed through it more deliberately.
+
 ## Cleanup backlog
 
 Small, mechanical fixes with no real design tension — recorded so they don't get
