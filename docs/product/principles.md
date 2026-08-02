@@ -131,6 +131,9 @@ tomorrow — and is that a rational choice?
 - **Not permadeath-hardcore.** Harsh loss without consent kills retention; our stakes
   telegraph, and the truly irreversible is reserved and rare.
 - **Not a big world.** Rooms are added when population justifies them, never because
-  building is fun.
+  building is fun — with one exercised, one-time exception: see
+  [ADR 0020](../decisions/0020-world-expansion-gated-by-progression.md), a pre-launch
+  completeness bar no population number could satisfy before humans exist to measure
+  it. The population trigger governs everything after.
 - **Not staff-policed roleplay.** Mechanics carry the tone (monitored channels raise
   exposure; the game reacts to your record). Mechanics are the staff that never sleeps.

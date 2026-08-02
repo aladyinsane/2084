@@ -394,6 +394,28 @@ behind existing progression) — the Underground is one of only two districts th
 exist today, and a proper tutorial pass through it is worth doing before newer players
 are routed through it more deliberately.
 
+### A new in-Grid district — SCOPED IN, not yet designed ([ADR 0020](../decisions/0020-world-expansion-gated-by-progression.md))
+*(Lauren, 2026-08-02, conversation)* A third district, within the existing
+Grid/civilian frame alongside Sector 9 — the "one new district" half of ADR 0020's
+pre-launch expansion. Gated behind existing progression (`clearance()` or an
+equivalent) at its entry point, per that ADR, so new characters still start dense in
+Sector 9.
+**Not yet decided:** theme, identity, what it adds that Sector 9 doesn't already
+cover — a dedicated design pass, separate from ADR 0020 itself, has to happen before
+any `build.py` work starts.
+
+### The world outside the Grid: farmers vs. the Ministry, over land and water — SCOPED IN, not yet designed ([ADR 0020](../decisions/0020-world-expansion-gated-by-progression.md))
+*(Lauren's journal, 2026-07-25; scoped in 2026-08-02)* A resource conflict between
+farmers/rural landholders and whichever Ministry wants their land and water for AI
+data centers — a different axis on principle 1's antagonist, the regime's hunger for
+resources rather than only its hunger for legible citizens. This is the "outside the
+Grid" half of ADR 0020's pre-launch expansion, gated behind existing progression at
+its entry point like the new in-Grid district above.
+**Still open:** no principle-9 research pass ("alien contents all the way down") has
+been run against it yet — the same weight every existing district's fiction got
+before being built. ADR 0020 scopes this in as real work; it doesn't do that pass
+itself.
+
 ## Cleanup backlog
 
 Small, mechanical fixes with no real design tension — recorded so they don't get
@@ -471,7 +493,12 @@ beats a binary hardcore flag.
 
 ### Big-world expansion / more districts
 Rooms are added when concurrent population supports them (principle 8, anti-principle
-4). The trigger is a measured busy world, not builder enthusiasm.
+4). The trigger is a measured busy world, not builder enthusiasm — with one exercised
+exception: [ADR 0020](../decisions/0020-world-expansion-gated-by-progression.md)
+(accepted 2026-08-02) authorized a new in-Grid district and the "outside the Grid"
+axis (both below, in Strong candidates) to clear a pre-launch completeness bar no
+population number could satisfy before humans exist to measure it. That clause fired
+once; this entry's original population trigger governs unchanged for anything after.
 
 ### Crafting / economy simulation
 Evennia contribs make it cheap to bolt on, which is exactly the accretion trap. Ration
@@ -508,22 +535,6 @@ idea from ADR 0013, un-designed, and unbuildable under its old name.
 **Why not now:** needs a new name before anyone can even discuss it without ambiguity,
 and no research/principles pass has been run against it yet — this is a bookmark, not
 a plan.
-
-### The world outside the Grid: farmers vs. the Ministry, over land and water
-*(Lauren's journal, 2026-07-25)* An idea for what exists beyond Sector 9 itself: a
-resource conflict between farmers/rural landholders and whichever Ministry wants
-their land and water for AI data centers. A different axis on principle 1's
-antagonist — the regime's hunger for resources, not only its hunger for legible
-citizens.
-**Why not now:** genuinely new territory, not a Sector 9 feature — closer in kind to
-"Big-world expansion / more districts" above, which is explicitly gated on a measured
-busy world, not builder enthusiasm. No research pass has been run against it, and a
-real open question sits underneath: does this stay backstory/lore texture citizens
-hear about secondhand, or does it become an actual playable area? Those are very
-different commitments, and this idea doesn't yet say which. Worth keeping regardless
-because it's a fresh expression of an existing principle rather than a new subsystem
-— the antagonist wanting your land is the same shape as the antagonist wanting your
-file, just aimed at a different target.
 
 ### A "credits" currency, earned and spent
 *(Lauren's journal, 2026-07-26)* Idea: a currency citizens earn and spend.
