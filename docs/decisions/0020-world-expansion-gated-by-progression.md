@@ -1,6 +1,6 @@
 # ADR 0020 — Growing the world before launch: a new district, the world outside the Grid, gated by progression
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 2026-08-02
 
 ## Context
