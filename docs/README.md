@@ -63,6 +63,7 @@ Numbered, immutable once accepted, superseded rather than edited. Every one has 
 | [0017](decisions/0017-propaganda-engine.md) | The propaganda engine: giving the alert system a voice | District alert already drives patrol density silently — this narrates a mechanic that was already real, rather than inventing a new one |
 | [0018](decisions/0018-orientation-wing-interactive-and-sector-wide.md) | The Orientation Wing becomes genuinely interactive, and teaching starts reaching past it | Resolves the tension with v0.15's own "never gate, nobody's worse for skipping" design explicitly rather than silently overriding it |
 | [0019](decisions/0019-opposed-checks-for-observe-forge-and-sabotage.md) | Opposed checks: `observe`, `forge`, and `sabotage` roll against an obstacle, not a flat constant | A shared `opposed_check()` replaces three independent formulas, each obstacle now driven by state the game already tracks (exposure, district alert, sensor sensitivity) instead of a tuning constant blind to it |
+| [0020](decisions/0020-world-expansion-gated-by-progression.md) | Growing the world before launch: a new district, the world outside the Grid, gated by progression | A one-time pre-launch completeness exception to anti-principle 4, not a reversal — new geography stays gated behind earned progression so principle 8's density holds even as the footprint grows |
 
 ## Product
 
