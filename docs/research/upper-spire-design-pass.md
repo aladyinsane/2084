@@ -36,7 +36,7 @@ out of it. And clearance itself only goes to C-1 anywhere in the codebase —
 `world/functions.py`'s `adjudicate_c1`/`grant_c1` and `world/form_c1.py` are
 the only clearance-granting code that exists; `world/tuning.py` even already
 carries the thematic seed for going further: `CLEARANCE_GRANT_EXPOSURE = 10
-# elevation means scrutiny (M2)` — a tuning constant that's already citing the
+\# elevation means scrutiny (M2)` — a tuning constant that's already citing the
 exact Orwell mechanism (M2, surveillance concentrates around proximity to
 power) this district exists to dramatize, written before this district was
 ever discussed.
