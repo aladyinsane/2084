@@ -652,3 +652,74 @@ class PropagandaScript(Script):
             return
         for char in citizens:
             char.msg(bulletin)
+
+
+class SpireIdleScript(Script):
+    """
+    ADR 0021: elevation reuses Exposure with new fictional triggers, not a
+    second stat. The C-2 corridor is not a place to be found standing
+    still -- a citizen who lingers past the idle window gets noticed, same
+    Exposure stat every other trigger in the game already raises, new
+    reason for it.
+    """
+
+    def at_script_creation(self):
+        from world import tuning
+
+        self.key = "spire_c2_idle"
+        self.desc = "Watches the C-2 corridor for citizens who linger."
+        self.interval = tuning.SPIRE_IDLE_CHECK_INTERVAL
+        self.persistent = True
+
+    def at_repeat(self):
+        import time
+
+        from evennia.utils.search import search_object_by_tag
+
+        from world import tuning, watch
+
+        from .characters import Character
+
+        found = search_object_by_tag("spire_c2_corridor", category="grid")
+        if not found:
+            return
+        corridor = found[0]
+
+        present = {
+            char.id
+            for char in corridor.contents
+            if isinstance(char, Character)
+            and char.has_account
+            and char.sessions.count()
+        }
+        seen = self.db.seen_since or {}
+        for char_id in list(seen):
+            if char_id not in present:
+                del seen[char_id]
+
+        now = time.time()
+        for char in corridor.contents:
+            if not isinstance(char, Character) or char.id not in present:
+                continue
+            first_seen = seen.get(char.id)
+            if first_seen is None:
+                seen[char.id] = now
+                continue
+            if now - first_seen >= tuning.SPIRE_IDLE_EXPOSURE_WINDOW:
+                char.gain_exposure(tuning.SPIRE_IDLE_EXPOSURE_GAIN)
+                char.msg(
+                    "|yA passing clerk notices exactly how long you've "
+                    "been standing here, and files the observation "
+                    "without breaking stride.|n"
+                )
+                watch.add_record_note(
+                    char,
+                    "Lingered on C-2 without evident business.",
+                    type_key="spire_idle",
+                )
+                char.send_prompt()
+                # Reset rather than repeat every tick -- noticed once per
+                # window, not once per SPIRE_IDLE_CHECK_INTERVAL.
+                seen[char.id] = now
+
+        self.db.seen_since = seen

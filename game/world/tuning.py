@@ -414,3 +414,18 @@ PROPAGANDA_HIGH_THRESHOLD = 6
 # loudspeakers read as a living newsfeed rather than a pure alarm that's
 # always silent until it isn't.
 PROPAGANDA_QUIET_CHANCE = 0.15
+
+# --- ADR 0021: the Upper Spire, floor C-2 ------------------------------------
+
+# Tighter than CLEARANCE_MAX_INCIDENTS on purpose -- the second ascent reads
+# a cleaner file than the first did.
+CLEARANCE_C2_MAX_INCIDENTS = 0
+# Steeper than CLEARANCE_GRANT_EXPOSURE -- elevation means scrutiny (M2),
+# more so the higher it goes.
+CLEARANCE_C2_GRANT_EXPOSURE = 18
+
+# How often the C-2 corridor checks who's still standing in it.
+SPIRE_IDLE_CHECK_INTERVAL = 60  # seconds
+# How long a citizen may idle there before a passing clerk notices.
+SPIRE_IDLE_EXPOSURE_WINDOW = 120  # seconds
+SPIRE_IDLE_EXPOSURE_GAIN = 5

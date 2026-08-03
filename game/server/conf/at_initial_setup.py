@@ -24,7 +24,8 @@ def at_initial_setup():
     try:
         from world import build
 
-        build.build()
+        rooms = build.build()
+        build.build_upper_spire(rooms)
         create_script("typeclasses.scripts.ExposureDecayScript")
         create_script("typeclasses.scripts.WatchSweepScript")
         create_script("typeclasses.scripts.PatrolManagerScript")
@@ -33,6 +34,7 @@ def at_initial_setup():
         create_script("typeclasses.scripts.AmbienceScript")
         create_script("typeclasses.scripts.RecordCompactionScript")
         create_script("typeclasses.scripts.PropagandaScript")
+        create_script("typeclasses.scripts.SpireIdleScript")
 
         # (The gridwide channel is defined in settings.DEFAULT_CHANNELS, so
         # citizens are auto-subscribed at registration.)

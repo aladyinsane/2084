@@ -664,15 +664,17 @@ class CmdForge(Command):
 
 class CmdApply(Command):
     """
-    Apply for elevated clearance (Form C-1).
+    Apply for elevated clearance (Form C-1, then Form C-2).
 
     Usage:
       apply
 
-    Heard at the Archive Annex, where the archivist keeps the forms. Grade
-    C-1 clearance admits you to the Central Spire lobby. The Ministry will
-    read your file, your function, and your ledger, in that order, and
-    only the versions of them it has.
+    Heard at the Archive Annex, where the archivist keeps the forms. The
+    Ministry always hears the next form you're eligible for: Grade C-1
+    admits you to the Central Spire lobby; Grade C-2, filed the same way
+    once C-1 is held, admits you past it. The Ministry will read your file,
+    your function, and your ledger, in that order, and only the versions
+    of them it has.
     """
 
     key = "apply"
@@ -694,9 +696,27 @@ class CmdApply(Command):
                 "archivist, who keeps the forms and the opinions about them."
             )
             return
+
+        from world.functions import clearance_level
+
+        # ADR 0021: the same command routes to whichever form is next --
+        # C-1 for the unelevated, C-2 for C-1 holders. Nothing past C-2
+        # exists yet (only floor C-2 is built), so C-2-and-above get turned
+        # away rather than routed to a form that isn't there.
+        level = clearance_level(caller)
+        if level >= 2:
+            caller.msg(
+                "The archivist checks a drawer that, for you, is currently "
+                "empty. \"Nothing further is being taken at this time,\" "
+                "they say, without elaborating on whether that's a policy "
+                "or a prediction."
+            )
+            return
+
+        menu_module = "world.form_c2" if level == 1 else "world.form_c1"
         EvMenu(
             caller,
-            "world.form_c1",
+            menu_module,
             startnode="node_start",
             cmd_on_exit=None,
         )

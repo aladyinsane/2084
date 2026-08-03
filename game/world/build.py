@@ -35,6 +35,7 @@ are compass directions with true reciprocals. Sketch first, then code.
 
 from evennia import create_object, search_object
 from evennia.utils import logger
+from evennia.utils.search import search_object_by_tag
 
 from world import forms
 
@@ -866,4 +867,159 @@ def build():
     )
 
     logger.log_info(f"2084: built Sector 9 ({len(rooms)} rooms).")
+    return rooms
+
+
+def build_upper_spire(rooms):
+    """
+    Build the Upper Spire's floor C-2 (ADR 0021). New, self-contained, and
+    idempotency-guarded per ADR 0012's shape -- scoped to this new
+    district only, not retrofitted onto Sector 9/the Underground/the
+    Orientation Wing (see ADR 0021's implementation notes on that call).
+    Safe to call again: skips entirely if C-2 has already been built.
+    """
+    if search_object_by_tag("spire_c2", category="grid"):
+        logger.log_info("2084: Upper Spire C-2 already built, skipping.")
+        return rooms
+
+    spire_rooms = {
+        "c2_landing": (
+            "C-2 Landing",
+            5,
+            "The doors part on a floor that already expected you. A brass "
+            "plate by the elevator reads FLOOR C-2 -- RECORDS ELEVATION, "
+            "stamped in the same typeface as everything else the Ministry "
+            "has ever committed to paper. The carpet here is a half-shade "
+            "greyer than the lobby's below, which someone here plainly "
+            "considers a promotion. A corridor leads north, toward "
+            "whatever the promotion actually entails.",
+        ),
+        "c2_corridor": (
+            "C-2 Corridor",
+            5,
+            "A corridor the exact width regulation allows, and not one "
+            "inch more, lined with doors that decline to introduce "
+            "themselves. The overhead lights hold a fractional flicker, "
+            "timed, someone insists, to nothing at all. Waiting here for "
+            "any length of time acquires a quality entirely its own: the "
+            "corridor does not mind you passing through it. It minds you "
+            "staying.",
+        ),
+        "c2_offices": (
+            "Mid-Tier Offices",
+            5,
+            "Rows of desks under identical lamps, where citizens convert "
+            "other citizens' paperwork into further paperwork with the "
+            "placid diligence of people who stopped asking where it goes "
+            "some years ago. A glass-walled supervisor's office watches "
+            "the floor without appearing to. The nameplates on the desks "
+            "are engraved; the names on them are not always current.",
+        ),
+        "c2_annex": (
+            "Records Sub-Annex",
+            5,
+            "A smaller, higher version of the Archive Annex two floors "
+            "down -- fewer terminals, older ones, reserved for files the "
+            "Ministry has decided are worth reading twice. A single "
+            "clerk works here, unhurried, in the manner of someone who "
+            "has never once been rushed and does not intend to start "
+            "now.",
+        ),
+        "c2_lounge": (
+            "The Break Room",
+            4,
+            "A break room too plain to be called a lounge and too "
+            "well-worn to be anything else: a kettle nobody remembers "
+            "requisitioning, three chairs that don't match, and a "
+            "corkboard where somebody keeps pinning the same joke under "
+            "new handwriting whenever the old one gets taken down. It's "
+            "the only room on this floor where the paperwork visibly "
+            "stops.",
+        ),
+    }
+
+    for tag, (name, visibility, desc) in spire_rooms.items():
+        room = create_object("typeclasses.rooms.Room", key=name)
+        room.db.desc = desc
+        room.db.visibility = visibility
+        rooms[tag] = room
+
+    rooms["c2_landing"].tags.add("spire_c2", category="grid")
+    rooms["c2_corridor"].tags.add("spire_c2_corridor", category="grid")
+
+    gate = _link(rooms["spire_lobby"], rooms["c2_landing"], "up")
+    gate.locks.add("traverse:clearance(2)")
+    gate.db.err_traverse = (
+        "The elevator call button lights, considers, and goes dark again "
+        "without arriving. \"Grade C-2 and above,\" says a voice that "
+        "isn't apologizing."
+    )
+
+    _link(rooms["c2_landing"], rooms["c2_corridor"], "north")
+    _link(rooms["c2_corridor"], rooms["c2_offices"], "east")
+    _link(rooms["c2_corridor"], rooms["c2_annex"], "west")
+    _link(rooms["c2_corridor"], rooms["c2_lounge"], "north")
+
+    rooms["c2_corridor"].db.ambience = [
+        "A door opens two down, admits no one visibly, and closes again.",
+        "The flicker overhead completes a cycle it has apparently been "
+        "running since before you arrived.",
+        "Someone's footsteps approach, resolve into nobody, and recede.",
+    ]
+
+    steward = create_object(
+        "typeclasses.npcs.Citizen",
+        key="the floor steward",
+        location=rooms["c2_offices"],
+    )
+    steward.db.desc = (
+        "A steward whose entire visible function is knowing precisely "
+        "which desk is whose this week, and declining to say why that "
+        "changes so often. They carry a clipboard nobody has ever seen "
+        "them consult."
+    )
+    steward.db.react_calm = (
+        "{npc} continues annotating the clipboard without looking up."
+    )
+    steward.db.react_noticed = (
+        "{npc} glances at {name}'s hands, briefly, the way one checks "
+        "for contraband stationery."
+    )
+    steward.db.react_hot = (
+        "{npc} closes the clipboard against their chest as {name} enters."
+    )
+    steward.db.deflection = (
+        "\"Desk assignments are not a matter for discussion,\" the "
+        "steward says. \"Neither, before you ask, is the last one.\""
+    )
+
+    break_clerk = create_object(
+        "typeclasses.npcs.Citizen",
+        key="a clerk on break",
+        location=rooms["c2_lounge"],
+    )
+    break_clerk.db.desc = (
+        "Off duty in the specific way that means still reachable if "
+        "someone needs them: tie loosened exactly one notch, a tea gone "
+        "cold an hour ago, and a running joke with anyone who sits down "
+        "about which desk goes empty next, and whether it'll be tidied "
+        "first or just reassigned around."
+    )
+    break_clerk.db.react_calm = (
+        "{npc} nudges the cold tea another inch away, as if distance "
+        "might help."
+    )
+    break_clerk.db.react_noticed = (
+        "{npc} straightens up a fraction, the way you do for someone "
+        "whose report you might end up in."
+    )
+    break_clerk.db.react_hot = (
+        "{npc} suddenly finds the corkboard extremely interesting."
+    )
+    break_clerk.db.deflection = (
+        "\"Off the clock,\" the clerk says, not moving. \"Ask the desk. "
+        "Assuming it's still there.\""
+    )
+
+    logger.log_info(f"2084: built Upper Spire C-2 ({len(spire_rooms)} rooms).")
     return rooms

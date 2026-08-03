@@ -747,6 +747,41 @@ constant blind to it.
       using data already sitting on the object being sabotaged
 - [x] Live-verified `observe` and `sabotage` over telnet with real, non-mocked rolls
 
+## v0.28 — The Upper Spire, floor C-2 ([ADR 0021](../decisions/0021-upper-spire-clearance-c2-through-c5.md))
+
+The Spire wasn't a blank page — the Lobby already dead-ended at `clearance(1)` with its
+own text already promising an ascent nobody had built yet. This finishes the promise
+for one floor: five rooms, escalating paperwork, and elevation that costs exactly what
+C-1 already cost, priced steeper.
+
+- [x] Five rooms (Landing, Corridor, Mid-Tier Offices, Records Sub-Annex, the Break
+      Room) built via a new, self-contained, idempotency-guarded `build_upper_spire()`
+      — not a retrofit of Sector 9/the Underground/the Orientation Wing (ADR 0020's
+      scoping call: new districts only, existing ones left alone)
+- [x] Form C-2 (`world/form_c2.py`), mirroring Form C-1's shape with a tighter bar —
+      requires C-1 already held, zero tolerated visible incidents instead of one
+- [x] `apply` now routes to whichever form a citizen is actually eligible for (C-1,
+      then C-2), reusing the same command surface rather than adding a new verb
+- [x] Elevation reuses Exposure — no second stat — via a new `SpireIdleScript` that
+      raises it when a citizen lingers in the C-2 corridor past a window
+- [x] Two new NPCs (the floor steward, a clerk on break) — the break room is this
+      district's principle-10 pressure valve, a room, the deliberate inverse of
+      "outside the Grid"'s NPC-texture answer
+- [x] Lore parity: `historical-background.md` gets a new section, Form C-2 documented
+      in `forms-and-notices.md`, per the existing Lore-Code Parity Rule
+- [x] Live-verified over telnet: the gate blocks below C-2, `apply` correctly routes to
+      Form C-2's distinct menu text for a C-1 holder, all five rooms and both NPCs'
+      reaction poses render correctly
+- [ ] **Not live-confirmed**: `SpireIdleScript`'s natural tick actually firing in real
+      time. Deterministically covered by two unit tests (`TestUpperSpire`), and every
+      other new behavior in this release live-verified, but repeated live sessions
+      (including a full `evennia stop`/`start`, not just `reload`) never produced the
+      script's own message during real-time idling in the corridor, despite the DB
+      showing it correctly registered (`is_active=True`, `persistent=True`, correct
+      interval). Root cause not found this session — worth a clean re-check after a
+      server restart done outside of this debugging session, before trusting it in
+      front of a real player.
+
 ## Later / undecided
 
 The parking lot, including the **ASCII map**: [future-features.md](future-features.md).
