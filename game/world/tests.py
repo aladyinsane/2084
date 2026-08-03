@@ -3211,3 +3211,137 @@ class TestPropaganda(EvenniaTest):
         finally:
             self.char1.msg = old
         self.assertTrue(seen)
+
+
+class TestUpperSpire(EvenniaTest):
+    """ADR 0021: floor C-2 -- escalating Form C-2, elevation reuses Exposure."""
+
+    def test_adjudicate_c2_requires_c1_first(self):
+        from world import functions
+
+        self.char1.db.standing = {}
+        approved, reason = functions.adjudicate_c2(self.char1)
+        self.assertFalse(approved)
+        self.assertIn("C-1", reason)
+
+    def test_adjudicate_c2_rejects_already_holding_c2(self):
+        from world import functions
+
+        self.char1.db.standing = {"clearance": "C-2"}
+        approved, reason = functions.adjudicate_c2(self.char1)
+        self.assertFalse(approved)
+        self.assertIn("already holds", reason)
+
+    def test_adjudicate_c2_tighter_incident_bar_than_c1(self):
+        from world import functions, watch
+
+        self.char1.db.standing = {"clearance": "C-1"}
+        functions.assign_function(self.char1)
+        # C-1's own bar tolerates one visible incident (tuning.CLEARANCE_
+        # MAX_INCIDENTS == 1); C-2's bar (== 0) does not.
+        watch.add_record_note(self.char1, "Papers checked in the street; cleared.")
+        approved, reason = functions.adjudicate_c2(self.char1)
+        self.assertFalse(approved)
+        self.assertIn("references", reason)
+
+    def test_adjudicate_c2_approves_clean_c1_holder_with_function(self):
+        from world import functions
+
+        self.char1.db.standing = {"clearance": "C-1"}
+        functions.assign_function(self.char1)
+        approved, _ = functions.adjudicate_c2(self.char1)
+        self.assertTrue(approved)
+
+    def test_grant_c2_sets_clearance_and_taxes_exposure(self):
+        from world import functions, tuning
+
+        self.char1.db.standing = {"clearance": "C-1"}
+        self.char1.db.exposure = 0
+        functions.grant_c2(self.char1)
+        self.assertEqual(functions.clearance_level(self.char1), 2)
+        self.assertEqual(
+            self.char1.db.exposure, tuning.CLEARANCE_C2_GRANT_EXPOSURE
+        )
+
+    def test_apply_routes_to_form_c2_for_c1_holders(self):
+        from world import functions, records, tuning
+
+        archivist = create.create_object(
+            "typeclasses.npcs.Citizen", key="the archivist", location=self.room1
+        )
+        archivist.tags.add("records_service", category="grid")
+        # Order matters: assign_function reads-merges-writes db.standing, so
+        # setting clearance first (not after) keeps both keys instead of
+        # the second assignment wiping out function_key.
+        self.char1.db.standing = {"clearance": "C-1"}
+        functions.assign_function(self.char1)
+        self.char1.db.influence = {"Ministry of Records": tuning.CLEARANCE_FEE}
+        self.char1.execute_cmd("apply")  # menu: start
+        self.char1.execute_cmd("1")  # take up the pen
+        self.char1.execute_cmd("1")  # purpose: service
+        self.char1.execute_cmd("1")  # affirm and submit
+        self.assertEqual(functions.clearance_level(self.char1), 2)
+        outcomes = [
+            r.db.content
+            for r in records.records_for(self.char1, kind="observation")
+        ]
+        self.assertTrue(
+            any("Form C-2" in c and "APPROVED" in c for c in outcomes)
+        )
+
+    def test_apply_declines_when_already_c2(self):
+        archivist = create.create_object(
+            "typeclasses.npcs.Citizen", key="the archivist", location=self.room1
+        )
+        archivist.tags.add("records_service", category="grid")
+        self.char1.db.standing = {"clearance": "C-2"}
+        seen = []
+        old = self.char1.msg
+        self.char1.msg = lambda text=None, **kw: seen.append(str(text))
+        try:
+            self.char1.execute_cmd("apply")
+        finally:
+            self.char1.msg = old
+        self.assertTrue(any("Nothing further" in s for s in seen))
+
+    def test_c2_gate_requires_clearance_two(self):
+        self.exit.locks.add("traverse:clearance(2)")
+        self.exit.db.err_traverse = "Turned away."
+        self.char1.db.standing = {"clearance": "C-1"}
+        self.char1.execute_cmd(self.exit.key)
+        self.assertEqual(self.char1.location, self.room1)  # blocked at C-1
+        self.char1.db.standing = {"clearance": "C-2"}
+        self.char1.execute_cmd(self.exit.key)
+        self.assertEqual(self.char1.location, self.room2)  # admitted at C-2
+
+    def test_spire_idle_script_raises_exposure_after_window(self):
+        import time
+
+        from typeclasses.scripts import SpireIdleScript
+        from world import tuning
+
+        self.room1.tags.add("spire_c2_corridor", category="grid")
+        self.char1.db.exposure = 0
+        script = create.create_script(SpireIdleScript)
+        try:
+            # Pre-seed as if the character has already been standing here
+            # past the idle window, rather than waiting real time out.
+            script.db.seen_since = {
+                self.char1.id: time.time() - tuning.SPIRE_IDLE_EXPOSURE_WINDOW - 1
+            }
+            script.at_repeat()
+        finally:
+            script.stop()
+        self.assertEqual(self.char1.db.exposure, tuning.SPIRE_IDLE_EXPOSURE_GAIN)
+
+    def test_spire_idle_script_does_not_fire_on_first_sighting(self):
+        from typeclasses.scripts import SpireIdleScript
+
+        self.room1.tags.add("spire_c2_corridor", category="grid")
+        self.char1.db.exposure = 0
+        script = create.create_script(SpireIdleScript)
+        try:
+            script.at_repeat()  # first sighting only -- registers, no fire
+        finally:
+            script.stop()
+        self.assertEqual(self.char1.db.exposure, 0)

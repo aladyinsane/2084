@@ -60,6 +60,17 @@ In Sector 9, bureaucratic forms are the primary medium through which the state m
 
 ---
 
+## Form C-2: Application for Further Elevation
+* **Context**: Accessible via `apply` at the Archive Annex once Grade C-1 is already held (`world/form_c2.py`, [ADR 0021](../../decisions/0021-upper-spire-clearance-c2-through-c5.md)). Gates access past the Central Spire Lobby to Floor C-2.
+* **Tone**: The same ceremony as Form C-1, read back with less patience — the Ministry notes the declaration section is "read more closely the second time."
+* **Key Provisions**:
+  * Requires the same filing fee as Form C-1, paid again in full; no discount for a returning applicant.
+  * Cannot be filed without Grade C-1 already held — there is no shortcut past the first ascent to the second.
+  * The reference check is stricter than Form C-1's: a single visible incident, tolerated at C-1, is enough to reject at C-2 (vouching still offsets it by one, same as Form C-1).
+  * Approval is marked with a colorless stamp — an impression, not an ink — rather than the brass stamp Form C-1 uses; the Ministry does not repeat its ceremonies exactly at every tier.
+
+---
+
 ## Form 77: Employment Verification
 * **Context**: Required component of Form C-1 application (`world/form_c1.py`).
 * **Tone**: Restrictive, function-locking.

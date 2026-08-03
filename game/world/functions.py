@@ -159,3 +159,43 @@ def grant_c1(char):
     from world import grades
 
     grades.check_reclassification(char)
+
+
+def adjudicate_c2(char):
+    """
+    Form C-2's decision logic (ADR 0021), mirroring adjudicate_c1 with a
+    tighter bar -- the record layer is still all that's read (ADR 0005),
+    the same promise C-1 made.
+    """
+    from world import records
+
+    if clearance_level(char) < 1:
+        return False, "Grade C-1 must be held before C-2 may be sought"
+    if clearance_level(char) >= 2:
+        return False, "applicant already holds the clearance applied for"
+    key, _spec = current_function(char)
+    if not key:
+        return False, "Form 77 (Employment Verification) absent from file"
+    visible_incidents = [
+        rec
+        for rec in records.records_for(char, kind="incident")
+        if not rec.db.redacted
+    ]
+    from world import vouching
+
+    threshold = tuning.CLEARANCE_C2_MAX_INCIDENTS
+    if vouching.has_backers(char):
+        threshold += 1
+    if len(visible_incidents) > threshold:
+        return False, "character references insufficient at this time"
+    return True, "application conforms to schedule"
+
+
+def grant_c2(char):
+    standing = char.db.standing or {}
+    standing["clearance"] = "C-2"
+    char.db.standing = standing
+    char.gain_exposure(tuning.CLEARANCE_C2_GRANT_EXPOSURE)
+    from world import grades
+
+    grades.check_reclassification(char)

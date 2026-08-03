@@ -80,6 +80,12 @@ Working one's assigned post yields triple standing with the governing Ministry. 
 
 To maintain collective rhythm, the regime conducts mandatory **Civic Assemblies** at Unity Plaza. When the loudspeakers blare the call to assemble, active citizens must report. Presence earns attendance credit and exposure relief. Absence—even in unmonitored dead zones—is recorded as an incident, because the attendance roll sees what the sensors cannot.
 
+### Ascending Past C-1: Floor C-2
+
+Grade C-1 admits a citizen to the Central Spire's lobby—an antechamber, not a destination. The reception pillar there states it without being asked: ASCENT BY APPOINTMENT. The appointment, when it comes, is Form C-2, filed at the same Archive Annex counter that processed Form C-1, for a citizen the Ministry has since decided to read more closely.
+
+Floor C-2 is the Spire's own miniature of Sector 9's civic machine, one level removed from the street: a corridor connecting a floor of desks where paperwork begets further paperwork, a smaller Records Sub-Annex reserved for files worth reading twice, and—the one room on the floor that paperwork does not reach—a break room where mid-tier clerks trade the same joke under new handwriting, month after month, about which desk goes empty next. Elevation here costs the same thing C-1 cost, priced steeper: a citizen who lingers in the C-2 corridor without evident business is noticed exactly as certainly as a citizen who lingers too long in Unity Plaza, wearing a different uniform of consequence.
+
 ---
 
 ## III. The Shadows Below: Tunnel B and the Chalk
