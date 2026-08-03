@@ -26,6 +26,7 @@ def at_initial_setup():
 
         rooms = build.build()
         build.build_upper_spire(rooms)
+        build.build_outside_the_grid(rooms)
         create_script("typeclasses.scripts.ExposureDecayScript")
         create_script("typeclasses.scripts.WatchSweepScript")
         create_script("typeclasses.scripts.PatrolManagerScript")

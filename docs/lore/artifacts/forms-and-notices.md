@@ -87,3 +87,13 @@ In Sector 9, bureaucratic forms are the primary medium through which the state m
   * **`confess alone`**: Detainee absorbs full interrogation penalties, maintaining loyalty to their underground circle.
   * **`confess names`**: Detainee lists circle comrades. The detainee is released immediately; named comrades receive +25 Exposure each and a permanent betrayal incident in their dossier.
   * **Reputation Mechanics**: Signed Section C confessions leave an indelible stain. Through `judge`, other citizens can observe a character's history of Section C betrayals.
+
+---
+
+## Land Survey & Water Allotment Records
+* **Context**: Filed against a `Parcel` object, not a citizen — the same Ministry of Records ledger that keeps citizen incidents, pointed at land instead of a person (`typeclasses/land.py`, `world/records.py`, [ADR 0022](../../decisions/0022-outside-the-grid-shadow-standing-gate.md)). Petitioned at the Archive Annex like any other record (`petition amend survey = ...`, `petition redact allotment`); forged only out past the wire, where nothing watches (`forge survey = ...`, `forge allotment = ...`).
+* **Tone**: The same bureaucratic finality as a citizen's file, aimed at a field and a cistern instead of a person.
+* **Key Provisions**:
+  * A survey record states a yield figure and a boundary; an allotment record states a draw rate. Both start on file reading "within Ministry projection" — a number the Ministry considers final, whether or not the land agrees.
+  * Standing to petition or forge a parcel's record belongs to whoever holds it (`db.owner`), not to the citizen the record happens to name — there is no such citizen. A landholder amends or forges records about *their* land, the same authorization shape as a citizen amending their own incidents, aimed at a different kind of subject.
+  * Falsifying a survey carries the same risk forging a citizen incident does: caught, it becomes "Suspected document tampering" on the forger's own file, the same entry a failed citizen forgery leaves.
