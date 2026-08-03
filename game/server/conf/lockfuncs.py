@@ -43,3 +43,20 @@ def clearance(accessing_obj, accessed_obj, *args, **kwargs):
     except (IndexError, ValueError):
         return False
     return functions.clearance_level(accessing_obj) >= required
+
+
+def shadow_standing(accessing_obj, accessed_obj, *args, **kwargs):
+    """
+    Usage: shadow_standing(N) — passes if the accessor's underground
+    standing (the same number `word` reads, ADR 0009) is at least N. The
+    inverse gate of clearance(): unsanctioned standing, not institutional
+    (ADR 0022).
+    """
+    from world import tuning
+
+    try:
+        required = int(args[0])
+    except (IndexError, ValueError):
+        return False
+    standing = (accessing_obj.db.influence or {}).get(tuning.UNDERGROUND, 0)
+    return standing >= required

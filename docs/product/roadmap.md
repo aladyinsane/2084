@@ -782,6 +782,53 @@ C-1 already cost, priced steeper.
       server restart done outside of this debugging session, before trusting it in
       front of a real player.
 
+## v0.29 — The world outside the Grid ([ADR 0022](../decisions/0022-outside-the-grid-shadow-standing-gate.md))
+
+The second half of ADR 0020's pre-launch expansion, and the inverse of v0.28's gate:
+reachable only through the Underground track, not the sanctioned one. Land and water
+records turn out to be nearly free — the same records API a citizen's dossier already
+used, pointed at a place instead of a person.
+
+- [x] Five rooms (Perimeter Checkpoint, the Fence Road, the Settlement, a Field, the
+      Water Allotment) via a new, self-contained, idempotency-guarded
+      `build_outside_the_grid()` — same ADR 0020 scoping call as the Spire, existing
+      districts untouched
+- [x] A new `shadow_standing(N)` lockfunc, mirroring `clearance(N)` exactly — gates
+      entry at underground standing 12 ("reliable"), the deliberate inverse of the
+      Spire's `clearance(2)`
+- [x] A new `Parcel` typeclass (`typeclasses/land.py`) — non-spatial, same shape as
+      the existing `Record` typeclass, proving `world/records.py`'s generic `subject`
+      needed zero changes to hold land/water records
+- [x] `petition`/`forge` extended to recognize `survey`/`allotment` as record kinds,
+      reusing the existing keyword-routing idiom (the same one routine-incident
+      types already use) rather than a new command — the real new logic is
+      authorization against `parcel.db.owner`, a landholder's standing over records
+      about their land, not about themselves
+- [x] The informant layer costs zero new code: dropping an `Informant`-typeclassed
+      NPC (a fence-line watcher) into the settlement makes it recruitable via the
+      existing, fully generic `recruit` command
+- [x] One recurring NPC (the well-keeper) — this district's principle-10 pressure
+      valve, per Lauren's answer, the deliberate inverse of the Spire's room-based
+      answer
+- [x] Lore parity: new section in `historical-background.md`, land/water records
+      documented in `forms-and-notices.md`
+- [x] Live-verified over telnet: the gate blocks below standing 12 and admits at it,
+      all five rooms and both NPCs render correctly, and `forge survey` was run for
+      real (non-mocked) in both directions — a genuine failure (exposure penalty,
+      incident filed, record untouched) and, after resetting exposure, a genuine
+      success (record content changed, audit trail preserved the original text
+      under "amended (unauthorized)")
+- [ ] **Not live-verified**: `petition amend survey`/`petition redact allotment`
+      specifically. Same code shape as the already-live-verified `forge` path and
+      covered by two dedicated unit tests, so judged lower-value to chase after an
+      already-long live-testing session — worth your own check, same as forge wasn't
+      the one item flagged unverified in the ADR 0019 release.
+- [ ] **Not decided/built**: how a citizen actually becomes a landholder in the
+      first place. The parcels ship owned by the well-keeper; I granted the `claude`
+      test account ownership via `evennia shell` to live-verify the mechanism. ADR
+      0022 didn't specify an acquisition flow (flagged there as real, open design
+      work), so none exists yet — this is a known gap, not an oversight.
+
 ## Later / undecided
 
 The parking lot, including the **ASCII map**: [future-features.md](future-features.md).

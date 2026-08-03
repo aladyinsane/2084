@@ -113,6 +113,8 @@ From Tunnel B, the Underground operates its own counter-economy:
 * **Joint Projects**: A circle that stakes its labor on a shared goal (`circle project start`) risks more than any single member's grind — casing and courier work pool toward one growing pot, paid out only when two of the circle stand together in the dark at once. A confession after the fact costs everyone the pot, not just the confessor.
 * **Black Market Requisitions**: High underground standing unlocks contraband gear, such as foil-lined coats to muffle entry heat and dead-man pockets to bypass contraband frisks.
 
+Standing enough in the Underground buys a citizen something the Ministry's own ledgers don't grant: passage south past Tenement Row, through the Perimeter Checkpoint, to the fenced settlements the Grid's own maps stop bothering to update. A gatehouse too small for its two officers is the only thing marking BOUNDARY OF RECORDED JURISDICTION, and the sign underneath it—BEYOND THIS POINT, ATTENDANCE IS NOT TAKEN—reads as either mercy or warning depending on how long a citizen has been out there. Past the wire, a settlement keeps its own well, its own accounting, and its own record of who's owed water and when—kept, in practice, by the well-keeper, who has outlasted three surveyors and speaks of the last drought as if the Ministry only recently heard about it. The land survey and the water allotment are records the same way a citizen's incidents are records: numbers on a Ministry ledger that can, with the right hand and the right absence of anyone watching, be made to say something closer to true.
+
 ---
 
 ## IV. The Scars of Trust: Informants, Honeypots, and Section C

@@ -31,6 +31,23 @@ def _compactable_type_by_label(token):
     return None
 
 
+# ADR 0022: land/water records are a second kind of thing petition/forge can
+# target, addressed by keyword the same way a compacted routine-incident type
+# already is -- reusing that idiom rather than inventing a second syntax.
+LAND_RECORD_KINDS = ("survey", "allotment")
+
+
+def _owned_parcel(caller, kind):
+    """The Parcel of the given kind whose db.owner is caller, if any (ADR
+    0022's actor/subject split: standing over the land, not over yourself)."""
+    from typeclasses.land import Parcel
+
+    for parcel in Parcel.objects.all():
+        if parcel.db.parcel_kind == kind and parcel.db.owner is caller:
+            return parcel
+    return None
+
+
 class CmdReport(Command):
     """
     Report to the Assignment Hall counter for your function.
@@ -344,14 +361,18 @@ class CmdPetition(Command):
       petition amend <entry> = <corrected text>
       petition redact <entry>
       petition redact <routine-incident keyword>
+      petition amend survey = <corrected text>
+      petition redact allotment
 
     Entry numbers are as shown in your dossier. Routine incidents old enough
     to have folded into a lifetime count (ADR 0011) have no number anymore:
     redact those by the keyword shown next to them instead, one off the
-    count per petition. Amendments and redactions are services of the
-    Ministry of Records, payable in standing with the Ministry of Records,
-    which is the sort of arrangement the Ministry finds elegant. The request
-    itself is, of course, noted.
+    count per petition. A landholder's survey or water allotment (ADR 0022)
+    petitions the same way, by the keyword |wsurvey|n or |wallotment|n, and
+    only for land actually held. Amendments and redactions are services of
+    the Ministry of Records, payable in standing with the Ministry of
+    Records, which is the sort of arrangement the Ministry finds elegant.
+    The request itself is, of course, noted.
     """
 
     key = "petition"
@@ -425,6 +446,61 @@ class CmdPetition(Command):
                 f'"{spec["display"]}" reads one lower. The old total, the '
                 "archivist remarks, is nobody's business."
             )
+            caller.gain_exposure(tuning.SERVICE_EXPOSURE)
+            caller.msg(
+                "|=mRequests of this kind are themselves noted. You feel "
+                "the note being made.|n"
+            )
+            caller.send_prompt()
+            return
+
+        land_kind = num_part.strip().lower()
+        if land_kind in LAND_RECORD_KINDS:
+            parcel = _owned_parcel(caller, land_kind)
+            if not parcel:
+                caller.msg(
+                    f'{archivist.key} checks a ledger you don\'t appear in. '
+                    f'"Nothing of that kind is filed to your name."'
+                )
+                return
+            if action == "amend" and not new_text:
+                caller.msg(f"Usage: petition amend {land_kind} = <corrected text>")
+                return
+            open_records = [
+                rec
+                for rec in records.records_for(parcel, kind=land_kind)
+                if not rec.db.redacted
+            ]
+            if not open_records:
+                caller.msg(
+                    f'{archivist.key} finds nothing of that kind still on '
+                    "file."
+                )
+                return
+            record = open_records[-1]
+            cost = tuning.AMEND_COST if action == "amend" else tuning.REDACT_COST
+            if not caller.spend_influence("Ministry of Records", cost):
+                caller.msg(
+                    f'{archivist.key} names the consideration: {cost} '
+                    "standing with the Ministry of Records. You do not "
+                    "have it. The file closes with a sound like a small "
+                    "door."
+                )
+                return
+            if action == "amend":
+                records.amend(record, new_text, actor=caller, authorized=True)
+                caller.msg(
+                    f"{archivist.key} unscrews a pen with terrible ceremony "
+                    f"and makes the correction. The {land_kind} now reads "
+                    "as it has, of course, always read."
+                )
+            else:
+                records.redact(record, actor=caller, authorized=True)
+                caller.msg(
+                    f"{archivist.key} produces a stamp, and the {land_kind} "
+                    "ceases to have been. The ledger, the archivist "
+                    "remarks, is nobody's business."
+                )
             caller.gain_exposure(tuning.SERVICE_EXPOSURE)
             caller.msg(
                 "|=mRequests of this kind are themselves noted. You feel "
@@ -557,12 +633,16 @@ class CmdForge(Command):
     Usage:
       forge <entry> = <new text>
       forge <routine-incident keyword>
+      forge survey = <new text>
+      forge allotment = <new text>
 
     Possible only somewhere nothing watches at all. Done well, the file
     simply says something else now. Done badly, the file gains a page. A
     routine incident old enough to have folded into a lifetime count (ADR
     0011) has no text left to rewrite: forging it just tries to strike one
     off the tally instead, same success chance, same risk of getting caught.
+    A landholder can forge their own survey or water allotment (ADR 0022)
+    the same way, standing on the land itself, in a place nothing watches.
     """
 
     key = "forge"
@@ -618,6 +698,49 @@ class CmdForge(Command):
                     "|rSomething upstream notices the edit and un-happens "
                     "it.|n The terminal goes politely dead in your hands. "
                     "Somewhere, a form about you begins to fill itself in."
+                )
+                caller.send_prompt()
+            return
+
+        land_kind = num_part.strip().lower()
+        if land_kind in LAND_RECORD_KINDS:
+            parcel = _owned_parcel(caller, land_kind)
+            if not parcel:
+                caller.msg("Nothing here is yours to rewrite.")
+                return
+            if not sep or not new_text:
+                caller.msg(f"Usage: forge {land_kind} = <new text>")
+                return
+            open_records = [
+                rec
+                for rec in records.records_for(parcel, kind=land_kind)
+                if not rec.db.redacted
+            ]
+            if not open_records:
+                caller.msg("There is no such record on file here to rewrite.")
+                return
+            record = open_records[-1]
+            caller.improve_skill("forgery")
+            difficulty = tuning.FORGE_BASE_DIFFICULTY + (
+                caller.db.exposure or 0
+            ) // tuning.FORGE_EXPOSURE_DIFFICULTY_DIVISOR
+            if checks.opposed_check(caller, "forgery", difficulty):
+                records.amend(record, new_text, actor=caller, authorized=False)
+                caller.msg(
+                    "A borrowed pen and a number nobody out here checks "
+                    f"twice. The {land_kind} reads differently now, and "
+                    "nothing else changed."
+                )
+            else:
+                watch.add_record_note(
+                    caller,
+                    "Suspected document tampering; forensic review pending",
+                )
+                caller.gain_exposure(tuning.FORGE_FAIL_EXPOSURE)
+                caller.msg(
+                    "|rSomewhere, a surveyor's tally stops matching the "
+                    "land.|n The correction doesn't take. A form about you "
+                    "begins to fill itself in."
                 )
                 caller.send_prompt()
             return

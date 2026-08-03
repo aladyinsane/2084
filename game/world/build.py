@@ -37,7 +37,7 @@ from evennia import create_object, search_object
 from evennia.utils import logger
 from evennia.utils.search import search_object_by_tag
 
-from world import forms
+from world import forms, tuning
 
 # Reciprocal compass pairs and their standard aliases.
 OPPOSITE = {
@@ -1022,4 +1022,187 @@ def build_upper_spire(rooms):
     )
 
     logger.log_info(f"2084: built Upper Spire C-2 ({len(spire_rooms)} rooms).")
+    return rooms
+
+
+def build_outside_the_grid(rooms):
+    """
+    Build the world outside the Grid: one settlement and its immediate
+    fenced approach (ADR 0022). New, self-contained, and
+    idempotency-guarded per ADR 0012's shape, same as build_upper_spire --
+    scoped to this new district only. Safe to call again: skips entirely
+    if it's already been built.
+    """
+    if search_object_by_tag("outside_the_grid", category="grid"):
+        logger.log_info("2084: outside the Grid already built, skipping.")
+        return rooms
+
+    outside_rooms = {
+        "og_checkpoint": (
+            "Perimeter Checkpoint",
+            3,
+            "A second fence begins where Sector 9's paving gives out "
+            "entirely: chain-link gone the color of rust and dusk, and a "
+            "gatehouse too small for the two officers who apparently "
+            "rotate through it. A sign, stenciled by a less careful hand "
+            "than the ones inside the Grid: BOUNDARY OF RECORDED "
+            "JURISDICTION. BEYOND THIS POINT, ATTENDANCE IS NOT TAKEN. "
+            "Nobody here has explained whether that's a comfort or a "
+            "warning, and nobody seems inclined to ask twice.",
+        ),
+        "og_road": (
+            "The Fence Road",
+            2,
+            "A dirt track running parallel to the wire, wide enough for "
+            "one requisition truck and not much else. Boot prints go both "
+            "directions and erase each other by midafternoon. Nothing "
+            "overhead but sky and the absence of a watchscreen, which "
+            "after a lifetime in Sector 9 reads less like freedom than "
+            "like an unfilled form.",
+        ),
+        "og_settlement": (
+            "The Settlement",
+            1,
+            "A cluster of low houses built from whatever the last three "
+            "requisition cycles didn't reclaim, arranged around a well "
+            "that predates the wire by generations. Someone's strung a "
+            "line of dead radio parts as wind chimes -- decorative, or a "
+            "joke about reception, or both. A woman doing something "
+            "practical with a bucket looks up, assesses you in under a "
+            "second, and goes back to it.",
+        ),
+        "og_field": (
+            "A Field",
+            0,
+            "Rows of something green and deliberate, bounded at each "
+            "corner by a marker post stamped with a number that doesn't "
+            "match the number on the survey anyone here has actually "
+            "seen. The furrows are straighter than the crop needs; "
+            "they're straight for whoever flies over and checks.",
+        ),
+        "og_water": (
+            "The Water Allotment",
+            0,
+            "A cistern, a hand pump, and a gauge under glass that reports "
+            "a figure the Ministry of Records considers final. The actual "
+            "water level, visible if you lean over the cistern's lip, has "
+            "had a running disagreement with that figure for longer than "
+            "anyone here has been alive.",
+        ),
+    }
+
+    for tag, (name, visibility, desc) in outside_rooms.items():
+        room = create_object("typeclasses.rooms.Room", key=name)
+        room.db.desc = desc
+        room.db.visibility = visibility
+        rooms[tag] = room
+
+    rooms["og_checkpoint"].tags.add("outside_the_grid", category="grid")
+
+    gate = _link(rooms["tenement"], rooms["og_checkpoint"], "south")
+    gate.locks.add(f"traverse:shadow_standing({tuning.OUTSIDE_GRID_ENTRY_STANDING})")
+    gate.db.err_traverse = (
+        "The officer at the gatehouse doesn't even raise the barrier arm. "
+        "\"Nothing out there for you,\" they say, in the tone of someone "
+        "repeating a sentence they didn't write."
+    )
+
+    _link(rooms["og_checkpoint"], rooms["og_road"], "south")
+    _link(rooms["og_road"], rooms["og_settlement"], "south")
+    _link(rooms["og_settlement"], rooms["og_field"], "east")
+    _link(rooms["og_settlement"], rooms["og_water"], "west")
+
+    rooms["og_road"].db.ambience = [
+        "Wind finds a gap in the wire and worries at it, tunelessly.",
+        "Somewhere past the fence line, a dog that isn't yours barks twice "
+        "and reconsiders.",
+        "The track shows older ruts underneath the new ones, and older "
+        "still underneath those.",
+    ]
+
+    well_keeper = create_object(
+        "typeclasses.npcs.Citizen",
+        key="the well-keeper",
+        location=rooms["og_settlement"],
+    )
+    well_keeper.db.desc = (
+        "The closest thing this settlement has to an address: if you need "
+        "to find someone, you ask the well-keeper, who keeps the schedule "
+        "for who draws water when and has outlasted three surveyors and, "
+        "by her own count, at least one gauge. She has a joke about the "
+        "drought that predates the Ministry's own memory of one, and "
+        "she's told it enough times that the punchline has started "
+        "arriving before the setup."
+    )
+    well_keeper.db.react_calm = (
+        "{npc} continues coiling rope by the well, without looking up."
+    )
+    well_keeper.db.react_noticed = (
+        "{npc} straightens, the specific straightening of someone who "
+        "has met surveyors before."
+    )
+    well_keeper.db.react_hot = (
+        "{npc} steps between {name} and the well, unhurried, definite."
+    )
+    well_keeper.db.deflection = (
+        "\"The water schedule is not Ministry business,\" the well-keeper "
+        "says, \"until it is, at which point it becomes everyone's "
+        "business, and mine most of all.\""
+    )
+
+    watcher = create_object(
+        "typeclasses.npcs.Informant",
+        key="a fence-line watcher",
+        location=rooms["og_road"],
+    )
+    watcher.db.desc = (
+        "Paid, officially, to note which sections of wire need mending. "
+        "Unofficially the most reliable source of who came through the "
+        "checkpoint and when, for whoever asks the right way."
+    )
+    watcher.db.react_calm = (
+        "{npc} keeps walking the fence line, unhurried."
+    )
+    watcher.db.react_noticed = (
+        "{npc} marks something in a small book and doesn't say what."
+    )
+    watcher.db.react_hot = (
+        "{npc} finds urgent business at the far end of the fence."
+    )
+    watcher.db.deflection = (
+        "\"I mend wire,\" the watcher says. \"That's the whole job. "
+        "Officially.\""
+    )
+
+    from world import records
+
+    field_parcel = create_object(
+        "typeclasses.land.Parcel", key="the near field's survey record"
+    )
+    field_parcel.db.owner = well_keeper
+    field_parcel.db.parcel_kind = "survey"
+    records.add_record(
+        field_parcel,
+        "Land survey: yield within Ministry projection. Boundary "
+        "unchanged from prior cycle.",
+        author="Ministry of Records",
+        kind="survey",
+    )
+
+    water_parcel = create_object(
+        "typeclasses.land.Parcel", key="the cistern's allotment record"
+    )
+    water_parcel.db.owner = well_keeper
+    water_parcel.db.parcel_kind = "allotment"
+    records.add_record(
+        water_parcel,
+        "Water allotment: draw rate within Ministry projection. No "
+        "shortfall on record.",
+        author="Ministry of Records",
+        kind="allotment",
+    )
+
+    logger.log_info(
+        f"2084: built outside the Grid ({len(outside_rooms)} rooms)."
+    )
     return rooms

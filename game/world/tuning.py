@@ -429,3 +429,12 @@ SPIRE_IDLE_CHECK_INTERVAL = 60  # seconds
 # How long a citizen may idle there before a passing clerk notices.
 SPIRE_IDLE_EXPOSURE_WINDOW = 120  # seconds
 SPIRE_IDLE_EXPOSURE_GAIN = 5
+
+# --- ADR 0022: the world outside the Grid ------------------------------------
+
+# Shadow standing required to pass the Perimeter Checkpoint -- the inverse
+# gate of the Spire's clearance(2): unsanctioned, not institutional. Not the
+# lowest tier (SHADOW_TIERS[5], already reached by anyone doing underground
+# work at all) and not the top (45, already found exhausted by the
+# 2026-08-01 retention playtest) -- "reliable" (12), a real but reachable bar.
+OUTSIDE_GRID_ENTRY_STANDING = 12

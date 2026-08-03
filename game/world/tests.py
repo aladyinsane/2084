@@ -3345,3 +3345,143 @@ class TestUpperSpire(EvenniaTest):
         finally:
             script.stop()
         self.assertEqual(self.char1.db.exposure, 0)
+
+
+class TestOutsideTheGrid(EvenniaTest):
+    """ADR 0022: shadow-standing gate, land/water records as Parcel subjects."""
+
+    def _parcel(self, kind="survey", owner=None, content="Land survey: within projection."):
+        from world import records
+
+        parcel = create.create_object(
+            "typeclasses.land.Parcel", key=f"a {kind} parcel"
+        )
+        parcel.db.parcel_kind = kind
+        parcel.db.owner = owner
+        records.add_record(
+            parcel, content, author="Ministry of Records", kind=kind
+        )
+        return parcel
+
+    def test_shadow_standing_lockfunc_gates_exit(self):
+        from world import tuning
+
+        self.exit.locks.add(
+            f"traverse:shadow_standing({tuning.OUTSIDE_GRID_ENTRY_STANDING})"
+        )
+        self.exit.db.err_traverse = "Turned away."
+        self.char1.db.influence = {tuning.UNDERGROUND: tuning.OUTSIDE_GRID_ENTRY_STANDING - 1}
+        self.char1.execute_cmd(self.exit.key)
+        self.assertEqual(self.char1.location, self.room1)  # blocked below
+        self.char1.db.influence = {tuning.UNDERGROUND: tuning.OUTSIDE_GRID_ENTRY_STANDING}
+        self.char1.execute_cmd(self.exit.key)
+        self.assertEqual(self.char1.location, self.room2)  # admitted at threshold
+
+    def test_parcel_records_reuse_the_generic_subject_api(self):
+        from world import records
+
+        parcel = self._parcel(owner=self.char1)
+        found = records.records_for(parcel, kind="survey")
+        self.assertEqual(len(found), 1)
+        self.assertEqual(found[0].db.subject, parcel)
+
+    def test_forge_survey_success_as_owner(self):
+        from unittest.mock import patch
+
+        self._parcel(kind="survey", owner=self.char1)
+        self.room1.db.visibility = 0
+        with patch("world.checks.opposed_check", return_value=True):
+            self.char1.execute_cmd("forge survey = Boundary revised, quietly")
+        from world import records
+
+        parcel = self._owned_parcel_helper()
+        rec = [
+            r
+            for r in records.records_for(parcel, kind="survey")
+            if not r.db.redacted
+        ][-1]
+        self.assertEqual(rec.db.content, "Boundary revised, quietly")
+
+    def _owned_parcel_helper(self):
+        from typeclasses.land import Parcel
+
+        for parcel in Parcel.objects.all():
+            if parcel.db.owner is self.char1:
+                return parcel
+        return None
+
+    def test_forge_survey_failure_is_an_incident(self):
+        from unittest.mock import patch
+
+        from world import records, tuning
+
+        self._parcel(kind="survey", owner=self.char1)
+        self.room1.db.visibility = 0
+        self.char1.db.exposure = 0
+        with patch("world.checks.opposed_check", return_value=False):
+            self.char1.execute_cmd("forge survey = Boundary revised, quietly")
+        self.assertEqual(self.char1.db.exposure, tuning.FORGE_FAIL_EXPOSURE)
+        incident_contents = [
+            r.db.content for r in records.records_for(self.char1, kind="incident")
+        ]
+        self.assertTrue(any("tampering" in c for c in incident_contents))
+
+    def test_forge_rejects_non_owner(self):
+        from typeclasses.land import Parcel
+        from world import records
+
+        self._parcel(kind="survey", owner=self.char2)
+        self.room1.db.visibility = 0
+        self.char1.execute_cmd("forge survey = Boundary revised, quietly")
+        # Char1 owns nothing, so the record on char2's parcel is untouched.
+        parcel = next(p for p in Parcel.objects.all() if p.db.owner is self.char2)
+        rec = records.records_for(parcel, kind="survey")[0]
+        self.assertEqual(rec.db.content, "Land survey: within projection.")
+
+    def test_forge_land_needs_a_dead_zone(self):
+        self._parcel(kind="survey", owner=self.char1)
+        self.room1.db.visibility = 3
+        self.char1.execute_cmd("forge survey = Boundary revised, quietly")
+        parcel = self._owned_parcel_helper()
+        from world import records
+
+        rec = records.records_for(parcel, kind="survey")[0]
+        self.assertEqual(rec.db.content, "Land survey: within projection.")
+
+    def test_petition_amend_survey_full_flow(self):
+        from world import functions, records, tuning
+
+        archivist = create.create_object(
+            "typeclasses.npcs.Citizen", key="the archivist", location=self.room1
+        )
+        archivist.tags.add("records_service", category="grid")
+        self._parcel(kind="survey", owner=self.char1)
+        self.char1.db.influence = {"Ministry of Records": tuning.AMEND_COST}
+        self.char1.execute_cmd("petition amend survey = Corrected boundary")
+        parcel = self._owned_parcel_helper()
+        rec = [
+            r
+            for r in records.records_for(parcel, kind="survey")
+            if not r.db.redacted
+        ][-1]
+        self.assertEqual(rec.db.content, "Corrected boundary")
+        self.assertEqual(
+            (self.char1.db.influence or {}).get("Ministry of Records"), 0
+        )
+
+    def test_petition_land_rejects_non_owner(self):
+        archivist = create.create_object(
+            "typeclasses.npcs.Citizen", key="the archivist", location=self.room1
+        )
+        archivist.tags.add("records_service", category="grid")
+        self._parcel(kind="allotment", owner=self.char2)
+        from world import tuning
+
+        self.char1.db.influence = {"Ministry of Records": tuning.AMEND_COST}
+        self.char1.execute_cmd("petition redact allotment")
+        from typeclasses.land import Parcel
+        from world import records
+
+        parcel = next(p for p in Parcel.objects.all() if p.db.owner is self.char2)
+        rec = records.records_for(parcel, kind="allotment")[0]
+        self.assertFalse(rec.db.redacted)
