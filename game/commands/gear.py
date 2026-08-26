@@ -170,7 +170,10 @@ class CmdBuy(Command):
         item.db.slot = slot
         item.db.gear_kind = kind
         item.db.desc = desc
-        if faction != tuning.UNDERGROUND:
+        # State issue vs. off-the-books used to follow GEAR_PRICES' faction;
+        # Credits (ADR 0023) dropped that, so this now reads the same
+        # distinction _stock_for already tracks: the underground-only shelf.
+        if key not in (vendor.db.stock_underground or []):
             records.add_record(
                 caller,
                 f"Issued: {name}",

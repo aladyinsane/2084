@@ -1766,11 +1766,16 @@ class TestVouching(EvenniaTest):
     def test_unvouch_standing_stake_is_a_no_op_on_the_ledger(self):
         from world import tuning, vouching
 
+        self.char1.db.standing = {"Ministry of Records": tuning.VOUCH_STAKE}
         self.char1.execute_cmd("vouch Char2 with standing")
         self.char1.execute_cmd("unvouch")
         self.assertIsNone(vouching.current(self.char1))
         self.assertNotIn(self.char1, vouching.backers_of(self.char2))
-        self.assertEqual((self.char1.db.standing or {}).get("Ministry of Records"), 0)
+        # Nothing was ever taken, so nothing changes on withdrawal either.
+        self.assertEqual(
+            (self.char1.db.standing or {}).get("Ministry of Records"),
+            tuning.VOUCH_STAKE,
+        )
 
     def test_confess_alone_does_not_forfeit_backers(self):
         from world import circles, tuning, vouching, watch
