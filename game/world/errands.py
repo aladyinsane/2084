@@ -229,15 +229,15 @@ def _complete(char, spec):
     from world import records
 
     amount = _REWARD_SIZES[spec["reward_size"]]()
-    char.gain_influence(spec["reward_faction"], amount)
+    char.gain_standing_and_credits(spec["reward_faction"], amount)
     char.db.errand = None
     key = next(k for k, s in ERRANDS.items() if s is spec)
     char.db.errands_done = done_list(char) + [key]
     char.msg(f"|w[Errand complete: {spec['title']}]|n\n{spec['done']}")
     char.msg(
         f"|=mStanding with {spec['reward_faction']}: "
-        f"{(char.db.influence or {}).get(spec['reward_faction'], 0)} "
-        f"(+{amount}).|n"
+        f"{(char.db.standing or {}).get(spec['reward_faction'], 0)} "
+        f"(+{amount}). Credits: {char.db.credits} (+{amount}).|n"
     )
     if spec.get("commendation"):
         records.add_record(
@@ -247,7 +247,7 @@ def _complete(char, spec):
             kind="observation",
         )
     # The completion itself is merit (v0.12) — checked here because the
-    # gain_influence above ran before errands_done was written.
+    # gain_standing_and_credits above ran before errands_done was written.
     from world import grades
 
     grades.check_reclassification(char)

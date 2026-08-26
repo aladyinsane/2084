@@ -83,8 +83,9 @@ class CmdSabotage(Command):
             )
         caller.msg(
             f"|=mSabotage {caller.skill('sabotage')}. The underground "
-            f"credits you {pay}: standing with {tuning.UNDERGROUND} "
-            f"{(caller.db.influence or {}).get(tuning.UNDERGROUND, 0)}.|n"
+            f"pays you {pay}: standing with {tuning.UNDERGROUND} "
+            f"{(caller.db.standing or {}).get(tuning.UNDERGROUND, 0)}, "
+            f"credits {caller.db.credits or 0}.|n"
         )
         from world import circle_projects, propaganda
 
@@ -145,7 +146,7 @@ class CmdCarry(Command):
                 "|=mTake one with |ccarry <tier>|n|=m. Deliver with "
                 "|cdeliver|n|=m at the drop. Don't get checked.|n"
             )
-            standing = (caller.db.influence or {}).get(tuning.UNDERGROUND, 0)
+            standing = (caller.db.standing or {}).get(tuning.UNDERGROUND, 0)
             lines.append(
                 f"|=mThe right people put you at {standing}. No ledger "
                 "says so, which is the point.|n"
@@ -201,8 +202,8 @@ class CmdDeliver(Command):
         caller.msg(
             f"|=mCouriering {caller.skill('couriering')}. Standing with "
             f"{tuning.UNDERGROUND} "
-            f"{(caller.db.influence or {}).get(tuning.UNDERGROUND, 0)} "
-            f"(+{total}).|n"
+            f"{(caller.db.standing or {}).get(tuning.UNDERGROUND, 0)} "
+            f"(+{total}). Credits: {caller.db.credits or 0} (+{total}).|n"
         )
 
 
@@ -255,7 +256,7 @@ class CmdPapers(Command):
 
     The underground's other trade: for those who have run enough errands,
     a fresh set of papers that make you, briefly, a much less interesting
-    person. Bought from the broker, priced in the standing you earned.
+    person. Bought from the broker, priced in the credits you earned.
     """
 
     key = "papers"

@@ -21,9 +21,11 @@ class Character(ObjectParent, DefaultCharacter):
     A citizen of the Grid.
 
     There is no race and no class, by decision (ADR 0002): a character is
-    skills (rise by use), standing (granted and revoked by institutions),
-    influence (a per-faction spendable ledger) and exposure (how visible you
-    currently are to the state — the number where down is good, ADR 0003).
+    skills (rise by use), standing (a per-faction trust ledger, earned only —
+    ADR 0023), credits (a single fungible spendable pool, ADR 0023),
+    civic status (the function/clearance the regime stamps on you) and
+    exposure (how visible you currently are to the state — the number where
+    down is good, ADR 0003).
     """
 
     exposure = AttributeProperty(0)
@@ -31,8 +33,9 @@ class Character(ObjectParent, DefaultCharacter):
     def at_object_creation(self):
         super().at_object_creation()
         self.db.skills = {}
-        self.db.influence = {}
         self.db.standing = {}
+        self.db.credits = 0
+        self.db.civic_status = {}
 
     def gain_exposure(self, amount):
         """Adjust exposure (negative allowed), clamped to [0, EXPOSURE_MAX]."""
@@ -52,29 +55,58 @@ class Character(ObjectParent, DefaultCharacter):
     def skill(self, name):
         return (self.db.skills or {}).get(name, 0)
 
-    def gain_influence(self, faction, amount):
-        influence = self.db.influence or {}
-        influence[faction] = influence.get(faction, 0) + amount
-        self.db.influence = influence
+    def gain_standing(self, faction, amount):
+        """
+        Trust only (ADR 0023): earned, never spent. Feeds the citizen grade
+        (sanctioned factions only, per grades.merit) — checked here, the
+        one choke point every Standing gain passes through.
+        """
+        standing = self.db.standing or {}
+        standing[faction] = standing.get(faction, 0) + amount
+        self.db.standing = standing
         if amount > 0:
-            # Lifetime earnings feed the citizen grade (v0.12) — tracked
-            # apart from the spendable balance so spending never demotes.
-            earned = self.db.influence_earned or {}
-            earned[faction] = earned.get(faction, 0) + amount
-            self.db.influence_earned = earned
             from world import grades
 
             grades.check_reclassification(self)
-        return influence[faction]
+        return standing[faction]
 
-    def spend_influence(self, faction, amount):
-        """Spend standing; returns False (untouched) if there isn't enough."""
-        influence = self.db.influence or {}
-        if influence.get(faction, 0) < amount:
+    def gain_credits(self, amount):
+        """Credits only (ADR 0023): the single fungible spendable pool."""
+        self.db.credits = (self.db.credits or 0) + amount
+        return self.db.credits
+
+    def gain_standing_and_credits(self, faction, amount):
+        """
+        The v1 default earn path (ADR 0023): every action that used to pay
+        `gain_influence` now pays the same amount into both ledgers — no
+        rebalance, a structural split only. Returns the new Standing total
+        with that faction (what callers displayed before).
+        """
+        self.gain_credits(amount)
+        return self.gain_standing(faction, amount)
+
+    def spend_credits(self, amount):
+        """Spend Credits; returns False (untouched) if there isn't enough."""
+        if (self.db.credits or 0) < amount:
             return False
-        influence[faction] -= amount
-        self.db.influence = influence
+        self.db.credits -= amount
         return True
+
+    def forfeit_standing(self, faction, amount):
+        """
+        A real, permanent trust loss — not spending. The one place Standing
+        moves down: a vouch staked as Standing (ADR 0023), forfeited by the
+        backed citizen's own Section C confession. Floors at 0, and — unlike
+        every other Standing change — is allowed to demote the citizen
+        grade, a deliberate exception to "spending never demotes you."
+        """
+        standing = self.db.standing or {}
+        standing[faction] = max(0, standing.get(faction, 0) - amount)
+        self.db.standing = standing
+        from world import grades
+
+        grades.check_reclassification(self)
+        return standing[faction]
 
     def get_prompt(self):
         # The trend-telegraph promised by principle 3: the player always sees

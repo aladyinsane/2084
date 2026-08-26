@@ -346,9 +346,10 @@ class TestCivic(EvenniaTest):
         self.char1.execute_cmd("work")
         self.assertEqual(self.char1.skill("clerking"), 1)
         self.assertEqual(
-            (self.char1.db.influence or {}).get("Ministry of Records"),
+            (self.char1.db.standing or {}).get("Ministry of Records"),
             tuning.WORK_INFLUENCE,
         )
+        self.assertEqual(self.char1.db.credits, tuning.WORK_INFLUENCE)
         self.assertEqual(
             self.char1.db.exposure, 10 - tuning.WORK_EXPOSURE_RELIEF
         )
@@ -383,23 +384,21 @@ class TestCivic(EvenniaTest):
 
         self._archivist()
         watch.add_record_note(self.char1, "DETAINED: test")
-        self.char1.db.influence = {"Ministry of Records": tuning.AMEND_COST}
+        self.char1.db.credits = tuning.AMEND_COST
         self.char1.db.exposure = 0
         self.char1.execute_cmd("petition amend 1 = Attended a records seminar")
         rec = records.incident_by_number(self.char1, 1)
         self.assertEqual(rec.db.content, "Attended a records seminar")
         self.assertEqual(rec.db.audit[-1]["content"], "DETAINED: test")
-        self.assertEqual(
-            (self.char1.db.influence or {}).get("Ministry of Records"), 0
-        )
+        self.assertEqual(self.char1.db.credits, 0)
         self.assertEqual(self.char1.db.exposure, tuning.SERVICE_EXPOSURE)
 
-    def test_petition_refused_without_standing(self):
+    def test_petition_refused_without_credits(self):
         from world import records, watch
 
         self._archivist()
         watch.add_record_note(self.char1, "DETAINED: test")
-        self.char1.db.influence = {}
+        self.char1.db.credits = 0
         self.char1.execute_cmd("petition redact 1")
         self.assertFalse(records.incident_by_number(self.char1, 1).db.redacted)
 
@@ -592,7 +591,7 @@ class TestStandingAndPaperwork(EvenniaTest):
         key, spec = functions.current_function(self.char1)
         self.assertEqual(key, "auditor")
         self.assertEqual(
-            (self.char1.db.standing or {}).get("function"),
+            (self.char1.db.civic_status or {}).get("function"),
             "Auditor, Order Section",
         )
         # The unremarkable become stewards.
@@ -608,14 +607,14 @@ class TestStandingAndPaperwork(EvenniaTest):
         functions.assign_function(self.char1)
         # Auditor's post is any room with a device: room1 has none yet.
         self.char1.execute_cmd("work")
-        self.assertFalse((self.char1.db.influence or {}).get("Ministry of Order"))
+        self.assertFalse((self.char1.db.standing or {}).get("Ministry of Order"))
         create.create_object(
             "typeclasses.objects.Sensor", key="a lens", location=self.room1
         )
         self.char1.db.last_work = 0
         self.char1.execute_cmd("work")
         self.assertEqual(
-            (self.char1.db.influence or {}).get("Ministry of Order"),
+            (self.char1.db.standing or {}).get("Ministry of Order"),
             tuning.FUNCTION_WORK_INFLUENCE,
         )
 
@@ -634,7 +633,7 @@ class TestStandingAndPaperwork(EvenniaTest):
         key, _ = functions.current_function(self.char1)
         self.assertIsNone(key)
         self.assertIn(
-            "suspended", (self.char1.db.standing or {}).get("function", "")
+            "suspended", (self.char1.db.civic_status or {}).get("function", "")
         )
 
     def test_clearance_lock_gates_exit(self):
@@ -644,7 +643,7 @@ class TestStandingAndPaperwork(EvenniaTest):
         self.exit.db.err_traverse = "Turned away."
         self.char1.execute_cmd(self.exit.key)
         self.assertEqual(self.char1.location, self.room1)  # blocked
-        self.char1.db.standing = {"clearance": "C-1"}
+        self.char1.db.civic_status = {"clearance": "C-1"}
         self.char1.execute_cmd(self.exit.key)
         self.assertEqual(self.char1.location, self.room2)  # admitted
 
@@ -686,15 +685,13 @@ class TestStandingAndPaperwork(EvenniaTest):
         )
         archivist.tags.add("records_service", category="grid")
         functions.assign_function(self.char1)
-        self.char1.db.influence = {"Ministry of Records": tuning.CLEARANCE_FEE}
+        self.char1.db.credits = tuning.CLEARANCE_FEE
         self.char1.execute_cmd("apply")   # menu: start
         self.char1.execute_cmd("1")       # take up the pen
         self.char1.execute_cmd("1")       # purpose: to better serve
         self.char1.execute_cmd("1")       # affirm and submit
         self.assertEqual(functions.clearance_level(self.char1), 1)
-        self.assertEqual(
-            (self.char1.db.influence or {}).get("Ministry of Records"), 0
-        )
+        self.assertEqual(self.char1.db.credits, 0)
         outcomes = [
             r.db.content
             for r in records.records_for(self.char1, kind="observation")
@@ -1013,15 +1010,13 @@ class TestTrust(EvenniaTest):
 
         npc = self._informant("ministry")
         self.char1.db.skills = {"observation": tuning.OBSERVE_TIER_DETAIL}
-        self.char1.db.influence = {}
+        self.char1.db.credits = 0
         self.char1.execute_cmd("flip tea vendor")
         self.assertEqual(npc.db.loyalty, "ministry")  # can't afford it
-        self.char1.db.influence = {"Ministry of Commerce": tuning.FLIP_COST}
+        self.char1.db.credits = tuning.FLIP_COST
         self.char1.execute_cmd("flip tea vendor")
         self.assertEqual(npc.db.loyalty, "street")
-        self.assertEqual(
-            (self.char1.db.influence or {}).get("Ministry of Commerce"), 0
-        )
+        self.assertEqual(self.char1.db.credits, 0)
 
     # --- assemblies ---------------------------------------------------------
 
@@ -1404,7 +1399,7 @@ class TestOnboarding(EvenniaTest):
 
         self._archivist()
         rec = records.add_record(self.char1, "A minor infraction.")
-        self.char1.db.influence = {"Ministry of Records": tuning.REDACT_COST}
+        self.char1.db.credits = tuning.REDACT_COST
         first = self._sent(f"petition redact {rec.db.number}")
         self.assertIn("sanctioned route", first)
 
@@ -1421,11 +1416,11 @@ class TestOnboarding(EvenniaTest):
     def test_vouch_and_unvouch_acknowledge_first_use(self):
         from world import tuning
 
-        self.char1.db.influence = {"Ministry of Records": tuning.VOUCH_STAKE}
+        self.char1.db.credits = tuning.VOUCH_STAKE
         first = self._sent(f"vouch {self.char2.key}")
         self.assertIn("character reference, quietly filed", first)
         second = self._sent("unvouch")
-        self.assertIn("taken back, standing returned in full", second)
+        self.assertIn("taken back, whatever you staked returned in full", second)
 
     def test_list_and_buy_acknowledge_first_use(self):
         vendor = create.create_object(
@@ -1436,7 +1431,7 @@ class TestOnboarding(EvenniaTest):
         vendor.db.stock = ["badge"]
         first = self._sent("list")
         self.assertIn("what's for sale", first.lower())
-        self.char1.db.influence = {"Ministry of Records": 10}
+        self.char1.db.credits = 10
         second = self._sent("buy badge")
         self.assertIn("want-ladder has a first rung", second)
 
@@ -1685,8 +1680,9 @@ class TestCircleProjects(EvenniaTest):
         share = tuning.PROJECT_PAYOUT // 2
         for member in (self.char1, self.char2):
             self.assertEqual(
-                (member.db.influence or {}).get(tuning.UNDERGROUND), share
+                (member.db.standing or {}).get(tuning.UNDERGROUND), share
             )
+            self.assertEqual(member.db.credits, share)
 
     def test_completed_confession_forfeits_the_project(self):
         from world import circle_projects, watch
@@ -1716,27 +1712,34 @@ class TestVouching(EvenniaTest):
     """ADR 0014: a small, sanctioned stake on someone else's name."""
 
     def _fund(self, char, amount):
-        char.gain_influence("Ministry of Records", amount)
+        char.gain_credits(amount)
 
     def test_vouch_costs_the_stake_and_is_one_at_a_time(self):
         from world import tuning, vouching
 
         self._fund(self.char1, tuning.VOUCH_STAKE)
         self.char1.execute_cmd("vouch Char2")
-        self.assertEqual(
-            (self.char1.db.influence or {}).get("Ministry of Records"), 0
-        )
+        self.assertEqual(self.char1.db.credits, 0)
         self.assertEqual(vouching.current(self.char1)["target"], self.char2)
         self.assertIn(self.char1, vouching.backers_of(self.char2))
         # Already vouching for someone: refused, no second stake taken.
         self._fund(self.char1, tuning.VOUCH_STAKE)
         self.char1.execute_cmd("vouch Char2")
+        self.assertEqual(self.char1.db.credits, tuning.VOUCH_STAKE)
+
+    def test_vouch_with_standing_takes_nothing_up_front(self):
+        from world import tuning, vouching
+
+        self.char1.db.standing = {"Ministry of Records": tuning.VOUCH_STAKE}
+        self.char1.execute_cmd("vouch Char2 with standing")
         self.assertEqual(
-            (self.char1.db.influence or {}).get("Ministry of Records"),
+            (self.char1.db.standing or {}).get("Ministry of Records"),
             tuning.VOUCH_STAKE,
         )
+        self.assertEqual(vouching.current(self.char1)["resource"], "standing")
+        self.assertEqual(vouching.current(self.char1)["target"], self.char2)
 
-    def test_vouch_refuses_without_the_standing(self):
+    def test_vouch_refuses_without_credits(self):
         from world import vouching
 
         self.char1.execute_cmd("vouch Char2")
@@ -1746,11 +1749,11 @@ class TestVouching(EvenniaTest):
         from world import tuning, vouching
 
         self._fund(self.char1, tuning.VOUCH_STAKE)
-        err = vouching.vouch(self.char1, self.char1)
+        err = vouching.vouch(self.char1, self.char1, "credits")
         self.assertIsNotNone(err)
         self.assertIsNone(vouching.current(self.char1))
 
-    def test_unvouch_returns_the_stake_in_full(self):
+    def test_unvouch_returns_the_credits_stake_in_full(self):
         from world import tuning, vouching
 
         self._fund(self.char1, tuning.VOUCH_STAKE)
@@ -1758,10 +1761,16 @@ class TestVouching(EvenniaTest):
         self.char1.execute_cmd("unvouch")
         self.assertIsNone(vouching.current(self.char1))
         self.assertNotIn(self.char1, vouching.backers_of(self.char2))
-        self.assertEqual(
-            (self.char1.db.influence or {}).get("Ministry of Records"),
-            tuning.VOUCH_STAKE,
-        )
+        self.assertEqual(self.char1.db.credits, tuning.VOUCH_STAKE)
+
+    def test_unvouch_standing_stake_is_a_no_op_on_the_ledger(self):
+        from world import tuning, vouching
+
+        self.char1.execute_cmd("vouch Char2 with standing")
+        self.char1.execute_cmd("unvouch")
+        self.assertIsNone(vouching.current(self.char1))
+        self.assertNotIn(self.char1, vouching.backers_of(self.char2))
+        self.assertEqual((self.char1.db.standing or {}).get("Ministry of Records"), 0)
 
     def test_confess_alone_does_not_forfeit_backers(self):
         from world import circles, tuning, vouching, watch
@@ -1807,6 +1816,34 @@ class TestVouching(EvenniaTest):
         self.assertIsNone(vouching.current(self.char2))
         self.assertEqual(vouching.backers_of(self.char1), [])
 
+    def test_confess_names_forfeits_a_standing_stake_and_can_demote_grade(self):
+        from world import circles, grades, tuning, watch
+
+        self.assertGreater(tuning.GRADE_THRESHOLDS[5], tuning.VOUCH_STAKE)
+        cell = create.create_object(
+            "typeclasses.rooms.Room", key="Holding Cell (test)"
+        )
+        cell.tags.add("holding_cell", category="grid")
+        self.room1.tags.add("release_point", category="grid")
+        slug, err = circles.form(self.char1, "redbird")
+        self.assertIsNone(err)
+        # Just enough standing to hold Grade 5.
+        self.char2.db.standing = {"Ministry of Records": tuning.GRADE_THRESHOLDS[5]}
+        grades.check_reclassification(self.char2)
+        self.assertEqual(grades.grade_of(self.char2), 5)
+        self.char2.execute_cmd("vouch Char with standing")
+        self.char1.db.exposure = 60
+        watch.detain(self.char1)
+        self.char1.execute_cmd("confess names")
+        remaining = tuning.GRADE_THRESHOLDS[5] - tuning.VOUCH_STAKE
+        self.assertEqual(
+            (self.char2.db.standing or {}).get("Ministry of Records"), remaining
+        )
+        # Forfeiture, unlike spending, is allowed to demote -- the standing
+        # was never spent, it was staked and lost to someone else's
+        # betrayal.
+        self.assertEqual(grades.grade_of(self.char2), grades.GRADE_MIN)
+
     def test_backer_offsets_one_incident_at_form_c1(self):
         from world import functions, vouching, watch
 
@@ -1818,7 +1855,13 @@ class TestVouching(EvenniaTest):
         self.assertFalse(approved)
         self.assertIn("references", reason)
         # The same file, backed: tolerated.
-        self.char2.db.vouch = {"target": self.char1, "amount": 1, "started": 0}
+        self.char2.db.vouch = {
+            "target": self.char1,
+            "resource": "credits",
+            "faction": "Ministry of Records",
+            "amount": 1,
+            "started": 0,
+        }
         self.char1.db.vouched_by = [self.char2]
         self.assertTrue(vouching.has_backers(self.char1))
         approved, _ = functions.adjudicate_c1(self.char1)
@@ -1848,15 +1891,14 @@ class TestGear(EvenniaTest):
         item.db.worn = worn
         return item
 
-    def test_buy_costs_standing_and_state_issue_is_recorded(self):
+    def test_buy_costs_credits_and_state_issue_is_recorded(self):
         from world import records, tuning
 
         self._vendor()
-        self.char1.db.influence = {"Ministry of Records": 10}
+        self.char1.db.credits = 10
         self.char1.execute_cmd("buy badge")
         self.assertEqual(
-            (self.char1.db.influence or {}).get("Ministry of Records"),
-            10 - tuning.GEAR_PRICES["badge"][1],
+            self.char1.db.credits, 10 - tuning.GEAR_PRICES["badge"]
         )
         self.assertTrue(
             any(
@@ -1865,7 +1907,7 @@ class TestGear(EvenniaTest):
             )
         )
         # No spares.
-        self.char1.db.influence = {"Ministry of Records": 10}
+        self.char1.db.credits = 10
         self.char1.execute_cmd("buy badge")
         badges = [
             o for o in self.char1.contents if o.db.gear_kind == "badge"
@@ -1879,7 +1921,7 @@ class TestGear(EvenniaTest):
         from commands.gear import _stock_for
 
         self.assertEqual(_stock_for(vendor, self.char1), [])
-        self.char1.db.influence = {tuning.UNDERGROUND: 1}
+        self.char1.db.standing = {tuning.UNDERGROUND: 1}
         self.assertEqual(_stock_for(vendor, self.char1), ["pocket"])
 
     def test_one_item_per_slot(self):
@@ -1895,7 +1937,7 @@ class TestGear(EvenniaTest):
         self.room1.tags.add("workplace", category="grid")
         self.char1.execute_cmd("work")
         self.assertEqual(
-            (self.char1.db.influence or {}).get("Ministry of Records"),
+            (self.char1.db.standing or {}).get("Ministry of Records"),
             tuning.WORK_INFLUENCE + tuning.BADGE_WORK_BONUS,
         )
         # And it identifies you in watched rooms.
@@ -1991,7 +2033,7 @@ class TestErrands(EvenniaTest):
             self.char1.move_to(room)
         self.assertIsNone(errands.current(self.char1))
         self.assertEqual(
-            (self.char1.db.influence or {}).get("Ministry of Records"),
+            (self.char1.db.standing or {}).get("Ministry of Records"),
             tuning.ERRAND_REWARD_SMALL,
         )
 
@@ -2059,7 +2101,7 @@ class TestErrands(EvenniaTest):
             underground.deliver(self.char1)
         self.assertIsNone(errands.current(self.char1))
         self.assertGreater(
-            (self.char1.db.influence or {}).get(tuning.UNDERGROUND, 0),
+            (self.char1.db.standing or {}).get(tuning.UNDERGROUND, 0),
             0,
         )
 
@@ -2278,7 +2320,11 @@ class TestTheGrind(EvenniaTest):
         self.assertEqual(self.char1.skill("sabotage"), 1)
         # Room went fully dark: base pay + dark bonus.
         self.assertEqual(
-            (self.char1.db.influence or {}).get(tuning.UNDERGROUND),
+            (self.char1.db.standing or {}).get(tuning.UNDERGROUND),
+            tuning.SABOTAGE_INFLUENCE + tuning.SABOTAGE_DARK_BONUS,
+        )
+        self.assertEqual(
+            self.char1.db.credits,
             tuning.SABOTAGE_INFLUENCE + tuning.SABOTAGE_DARK_BONUS,
         )
 
@@ -2357,8 +2403,9 @@ class TestTheGrind(EvenniaTest):
         self.assertIsNone(underground.current_job(self.char1))
         self.assertEqual(len(underground.carried_parcels(self.char1)), 0)
         self.assertEqual(
-            (self.char1.db.influence or {}).get(tuning.UNDERGROUND), pay
+            (self.char1.db.standing or {}).get(tuning.UNDERGROUND), pay
         )
+        self.assertEqual(self.char1.db.credits, pay)
         self.assertEqual(self.char1.skill("couriering"), 1)
 
     def test_papers_check_seizes_contraband(self):
@@ -2473,7 +2520,7 @@ class TestTheGrind(EvenniaTest):
         from world import tuning
 
         self.char1.db.skills = {"clerking": 3, "sabotage": 5, "forgery": 2}
-        self.char1.db.influence = {
+        self.char1.db.standing = {
             "Ministry of Records": 4,
             tuning.UNDERGROUND: 14,
         }
@@ -2498,14 +2545,12 @@ class TestTheGrind(EvenniaTest):
         self.char1.db.exposure = 40
         self.char1.execute_cmd("papers")  # can't afford it yet
         self.assertEqual(self.char1.db.exposure, 40)
-        self.char1.db.influence = {tuning.UNDERGROUND: tuning.PAPERS_COST}
+        self.char1.db.credits = tuning.PAPERS_COST
         self.char1.execute_cmd("papers")
         self.assertEqual(
             self.char1.db.exposure, 40 - tuning.PAPERS_RELIEF
         )
-        self.assertEqual(
-            (self.char1.db.influence or {}).get(tuning.UNDERGROUND), 0
-        )
+        self.assertEqual(self.char1.db.credits, 0)
 
     # --- the shadow ladder (ADR 0009) ----------------------------------------
 
@@ -2522,13 +2567,13 @@ class TestTheGrind(EvenniaTest):
     def test_shadow_standing_names_tiers_and_the_gap(self):
         from world import tuning, underground
 
-        self.char1.db.influence = {tuning.UNDERGROUND: 0}
+        self.char1.db.standing = {tuning.UNDERGROUND: 0}
         standing, tier, next_tier, threshold = underground.shadow_standing(self.char1)
         self.assertEqual(tier, "a face nobody's placed yet")
         self.assertEqual(next_tier, "a runner")
         self.assertEqual(threshold, 5)
 
-        self.char1.db.influence = {tuning.UNDERGROUND: 45}
+        self.char1.db.standing = {tuning.UNDERGROUND: 45}
         standing, tier, next_tier, threshold = underground.shadow_standing(self.char1)
         self.assertEqual(tier, "one of the old hands")
         self.assertIsNone(next_tier)
@@ -2545,7 +2590,7 @@ class TestTheGrind(EvenniaTest):
         from world import tuning
 
         self.room1.db.visibility = 0
-        self.char1.db.influence = {tuning.UNDERGROUND: 7}
+        self.char1.db.standing = {tuning.UNDERGROUND: 7}
         text = self._capture(self.char1, "word")
         self.assertIn("a runner", text)
         self.assertIn("reliable", text)
@@ -2600,21 +2645,21 @@ class TestGrades(EvenniaTest):
         self.assertTrue(self.char1.db.oriented)
         self.assertEqual(grades.grade_of(self.char1), 5)
 
-    def test_sanctioned_influence_is_merit_but_underground_is_not(self):
+    def test_sanctioned_standing_is_merit_but_underground_is_not(self):
         from world import grades
 
-        self.char1.gain_influence("Ministry of Records", 10)
+        self.char1.gain_standing_and_credits("Ministry of Records", 10)
         self.assertEqual(grades.merit(self.char1), 10)
-        self.char1.gain_influence(tuning.UNDERGROUND, 50)
+        self.char1.gain_standing_and_credits(tuning.UNDERGROUND, 50)
         # The Grid ranks what the Grid can see.
         self.assertEqual(grades.merit(self.char1), 10)
 
-    def test_spending_never_demotes(self):
+    def test_spending_credits_never_demotes(self):
         from world import grades
 
-        self.char1.gain_influence("Ministry of Records", 20)
+        self.char1.gain_standing_and_credits("Ministry of Records", 20)
         grade_before = grades.grade_of(self.char1)
-        self.char1.spend_influence("Ministry of Records", 18)
+        self.char1.spend_credits(18)
         self.assertEqual(grades.merit(self.char1), 20)
         self.assertEqual(grades.grade_of(self.char1), grade_before)
 
@@ -2630,7 +2675,7 @@ class TestGrades(EvenniaTest):
     def test_function_suspension_demotes(self):
         from world import functions, grades
 
-        self.char1.gain_influence("Ministry of Records", 12)
+        self.char1.gain_standing_and_credits("Ministry of Records", 12)
         functions.assign_function(self.char1)
         self.assertEqual(grades.grade_of(self.char1), 4)  # 12 + 5 = 17
         functions.suspend_function(self.char1)
@@ -2938,12 +2983,10 @@ class TestRecordCompaction(EvenniaTest):
         self._old_incident(self.char1, "Papers checked in the street; cleared.", "papers_check")
         self._old_incident(self.char1, "Papers checked in the street; cleared.", "papers_check")
         records.compact_incidents(self.char1)
-        self.char1.db.influence = {"Ministry of Records": tuning.REDACT_COST}
+        self.char1.db.credits = tuning.REDACT_COST
         self.char1.execute_cmd("petition redact papers-checks")
         self.assertEqual(records.summary_for(self.char1, "papers_check"), (2, 1))
-        self.assertEqual(
-            (self.char1.db.influence or {}).get("Ministry of Records"), 0
-        )
+        self.assertEqual(self.char1.db.credits, 0)
 
     def test_petition_amend_refuses_a_keyword_target(self):
         from world import records
@@ -3000,9 +3043,9 @@ class TestArchaeology(EvenniaTest):
 
     def test_research_requires_the_archivist(self):
         self.char1.move_to(self.room2)
-        self.char1.db.influence = {}
+        self.char1.db.standing = {}
         self.char1.execute_cmd("research")
-        self.assertFalse((self.char1.db.influence or {}).get("Ministry of Records"))
+        self.assertFalse((self.char1.db.standing or {}).get("Ministry of Records"))
 
     def test_research_pays_costs_and_teaches_clerking(self):
         from unittest.mock import patch
@@ -3014,7 +3057,7 @@ class TestArchaeology(EvenniaTest):
             archaeology.research(self.char1)
         self.assertEqual(self.char1.skill("clerking"), 1)
         self.assertEqual(
-            (self.char1.db.influence or {}).get("Ministry of Records"),
+            (self.char1.db.standing or {}).get("Ministry of Records"),
             tuning.RESEARCH_INFLUENCE,
         )
         self.assertEqual(self.char1.db.exposure, tuning.RESEARCH_EXPOSURE)
@@ -3046,7 +3089,7 @@ class TestArchaeology(EvenniaTest):
                 archaeology.research(self.char1)
         self.assertIsNone(self.char1.db.archaeology_case)
         self.assertEqual(
-            (self.char1.db.influence or {}).get(tuning.UNDERGROUND),
+            (self.char1.db.standing or {}).get(tuning.UNDERGROUND),
             tuning.CASE_COMPLETION_PAYOUT,
         )
 
@@ -3076,7 +3119,7 @@ class TestArchaeology(EvenniaTest):
                 archaeology.research(self.char1)
         self.assertIn(key, self.char1.db.archaeology_solved)
         self.assertEqual(
-            (self.char1.db.influence or {}).get(tuning.UNDERGROUND),
+            (self.char1.db.standing or {}).get(tuning.UNDERGROUND),
             tuning.NAMED_CASE_PAYOUT,
         )
         self.assertNotIn(key, self.char1.db.archaeology_named or {})
@@ -3219,7 +3262,7 @@ class TestUpperSpire(EvenniaTest):
     def test_adjudicate_c2_requires_c1_first(self):
         from world import functions
 
-        self.char1.db.standing = {}
+        self.char1.db.civic_status = {}
         approved, reason = functions.adjudicate_c2(self.char1)
         self.assertFalse(approved)
         self.assertIn("C-1", reason)
@@ -3227,7 +3270,7 @@ class TestUpperSpire(EvenniaTest):
     def test_adjudicate_c2_rejects_already_holding_c2(self):
         from world import functions
 
-        self.char1.db.standing = {"clearance": "C-2"}
+        self.char1.db.civic_status = {"clearance": "C-2"}
         approved, reason = functions.adjudicate_c2(self.char1)
         self.assertFalse(approved)
         self.assertIn("already holds", reason)
@@ -3235,7 +3278,7 @@ class TestUpperSpire(EvenniaTest):
     def test_adjudicate_c2_tighter_incident_bar_than_c1(self):
         from world import functions, watch
 
-        self.char1.db.standing = {"clearance": "C-1"}
+        self.char1.db.civic_status = {"clearance": "C-1"}
         functions.assign_function(self.char1)
         # C-1's own bar tolerates one visible incident (tuning.CLEARANCE_
         # MAX_INCIDENTS == 1); C-2's bar (== 0) does not.
@@ -3247,7 +3290,7 @@ class TestUpperSpire(EvenniaTest):
     def test_adjudicate_c2_approves_clean_c1_holder_with_function(self):
         from world import functions
 
-        self.char1.db.standing = {"clearance": "C-1"}
+        self.char1.db.civic_status = {"clearance": "C-1"}
         functions.assign_function(self.char1)
         approved, _ = functions.adjudicate_c2(self.char1)
         self.assertTrue(approved)
@@ -3255,7 +3298,7 @@ class TestUpperSpire(EvenniaTest):
     def test_grant_c2_sets_clearance_and_taxes_exposure(self):
         from world import functions, tuning
 
-        self.char1.db.standing = {"clearance": "C-1"}
+        self.char1.db.civic_status = {"clearance": "C-1"}
         self.char1.db.exposure = 0
         functions.grant_c2(self.char1)
         self.assertEqual(functions.clearance_level(self.char1), 2)
@@ -3270,12 +3313,12 @@ class TestUpperSpire(EvenniaTest):
             "typeclasses.npcs.Citizen", key="the archivist", location=self.room1
         )
         archivist.tags.add("records_service", category="grid")
-        # Order matters: assign_function reads-merges-writes db.standing, so
-        # setting clearance first (not after) keeps both keys instead of
+        # Order matters: assign_function reads-merges-writes db.civic_status,
+        # so setting clearance first (not after) keeps both keys instead of
         # the second assignment wiping out function_key.
-        self.char1.db.standing = {"clearance": "C-1"}
+        self.char1.db.civic_status = {"clearance": "C-1"}
         functions.assign_function(self.char1)
-        self.char1.db.influence = {"Ministry of Records": tuning.CLEARANCE_FEE}
+        self.char1.db.credits = tuning.CLEARANCE_FEE
         self.char1.execute_cmd("apply")  # menu: start
         self.char1.execute_cmd("1")  # take up the pen
         self.char1.execute_cmd("1")  # purpose: service
@@ -3294,7 +3337,7 @@ class TestUpperSpire(EvenniaTest):
             "typeclasses.npcs.Citizen", key="the archivist", location=self.room1
         )
         archivist.tags.add("records_service", category="grid")
-        self.char1.db.standing = {"clearance": "C-2"}
+        self.char1.db.civic_status = {"clearance": "C-2"}
         seen = []
         old = self.char1.msg
         self.char1.msg = lambda text=None, **kw: seen.append(str(text))
@@ -3307,10 +3350,10 @@ class TestUpperSpire(EvenniaTest):
     def test_c2_gate_requires_clearance_two(self):
         self.exit.locks.add("traverse:clearance(2)")
         self.exit.db.err_traverse = "Turned away."
-        self.char1.db.standing = {"clearance": "C-1"}
+        self.char1.db.civic_status = {"clearance": "C-1"}
         self.char1.execute_cmd(self.exit.key)
         self.assertEqual(self.char1.location, self.room1)  # blocked at C-1
-        self.char1.db.standing = {"clearance": "C-2"}
+        self.char1.db.civic_status = {"clearance": "C-2"}
         self.char1.execute_cmd(self.exit.key)
         self.assertEqual(self.char1.location, self.room2)  # admitted at C-2
 
@@ -3370,10 +3413,10 @@ class TestOutsideTheGrid(EvenniaTest):
             f"traverse:shadow_standing({tuning.OUTSIDE_GRID_ENTRY_STANDING})"
         )
         self.exit.db.err_traverse = "Turned away."
-        self.char1.db.influence = {tuning.UNDERGROUND: tuning.OUTSIDE_GRID_ENTRY_STANDING - 1}
+        self.char1.db.standing = {tuning.UNDERGROUND: tuning.OUTSIDE_GRID_ENTRY_STANDING - 1}
         self.char1.execute_cmd(self.exit.key)
         self.assertEqual(self.char1.location, self.room1)  # blocked below
-        self.char1.db.influence = {tuning.UNDERGROUND: tuning.OUTSIDE_GRID_ENTRY_STANDING}
+        self.char1.db.standing = {tuning.UNDERGROUND: tuning.OUTSIDE_GRID_ENTRY_STANDING}
         self.char1.execute_cmd(self.exit.key)
         self.assertEqual(self.char1.location, self.room2)  # admitted at threshold
 
@@ -3456,7 +3499,7 @@ class TestOutsideTheGrid(EvenniaTest):
         )
         archivist.tags.add("records_service", category="grid")
         self._parcel(kind="survey", owner=self.char1)
-        self.char1.db.influence = {"Ministry of Records": tuning.AMEND_COST}
+        self.char1.db.credits = tuning.AMEND_COST
         self.char1.execute_cmd("petition amend survey = Corrected boundary")
         parcel = self._owned_parcel_helper()
         rec = [
@@ -3465,9 +3508,7 @@ class TestOutsideTheGrid(EvenniaTest):
             if not r.db.redacted
         ][-1]
         self.assertEqual(rec.db.content, "Corrected boundary")
-        self.assertEqual(
-            (self.char1.db.influence or {}).get("Ministry of Records"), 0
-        )
+        self.assertEqual(self.char1.db.credits, 0)
 
     def test_petition_land_rejects_non_owner(self):
         archivist = create.create_object(
@@ -3477,7 +3518,7 @@ class TestOutsideTheGrid(EvenniaTest):
         self._parcel(kind="allotment", owner=self.char2)
         from world import tuning
 
-        self.char1.db.influence = {"Ministry of Records": tuning.AMEND_COST}
+        self.char1.db.credits = tuning.AMEND_COST
         self.char1.execute_cmd("petition redact allotment")
         from typeclasses.land import Parcel
         from world import records

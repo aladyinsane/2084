@@ -85,7 +85,7 @@ def deliver(char):
     char.db.courier_job = None
     jackpot = random.random() < tuning.COURIER_JACKPOT_CHANCE
     total = pay + (tuning.COURIER_JACKPOT_BONUS if jackpot else 0)
-    char.gain_influence(tuning.UNDERGROUND, total)
+    char.gain_standing_and_credits(tuning.UNDERGROUND, total)
     char.improve_skill("couriering")
     if char.db.errand:
         from world import errands
@@ -150,11 +150,11 @@ def seize_contraband(char, found_by="an officer of the Watch"):
 
 
 def buy_papers(char):
-    """Underground standing for exposure relief. Returns error string or None."""
-    if not char.spend_influence(tuning.UNDERGROUND, tuning.PAPERS_COST):
+    """Credits for exposure relief. Returns error string or None."""
+    if not char.spend_credits(tuning.PAPERS_COST):
         return (
-            f"The price is {tuning.PAPERS_COST} standing with people who "
-            "don't write ledgers down. Run more errands first."
+            f"The price is {tuning.PAPERS_COST} credits, and you don't "
+            "have it. Run more errands first."
         )
     char.gain_exposure(-tuning.PAPERS_RELIEF)
     return None
@@ -210,7 +210,7 @@ def do_sabotage(char, sensor):
     pay = tuning.SABOTAGE_INFLUENCE + (
         tuning.SABOTAGE_DARK_BONUS if room_dark else 0
     )
-    char.gain_influence(tuning.UNDERGROUND, pay)
+    char.gain_standing_and_credits(tuning.UNDERGROUND, pay)
     logger.log_info(
         f"watchlog: (unknown to the Watch) {sensor.key} sabotaged by "
         f"{char.key}{' — room dark' if room_dark else ''}"
@@ -236,10 +236,10 @@ def shadow_standing(char):
     """
     (standing, current tier, next tier, standing needed for it) — or
     (standing, tier, None, None) at the top tier. Pure function of
-    `db.influence`, same shape as `grades.next_review`; nothing here is
-    stored or cached, and none of it touches the sanctioned ledger.
+    `db.standing` (ADR 0023), same shape as `grades.next_review`; nothing
+    here is stored or cached, and none of it touches the sanctioned ledger.
     """
-    standing = (char.db.influence or {}).get(tuning.UNDERGROUND, 0)
+    standing = (char.db.standing or {}).get(tuning.UNDERGROUND, 0)
     thresholds = sorted(tuning.SHADOW_TIERS)
     current = thresholds[0]
     for threshold in thresholds:

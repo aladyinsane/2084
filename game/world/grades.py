@@ -12,10 +12,12 @@ Design rules:
 - **Sanctioned only.** The Grid ranks what the Grid can see. The underground
   ledger and the errands it pays for do not exist, so they cannot count
   (the dossier-leak lesson, learned twice already).
-- **Merit is lifetime, not balance.** Spending standing at the Annex must
-  never demote you — levels that go down when you buy things are exactly
-  the XP/gold confusion the ladder exists to prevent. `gain_influence`
-  tracks lifetime earnings separately.
+- **Merit is Standing, not Credits.** Standing (ADR 0023) is earned only,
+  never spent — spending Credits at the Annex never touches it, so buying
+  things can't demote you, the XP/gold confusion the ladder exists to
+  prevent. The one deliberate exception is a Standing-staked vouch,
+  forfeited by someone else's betrayal (`Character.forfeit_standing`) — a
+  real trust loss, not a purchase.
 - **Civil-service shape.** Grades descend toward status: Grade 6
   (probationary) down to Grade 1. The *movement* is what's familiar, and
   the prompt makes it visible.
@@ -42,10 +44,10 @@ def merit(char):
     from world import errands, functions
 
     total = 0
-    earned = char.db.influence_earned or {}
+    standing = char.db.standing or {}
     total += sum(
         value
-        for faction, value in earned.items()
+        for faction, value in standing.items()
         if faction not in tuning.UNSANCTIONED_FACTIONS
     )
     total += tuning.GRADE_MERIT_PER_ERRAND * sum(
@@ -54,7 +56,7 @@ def merit(char):
         if errands.ERRANDS.get(key, {}).get("reward_faction")
         not in tuning.UNSANCTIONED_FACTIONS
     )
-    if (char.db.standing or {}).get("function_key"):
+    if (char.db.civic_status or {}).get("function_key"):
         total += tuning.GRADE_MERIT_FUNCTION
     total += tuning.GRADE_MERIT_CLEARANCE * functions.clearance_level(char)
     if char.db.oriented:

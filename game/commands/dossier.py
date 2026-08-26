@@ -71,10 +71,10 @@ class CmdDossier(Command):
             for name, value in (caller.db.skills or {}).items()
             if name not in tuning.UNSANCTIONED_SKILLS
         }
-        standing = caller.db.standing or {}
-        influence = {
+        civic_status = caller.db.civic_status or {}
+        standing = {
             faction: value
-            for faction, value in (caller.db.influence or {}).items()
+            for faction, value in (caller.db.standing or {}).items()
             if faction not in tuning.UNSANCTIONED_FACTIONS
         }
 
@@ -90,8 +90,8 @@ class CmdDossier(Command):
             "|w" + "-" * width + "|n",
             f" Subject:   {caller.key}",
             f" Grade:     Citizen, Grade {grades.grade_of(caller)}",
-            f" Function:  {standing.get('function', '|=munassigned|n')}",
-            f" Clearance: {standing.get('clearance', 'none on record')}",
+            f" Function:  {civic_status.get('function', '|=munassigned|n')}",
+            f" Clearance: {civic_status.get('clearance', 'none on record')}",
             f" Exposure:  {caller.exposure}",
         ]
         points, nxt, threshold = grades.next_review(caller)
@@ -112,10 +112,10 @@ class CmdDossier(Command):
             )
         else:
             lines.append(" Recorded aptitudes: |=mnone observed|n")
-        if influence:
+        if standing:
             lines.append(" Standing with institutions:")
             lines.extend(
-                f"   {faction}: {value}" for faction, value in sorted(influence.items())
+                f"   {faction}: {value}" for faction, value in sorted(standing.items())
             )
         else:
             # Round-two playtest finding 2: a new citizen had no way to
@@ -123,6 +123,10 @@ class CmdDossier(Command):
             # earned some. Naming it here, at zero, is the fix; `help
             # standing` explains what it is and how it moves.
             lines.append(" Standing with institutions: |=mnone recorded yet|n")
+        # Credits (ADR 0023): a single fungible pool, always shown -- unlike
+        # Standing, fungibility itself means there's nothing to leak by
+        # showing it (a credit carries no memory of which sale earned it).
+        lines.append(f" Credits: {caller.db.credits or 0}")
 
         incidents = records.records_for(caller, kind="incident")
         visible = [
