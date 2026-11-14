@@ -65,9 +65,11 @@ def _vendors_here(room):
 
 def _stock_for(vendor, caller):
     stock = list(vendor.db.stock or [])
-    # The broker's shelf is only for people the underground knows.
+    # The broker's shelf is only for people the underground knows -- a
+    # trust gate (Standing), separate from whether the buyer can afford
+    # anything on it (Credits, checked at purchase).
     if vendor.db.stock_underground:
-        if (caller.db.influence or {}).get(tuning.UNDERGROUND, 0) > 0:
+        if (caller.db.standing or {}).get(tuning.UNDERGROUND, 0) > 0:
             stock += list(vendor.db.stock_underground)
     return stock
 
@@ -103,10 +105,10 @@ class CmdList(Command):
             lines.append(f"|c{vendor.get_display_name(caller)}|n can provide:")
             for key in stock:
                 name, slot, _, _, pitch = CATALOG[key]
-                faction, price = tuning.GEAR_PRICES[key]
+                price = tuning.GEAR_PRICES[key]
                 lines.append(
-                    f" - |w{name}|n (|c buy {key}|n): {price} standing "
-                    f"with {faction}, worn on the {slot}.\n"
+                    f" - |w{name}|n (|c buy {key}|n): {price} credits, "
+                    f"worn on the {slot}.\n"
                     f"   |=m{pitch}.|n"
                 )
         caller.msg(
@@ -127,7 +129,7 @@ class CmdBuy(Command):
     Usage:
       buy <item>
 
-    Prices are in standing, the only currency Sector 9 has ever printed.
+    Prices are in credits, the only currency Sector 9 has ever printed.
     State issue goes in your file; the other kind goes in nobody's.
     """
 
@@ -150,15 +152,15 @@ class CmdBuy(Command):
             caller.msg("Nobody here sells that. Possibly nobody anywhere does.")
             return
         name, slot, kind, desc, _ = CATALOG[key]
-        faction, price = tuning.GEAR_PRICES[key]
+        price = tuning.GEAR_PRICES[key]
         if any(g.db.gear_kind == kind for g in caller.contents):
             caller.msg("You already have one. Sector 9 is not a place of spares.")
             return
-        if not caller.spend_influence(faction, price):
+        if not caller.spend_credits(price):
             caller.msg(
-                f"The price is {price} standing with {faction}, and yours "
-                "does not stretch. Standing is earned the way everything "
-                "here is earned: visibly, or not at all."
+                f"The price is {price} credits, and yours does not "
+                "stretch. Credits are earned the way everything here is "
+                "earned: visibly, or not at all."
             )
             return
         item = create_object("typeclasses.gear.Gear", key=name, location=caller)
@@ -168,7 +170,10 @@ class CmdBuy(Command):
         item.db.slot = slot
         item.db.gear_kind = kind
         item.db.desc = desc
-        if faction != tuning.UNDERGROUND:
+        # State issue vs. off-the-books used to follow GEAR_PRICES' faction;
+        # Credits (ADR 0023) dropped that, so this now reads the same
+        # distinction _stock_for already tracks: the underground-only shelf.
+        if key not in (vendor.db.stock_underground or []):
             records.add_record(
                 caller,
                 f"Issued: {name}",

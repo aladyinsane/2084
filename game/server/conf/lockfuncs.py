@@ -50,7 +50,8 @@ def shadow_standing(accessing_obj, accessed_obj, *args, **kwargs):
     Usage: shadow_standing(N) — passes if the accessor's underground
     standing (the same number `word` reads, ADR 0009) is at least N. The
     inverse gate of clearance(): unsanctioned standing, not institutional
-    (ADR 0022).
+    (ADR 0022). Reads `db.standing`, the trust ledger (ADR 0023) — never
+    Credits, which carry no faction and gate nothing.
     """
     from world import tuning
 
@@ -58,5 +59,5 @@ def shadow_standing(accessing_obj, accessed_obj, *args, **kwargs):
         required = int(args[0])
     except (IndexError, ValueError):
         return False
-    standing = (accessing_obj.db.influence or {}).get(tuning.UNDERGROUND, 0)
+    standing = (accessing_obj.db.standing or {}).get(tuning.UNDERGROUND, 0)
     return standing >= required

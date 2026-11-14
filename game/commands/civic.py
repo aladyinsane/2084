@@ -209,12 +209,12 @@ class CmdWork(Command):
             pay += tuning.BADGE_WORK_BONUS
         if worn_kind(caller, "dampener"):
             pay = max(1, pay - tuning.DAMPENER_WORK_PENALTY)
-        total = caller.gain_influence(faction, pay)
+        total = caller.gain_standing_and_credits(faction, pay)
         caller.gain_exposure(-tuning.WORK_EXPOSURE_RELIEF)
         caller.msg(
             f"|=m{skill_name.capitalize()} {skill}. Standing with the "
-            f"{faction} {total}. Visible usefulness is its own kind of "
-            "cover.|n"
+            f"{faction} {total}. Credits: {caller.db.credits}. Visible "
+            "usefulness is its own kind of cover.|n"
         )
         caller.send_prompt()
         if caller.db.errand:
@@ -370,9 +370,9 @@ class CmdPetition(Command):
     count per petition. A landholder's survey or water allotment (ADR 0022)
     petitions the same way, by the keyword |wsurvey|n or |wallotment|n, and
     only for land actually held. Amendments and redactions are services of
-    the Ministry of Records, payable in standing with the Ministry of
-    Records, which is the sort of arrangement the Ministry finds elegant.
-    The request itself is, of course, noted.
+    the Ministry of Records, payable in credits, which is the sort of
+    arrangement the Ministry finds elegant. The request itself is, of
+    course, noted.
     """
 
     key = "petition"
@@ -427,12 +427,11 @@ class CmdPetition(Command):
                 )
                 return
             spec = tuning.COMPACTABLE_INCIDENT_TYPES[type_key]
-            if not caller.spend_influence("Ministry of Records", tuning.REDACT_COST):
+            if not caller.spend_credits(tuning.REDACT_COST):
                 caller.msg(
                     f'{archivist.key} names the consideration: '
-                    f"{tuning.REDACT_COST} standing with the Ministry of "
-                    "Records. You do not have it. The file closes with a "
-                    "sound like a small door."
+                    f"{tuning.REDACT_COST} credits. You do not have it. "
+                    "The file closes with a sound like a small door."
                 )
                 return
             if not records.redact_summary(caller, type_key):
@@ -479,12 +478,11 @@ class CmdPetition(Command):
                 return
             record = open_records[-1]
             cost = tuning.AMEND_COST if action == "amend" else tuning.REDACT_COST
-            if not caller.spend_influence("Ministry of Records", cost):
+            if not caller.spend_credits(cost):
                 caller.msg(
                     f'{archivist.key} names the consideration: {cost} '
-                    "standing with the Ministry of Records. You do not "
-                    "have it. The file closes with a sound like a small "
-                    "door."
+                    "credits. You do not have it. The file closes with a "
+                    "sound like a small door."
                 )
                 return
             if action == "amend":
@@ -528,11 +526,11 @@ class CmdPetition(Command):
             return
 
         cost = tuning.AMEND_COST if action == "amend" else tuning.REDACT_COST
-        if not caller.spend_influence("Ministry of Records", cost):
+        if not caller.spend_credits(cost):
             caller.msg(
-                f'{archivist.key} names the consideration: {cost} standing '
-                "with the Ministry of Records. You do not have it. The file "
-                "closes with a sound like a small door."
+                f'{archivist.key} names the consideration: {cost} credits. '
+                "You do not have it. The file closes with a sound like a "
+                "small door."
             )
             return
 
@@ -861,16 +859,23 @@ def _citizen_here(caller, name):
 
 class CmdVouch(Command):
     """
-    Stake a little of your standing on someone else's name.
+    Stake something of yours on someone else's name.
 
     Usage:
       vouch <citizen>
+      vouch <citizen> with credits
+      vouch <citizen> with standing
 
     A character reference, and nothing more official than that: no form,
-    no dead zone, no consent required of the one you name. It costs a
-    little Ministry of Records standing, returned to you in full if you
-    change your mind (|cunvouch|n) or take back if the citizen you named
-    ever completes Section C themselves. One name against yours at a time.
+    no dead zone, no consent required of the one you name. Choose what you
+    risk: |ccredits|n (the default) are spent now and returned in full if
+    you change your mind (|cunvouch|n) or lost outright if the citizen you
+    named ever completes Section C themselves — the low-stakes option, and
+    the one most citizens should start with. |cstanding|n stakes trust
+    instead: nothing is taken from you now, but a Section C against the
+    citizen you named costs you real, permanent Standing with the Ministry
+    of Records — worth more to the citizen you're backing, and worth more
+    to lose. One name against yours at a time.
     """
 
     key = "vouch"
@@ -881,15 +886,21 @@ class CmdVouch(Command):
         from world import vouching
 
         caller = self.caller
-        name = (self.args or "").strip()
+        args = (self.args or "").strip()
+        name, _, resource_part = args.partition(" with ")
+        name = name.strip()
+        resource = resource_part.strip().lower() or "credits"
         if not name:
-            caller.msg("Usage: vouch <citizen>")
+            caller.msg("Usage: vouch <citizen> [with credits|with standing]")
+            return
+        if resource not in ("credits", "standing"):
+            caller.msg("Usage: vouch <citizen> [with credits|with standing]")
             return
         target = _citizen_here(caller, name)
         if not target:
             caller.msg("Nobody here answers to that, worth the risk or not.")
             return
-        err = vouching.vouch(caller, target)
+        err = vouching.vouch(caller, target, resource)
         if err:
             caller.msg(err)
             return
@@ -911,9 +922,10 @@ class CmdUnvouch(Command):
     Usage:
       unvouch
 
-    Withdraws your active vouch and returns the standing you staked, in
-    full, no penalty. Whatever you told them, or didn't, that's between
-    you.
+    Withdraws your active vouch. If you staked credits, they're returned
+    in full, no penalty. If you staked standing, nothing was ever taken —
+    withdrawing just ends the risk. Whatever you told them, or didn't,
+    that's between you.
     """
 
     key = "unvouch"

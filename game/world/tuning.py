@@ -256,11 +256,14 @@ ERRAND_REWARD_MEDIUM = 3
 # The want-ladder (fun-and-game-feel.md dullness #5). Every item is a
 # trade, never a straight upgrade — 3M's memory-slot lesson, worn instead
 # of implanted because Airstrip One is an analog place.
+# Priced in Credits only (ADR 0023) — a single fungible pool, so gear no
+# longer needs a faction to draw from; which Ministry sells a piece is
+# flavor, not a wallet.
 GEAR_PRICES = {
-    "badge": ("Ministry of Records", 5),
-    "cuff": ("Ministry of Records", 4),
-    "dampener": (UNDERGROUND, 8),
-    "pocket": (UNDERGROUND, 5),
+    "badge": 5,
+    "cuff": 4,
+    "dampener": 8,
+    "pocket": 5,
 }
 BADGE_WORK_BONUS = 1        # the badge pays better at the counter...
 BADGE_VIS_THRESHOLD = 3     # ...and identifies you in watched rooms:
@@ -287,8 +290,8 @@ DIGEST_MAX_ENTRIES = 3
 # to 1. Threshold = merit required to reach that grade.
 GRADE_THRESHOLDS = {5: 4, 4: 15, 3: 35, 2: 65, 1: 100}
 
-# Merit sources. Lifetime sanctioned influence counts 1:1 (tracked in
-# db.influence_earned so spending never demotes); the rest are flat.
+# Merit sources. Sanctioned Standing counts 1:1 (ADR 0023: earned only,
+# never spent, so buying things never demotes); the rest are flat.
 GRADE_MERIT_PER_ERRAND = 3   # per completed *sanctioned* errand
 GRADE_MERIT_FUNCTION = 5     # holding a function
 GRADE_MERIT_CLEARANCE = 10   # per clearance level held

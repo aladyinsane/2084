@@ -121,7 +121,7 @@ class CmdNext(Command):
 
     @staticmethod
     def _advice(caller, errands, tuning):
-        standing = caller.db.standing or {}
+        civic_status = caller.db.civic_status or {}
         # An active errand is always the first answer: finish what you hold.
         state = errands.current(caller)
         if state:
@@ -140,7 +140,7 @@ class CmdNext(Command):
                 "Assignment Hall, it is five rooms long, and the Grid "
                 "credits it toward your first reclassification."
             )
-        if not standing.get("function_key"):
+        if not civic_status.get("function_key"):
             return (
                 "you are unassigned. |creport|n at the Assignment Hall "
                 "counter and the Grid will read your file and decide "

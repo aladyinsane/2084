@@ -80,10 +80,10 @@ def assign_function(char):
     else:
         key = "steward"
     spec = FUNCTIONS[key]
-    standing = char.db.standing or {}
-    standing["function"] = spec["title"]
-    standing["function_key"] = key
-    char.db.standing = standing
+    civic_status = char.db.civic_status or {}
+    civic_status["function"] = spec["title"]
+    civic_status["function_key"] = key
+    char.db.civic_status = civic_status
     from world import grades
 
     grades.check_reclassification(char)
@@ -91,16 +91,16 @@ def assign_function(char):
 
 
 def current_function(char):
-    key = (char.db.standing or {}).get("function_key")
+    key = (char.db.civic_status or {}).get("function_key")
     return (key, FUNCTIONS[key]) if key in FUNCTIONS else (None, None)
 
 
 def suspend_function(char):
-    standing = char.db.standing or {}
-    if standing.get("function_key"):
-        standing["function"] = "|=msuspended pending review|n"
-        standing.pop("function_key", None)
-        char.db.standing = standing
+    civic_status = char.db.civic_status or {}
+    if civic_status.get("function_key"):
+        civic_status["function"] = "|=msuspended pending review|n"
+        civic_status.pop("function_key", None)
+        char.db.civic_status = civic_status
         from world import grades
 
         grades.check_reclassification(char)
@@ -110,7 +110,7 @@ def suspend_function(char):
 
 def clearance_level(char):
     """Numeric clearance: 'C-2' -> 2; anything else -> 0."""
-    value = (char.db.standing or {}).get("clearance", "")
+    value = (char.db.civic_status or {}).get("clearance", "")
     if isinstance(value, str) and value.startswith("C-"):
         try:
             return int(value.split("-", 1)[1])
@@ -152,9 +152,9 @@ def adjudicate_c1(char):
 
 
 def grant_c1(char):
-    standing = char.db.standing or {}
-    standing["clearance"] = "C-1"
-    char.db.standing = standing
+    civic_status = char.db.civic_status or {}
+    civic_status["clearance"] = "C-1"
+    char.db.civic_status = civic_status
     char.gain_exposure(tuning.CLEARANCE_GRANT_EXPOSURE)
     from world import grades
 
@@ -192,9 +192,9 @@ def adjudicate_c2(char):
 
 
 def grant_c2(char):
-    standing = char.db.standing or {}
-    standing["clearance"] = "C-2"
-    char.db.standing = standing
+    civic_status = char.db.civic_status or {}
+    civic_status["clearance"] = "C-2"
+    char.db.civic_status = civic_status
     char.gain_exposure(tuning.CLEARANCE_C2_GRANT_EXPOSURE)
     from world import grades
 

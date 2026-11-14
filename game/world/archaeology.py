@@ -153,12 +153,13 @@ def _draw_generic_fragment(char):
 def _complete_generic(char, case):
     lines = " ".join(GENERIC_FRAGMENTS[i] for i in case["found"])
     char.db.archaeology_case = None
-    char.gain_influence(tuning.UNDERGROUND, tuning.CASE_COMPLETION_PAYOUT)
+    char.gain_standing_and_credits(tuning.UNDERGROUND, tuning.CASE_COMPLETION_PAYOUT)
     char.msg(
         f"|g[The shape completes itself: {case['name']}.]|n\n{lines}\n"
         "|=mWhoever they were, the file remembers less of them than you "
         f"just did. {tuning.CASE_COMPLETION_PAYOUT} standing with "
-        f"{tuning.UNDERGROUND}, for the noticing.|n"
+        f"{tuning.UNDERGROUND}, {tuning.CASE_COMPLETION_PAYOUT} credits, "
+        "for the noticing.|n"
     )
 
 
@@ -212,13 +213,13 @@ def _complete_named(char, key):
     progress = char.db.archaeology_named or {}
     progress.pop(key, None)
     char.db.archaeology_named = progress
-    char.gain_influence(tuning.UNDERGROUND, tuning.NAMED_CASE_PAYOUT)
+    char.gain_standing_and_credits(tuning.UNDERGROUND, tuning.NAMED_CASE_PAYOUT)
     char.msg(
         f"|g[The shape completes itself: {spec['title']}.]|n\n"
         f"{spec['reveal']}\n"
         "|=mYou know something the file no longer says. "
         f"{tuning.NAMED_CASE_PAYOUT} standing with {tuning.UNDERGROUND}, "
-        "for knowing it.|n"
+        f"{tuning.NAMED_CASE_PAYOUT} credits, for knowing it.|n"
     )
 
 
@@ -232,7 +233,7 @@ def research(char):
     gating and the archivist's presence; this handles everything past that.
     """
     char.improve_skill("clerking")
-    char.gain_influence("Ministry of Records", tuning.RESEARCH_INFLUENCE)
+    char.gain_standing_and_credits("Ministry of Records", tuning.RESEARCH_INFLUENCE)
     rare_chance = tuning.RESEARCH_RARE_BASE_CHANCE + (
         char.skill("clerking") * tuning.RESEARCH_RARE_SKILL_BONUS
     )

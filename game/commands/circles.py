@@ -466,11 +466,10 @@ class CmdFlip(Command):
       flip <someone>
 
     A plant can be turned: everyone in the listening trade has a price,
-    and the Ministry's stipend is famously late. It costs standing with the
-    Ministry of Commerce (ration chits are the only currency that never
-    asks questions), and it requires knowing *for certain* what you are
-    buying: flip someone you have misread and you have just introduced
-    yourself to the Watch.
+    and the Ministry's stipend is famously late. It costs credits (ration
+    chits are the only currency that never asks questions), and it
+    requires knowing *for certain* what you are buying: flip someone you
+    have misread and you have just introduced yourself to the Watch.
     """
 
     key = "flip"
@@ -496,11 +495,10 @@ class CmdFlip(Command):
                 "Save the chits."
             )
             return
-        if not caller.spend_influence("Ministry of Commerce", tuning.FLIP_COST):
+        if not caller.spend_credits(tuning.FLIP_COST):
             caller.msg(
-                f"The price is {tuning.FLIP_COST} standing with the "
-                "Ministry of Commerce, and you do not have it. Loyalty is "
-                "a commodity; commodities are prepaid."
+                f"The price is {tuning.FLIP_COST} credits, and you do not "
+                "have it. Loyalty is a commodity; commodities are prepaid."
             )
             return
         target.db.loyalty = "street"

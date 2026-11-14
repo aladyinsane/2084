@@ -54,7 +54,7 @@ _ACKNOWLEDGMENTS = {
         "is official, which is exactly why it's worth hearing.|n"
     ),
     "petition": (
-        "|=mThe sanctioned route: standing spent, a stamp applied, the "
+        "|=mThe sanctioned route: credits spent, a stamp applied, the "
         "past improved. The request itself joins the file, same as "
         "everything else.|n"
     ),
@@ -73,8 +73,8 @@ _ACKNOWLEDGMENTS = {
         "Section C, your name goes with theirs.|n"
     ),
     "unvouch": (
-        "|=mYour name, taken back, standing returned in full. Nothing "
-        "was ever written down.|n"
+        "|=mYour name, taken back, whatever you staked returned in full. "
+        "Nothing was ever written down.|n"
     ),
     "list": (
         "|=mWhat's for sale, and to whom. Not every counter shows every "

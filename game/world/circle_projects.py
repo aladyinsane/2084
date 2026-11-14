@@ -148,12 +148,12 @@ def _complete(slug):
         return
     name = circles.circle_name(slug)
     for member in members:
-        member.gain_influence(tuning.UNDERGROUND, share)
+        member.gain_standing_and_credits(tuning.UNDERGROUND, share)
     for member in circles.online_members(slug):
         member.msg(
             f"|g[{name}: The Split.]|n Whatever it was, it's done, and "
             f"it's yours now: {share} standing with {tuning.UNDERGROUND} "
-            "apiece, no ledger anywhere that says so."
+            f"and {share} credits apiece, no ledger anywhere that says so."
         )
     logger.log_info(
         f"watchlog: (unknown to the Watch) circle project completed: "

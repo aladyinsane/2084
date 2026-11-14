@@ -118,9 +118,9 @@ HELP_ENTRY_DICTS = [
               are. It is not necessarily what happened. That distinction
               is most of the game.
             - Sanctioned life: |creport|n for a function, |cwork|n your
-              post, earn |cstanding|n, |cpetition|n corrections,
-              |capply|n for clearance, attend assemblies when the
-              loudspeakers say so.
+              post, earn |cstanding|n and |ccredits|n, |cpetition|n
+              corrections, |capply|n for clearance, attend assemblies
+              when the loudspeakers say so.
             - The rest of life is taught elsewhere. Rooms explain
               themselves; read them. The Orientation Wing (east of the
               Assignment Hall) is the sanctioned classroom. Sector 9 has
@@ -129,28 +129,54 @@ HELP_ENTRY_DICTS = [
     },
     {
         "key": "standing",
-        "aliases": ["influence"],
         "category": _CATEGORY,
         "text": """
-            The other ledger, separate from |wExposure|n (|chelp
-            exposure|n) and separate from your |wgrade|n (|chelp grade|n).
-            Standing is kept per institution: the Ministry of Records, the
+            Trust, kept per institution: the Ministry of Records, the
             Ministry of Commerce, whichever office last had a use for you.
+            Separate from |wExposure|n (|chelp exposure|n), separate from
+            your |wgrade|n (|chelp grade|n), and separate from |wcredits|n
+            (|chelp credits|n) — standing is never spent.
 
             |wHow it's earned:|n |cwork|n your assigned post, complete an
             institution's errands (|cerrands|n), or |creport|n and take a
             function in the first place. Each pays standing with the
-            institution that asked.
+            institution that asked — and pays credits alongside it
+            (|chelp credits|n).
 
-            |wHow it's spent:|n |cpetition|n (amend your file),
-            |cforge|n's sanctioned cousin; |capply|n for clearance; the
-            Annex's other services. Spending standing never lowers your
-            grade: merit is separate and lifetime (|chelp grade|n).
+            |wHow it moves down:|n it doesn't, from anything you do
+            yourself. The one exception: staking standing on a |cvouch|n
+            costs you real standing if the citizen you backed later
+            confesses (|chelp vouch|n). Nothing else touches it, and
+            spending never lowers your grade either way: merit is
+            standing, lifetime (|chelp grade|n).
 
             |wWhere to see it:|n |cdossier|n lists "Standing with
             institutions" once you've earned any. Nothing is owed you
             before then; a citizen with no standing has simply not yet
             been useful to anyone in particular.
+        """,
+    },
+    {
+        "key": "credits",
+        "category": _CATEGORY,
+        "text": """
+            The Grid's money: one fungible pool, not kept per institution.
+            Separate from |wstanding|n (|chelp standing|n) — spending
+            credits never touches your trust with anyone, and standing
+            never buys anything directly.
+
+            |wHow it's earned:|n every |cwork|n shift, errand, and
+            underground job pays credits alongside standing, the same
+            amount, automatically. There is no separate credits grind.
+
+            |wHow it's spent:|n |cbuy|n gear from a vendor, |cpetition|n
+            (amend or redact your file), |capply|n for clearance, |cflip|n
+            an informant, |cpapers|n from the underground broker — every
+            price in Sector 9 is a credits price now, sanctioned or not.
+
+            |wWhere to see it:|n |cdossier|n lists your Credits balance,
+            always — a credit carries no record of which sale earned it,
+            so there's nothing about it the file could leak.
         """,
     },
     {

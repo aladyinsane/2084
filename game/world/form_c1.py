@@ -23,8 +23,8 @@ def node_start(caller):
         _HEADER
         + "The archivist produces the form from a drawer that unsticks with "
         "practice, and squares it on the counter.\n\n"
-        f"Filing fee: |w{tuning.CLEARANCE_FEE}|n standing with the Ministry "
-        "of Records, payable on submission whatever the outcome. Grade C-1 "
+        f"Filing fee: |w{tuning.CLEARANCE_FEE}|n credits, payable on "
+        "submission whatever the outcome. Grade C-1 "
         "admits the holder to the Central Spire lobby, and to such further "
         "opportunities as the Grid sees fit to see fit."
     )
@@ -92,12 +92,12 @@ def node_withdraw(caller):
 
 
 def node_adjudicate(caller):
-    if not caller.spend_influence("Ministry of Records", tuning.CLEARANCE_FEE):
+    if not caller.spend_credits(tuning.CLEARANCE_FEE):
         text = (
             "The archivist reads your ledger upside down without effort.\n\n"
-            f'"The filing fee is {tuning.CLEARANCE_FEE} standing with the '
-            "Ministry of Records. The Ministry does not extend credit; "
-            'credit implies a future, which is not the Ministry\'s to give."\n\n'
+            f'"The filing fee is {tuning.CLEARANCE_FEE} credits. The '
+            "Ministry does not extend credit; credit implies a future, "
+            'which is not the Ministry\'s to give."\n\n'
             "The form goes back in the drawer, unsubmitted."
         )
         return text, None
