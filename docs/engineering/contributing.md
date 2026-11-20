@@ -5,7 +5,7 @@
 ```powershell
 cd C:\dev\2084
 py -m venv .venv
-.venv\Scripts\pip install evennia
+.venv\Scripts\pip install -r requirements.txt
 cd game
 ..\.venv\Scripts\evennia migrate      # creates the SQLite db + superuser prompt
 ..\.venv\Scripts\evennia start
